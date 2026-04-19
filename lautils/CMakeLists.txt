@@ -9,6 +9,7 @@ add_library(lautils STATIC
     src/bitwalker.c
     src/parser.c
     src/fdwalker.c
+    src/object.c
 )
 
 target_include_directories(lautils
