@@ -49,7 +49,7 @@
 
 #define LAO_BASE_HEADER_MAGIC_VALID(header) (header->magic == LAO_MAGIC)
 #define LAO_BASE_HEADER_VERSION_VALID(header) (header->version == LAO_VERSION_NEWEST)
-#define LAO_BASE_HEADER_ARCH_VALIC(header) (header->arch == LAO_ARCH_LA64)
+#define LAO_BASE_HEADER_ARCH_VALID(header) (header->arch == LAO_ARCH_LA64)
 #define LAO_BASE_HEADER_ABI_VALID(header) (header->abi == LAO_ABI_BOOTIMG)
 #define LAO_BASE_HEADER_TYPE_VALID(header) (header->type == LAO_TYPE_OBJECT || header->type == LAO_TYPE_EXECUTABLE) /* once library support is there we can make truly use out of the bitmask */
 
@@ -69,29 +69,51 @@
 #define LAO_SECTION_PROT_KTRR    0b00010000 /* Kernel Text Read-Only Region (a comming soon features of LA64) */
 #define LAO_SECTION_PROT_ALL     0b00011111 /* for validity checks */
 
+#define LAO_SECTION_MAP_NONE     0x0 /* maps nothing */
+#define LAO_SECTION_MAP_FIXED    0x1 /* maps to a fixed address */
+#define LAO_SECTION_MAP_RANDOM   0x2 /* maps at a random address within the available address space of the architecture in LA64 that is within a 53bit address space */
+#define LAO_SECTION_MAP_ALIGN    0x3 /* maps alligned next to the last mapped page */
+#define LAO_SECTION_MAP_DEFAULT  LAO_SECTION_MAP_ALIGN
+
+/**** RELOCATION MACROS ****/
+
+#define LAO_RELOC_TYPE_ABSOLUTE 0x0         /* absoloute offset in image */
+#define LAO_RELOC_TYPE_REL2PAGE 0x1         /* takes page start and appends address to it */
+#define LAO_RELOC_TYPE_GOT      0x2         /* ignored by static linker, but not by dynamic linker */
+
+/**** TYPES ****/
+
+typedef uint16_t off16_t;
+typedef uint32_t off32_t;
+typedef uint64_t off64_t;
+
+typedef uint16_t idx16_t;
+typedef uint32_t idx32_t;
+
 /**** STRUCTURES ****/
 
 /* MARK: symbol table */
 
 typedef struct __attribute__((packed)) lao_symbol_entry {
-    uint64_t name_offset;
-    uint64_t symbol_offset;
+    idx32_t name_index;
+    off64_t symbol_offset;
 } lao_symbol_entry_t;
 
 typedef struct __attribute__((packed)) lao_symbol_table {
-    uint32_t count;
+    idx32_t count;
     /* symbol entrie's start right after */
 } lao_symbol_table_t;
 
 /* MARK: reloc table */
 
 typedef struct __attribute__((packed)) lao_reloc_table_entry {
-    uint32_t symbol_index;
-    uint32_t placeholder_offset;
+    idx32_t symbol_index;   /* depends on type, either a index in symbol table or a index in string table */
+    off64_t placeholder_offset;
+    uint8_t type;
 } lao_reloc_table_entry_t;
 
 typedef struct __attribute__((packed)) lao_reloc_table {
-    uint32_t count;
+    idx32_t count;
     /* reloc entrie's start right after */
 } lao_reloc_table_t;
 
@@ -100,11 +122,14 @@ typedef struct __attribute__((packed)) lao_reloc_table {
 typedef struct __attribute__((packed)) lao_section_table_entry {
     uint8_t type;
     uint8_t prot;
-    uint64_t size;
+    uint8_t map;
+    off64_t vaddr;  /* if fixed the page will load at that specific location */
+    off64_t start;
+    off64_t size;
 } lao_section_table_entry_t;
 
 typedef struct __attribute__((packed)) lao_section_table {
-    uint32_t count;
+    idx32_t count;
     /* section entrie's start right after */
 } lao_section_table_t;
 
@@ -120,12 +145,12 @@ typedef struct __attribute__((packed)) lao_base_header {
 } lao_base_header_t;
 
 typedef struct __attribute__((packed)) lao_header64 {
-    uint64_t string_table_offset;
-    uint64_t symbol_table_offset;
-    uint64_t section_table_offset;
-    uint64_t reloc_table_offset;
-    uint64_t start_offset;          /* in executables that is the CPU's "I jump there" offset */
+    off64_t symbol_table_offset;
+    off64_t section_table_offset;
+    off64_t reloc_table_offset;
+    off64_t start_offset;          /* in executables that is the CPU's "I jump there" offset */
+    idx32_t string_table_pages_count;
+    /* string table pages start right after and after string table the other tables and data */
 } lao_header64_t;
 
 #endif /* LAUTILS_OBJECT_H */
-
