@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LAUTILS_OBJECT_H
-#define LAUTILS_OBJECT_H
+#ifndef EMEXUTILS_OBJECT_H
+#define EMEXUTILS_OBJECT_H
 
 #include <stdint.h>
 
@@ -179,4 +179,4 @@ _Static_assert(sizeof(lao_section_table_t) == 8,  "lao_section_table size");
 _Static_assert(sizeof(lao_base_header_t) == 8,  "lao_base_header size");
 _Static_assert(sizeof(lao_header64_t) == 40, "lao_header64 size");
 
-#endif /* LAUTILS_OBJECT_H */
+#endif /* EMEXUTILS_OBJECT_H */

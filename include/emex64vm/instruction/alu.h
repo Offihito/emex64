@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_INSTRUCTION_ALU_H
-#define LA64VM_INSTRUCTION_ALU_H
+#ifndef EMEX64VM_INSTRUCTION_ALU_H
+#define EMEX64VM_INSTRUCTION_ALU_H
 
 #include <emex64vm/core.h>
 
@@ -50,4 +50,4 @@ void la64_op_bswapw(la64_core_t *core);
 void la64_op_bswapd(la64_core_t *core);
 void la64_op_bswapq(la64_core_t *core);
 
-#endif /* LA64VM_INSTRUCTION_ALU_H */
+#endif /* EMEX64VM_INSTRUCTION_ALU_H */

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_TYPE_H
-#define LA64ASM_TYPE_H
+#ifndef EMEX64ASM_TYPE_H
+#define EMEX64ASM_TYPE_H
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -97,4 +97,4 @@ typedef struct compiler_invocation {
     const char *start_entry_name;           /* default: _start */
 } compiler_invocation_t;
 
-#endif /* LA64ASM_TYPE_H */
+#endif /* EMEX64ASM_TYPE_H */

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_MEMORY_H
-#define LA64VM_MEMORY_H
+#ifndef EMEX64VM_MEMORY_H
+#define EMEX64VM_MEMORY_H
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -45,4 +45,4 @@ void *la64_memory_access(la64_core_t *core, uint64_t addr, size_t size);
 bool la64_memory_read(la64_core_t *core, uint64_t addr, size_t size, uint64_t *value);
 bool la64_memory_write(la64_core_t *core, uint64_t addr, uint64_t value, size_t size);
 
-#endif /* LA64VM_MEMORY_H */
+#endif /* EMEX64VM_MEMORY_H */

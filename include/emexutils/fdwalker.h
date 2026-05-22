@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef FDWALKER_H
-#define FDWALKER_H
+#ifndef EMEXUTILS_FDWALKER_H
+#define EMEXUTILS_FDWALKER_H
 
 #include <emexutils/bitwalker.h>
 
@@ -52,4 +52,4 @@ size_t fdwalker_bytes_used(const fdwalker_t *fw);
 
 void fdwalker_align_byte(fdwalker_t *fw);
 
-#endif /* FDWALKER_H */
+#endif /* EMEXUTILS_FDWALKER_H */

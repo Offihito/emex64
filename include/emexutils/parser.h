@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LAUTILS_PARSER_H
-#define LAUTILS_PARSER_H
+#ifndef EMEXUTILS_PARSER_H
+#define EMEXUTILS_PARSER_H
 
 #include <stdint.h>
 
@@ -44,4 +44,4 @@ typedef struct parsed_type_return {
 
 parser_return_t parse_value_from_string(const char *s);
 
-#endif /* LAUTILS_PARSER_H */
+#endif /* EMEXUTILS_PARSER_H */

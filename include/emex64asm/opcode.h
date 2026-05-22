@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_OPCODE_H
-#define LA64ASM_OPCODE_H
+#ifndef EMEX64ASM_OPCODE_H
+#define EMEX64ASM_OPCODE_H
 
 #include <emex64vm/core.h>
 
@@ -64,4 +64,4 @@ typedef struct {
 const opcode_entry_t *opcode_from_string(const char *name);
 bool opcode_arg_accepts_reg_only(const opcode_entry_t *opce, uint8_t arg);
 
-#endif /* LA64ASM_OPCODE_H */
+#endif /* EMEX64ASM_OPCODE_H */

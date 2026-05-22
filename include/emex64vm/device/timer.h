@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_DEVICE_TIMER_H
-#define LA64VM_DEVICE_TIMER_H
+#ifndef EMEX64VM_DEVICE_TIMER_H
+#define EMEX64VM_DEVICE_TIMER_H
 
 #include <stdint.h>
 #include <emex64vm/core.h>
@@ -64,4 +64,4 @@ uint64_t la64_get_host_cycles(void);
 uint64_t la64_timer_read(la64_core_t *core, void *device, uint64_t offset, int size);
 void la64_timer_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
-#endif /* LA64VM_DEVICE_TIMER_H */
+#endif /* EMEX64VM_DEVICE_TIMER_H */

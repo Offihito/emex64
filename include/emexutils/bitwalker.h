@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef BITWALKER_H
-#define BITWALKER_H
+#ifndef EMEXUTILS_BITWALKER_H
+#define EMEXUTILS_BITWALKER_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -59,4 +59,4 @@ size_t bitwalker_bytes_used(const bitwalker_t *bw);
 
 void bitwalker_align_byte(bitwalker_t *bw);
 
-#endif /* BITWALKER_H */
+#endif /* EMEXUTILS_BITWALKER_H */

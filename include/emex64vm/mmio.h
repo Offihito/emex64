@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_MMIO_H
-#define LA64VM_MMIO_H
+#ifndef EMEX64VM_MMIO_H
+#define EMEX64VM_MMIO_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -57,4 +57,4 @@ void la64_mmio_dealloc(la64_mmio_bus_t *bus);
 bool la64_mmio_register(la64_mmio_bus_t *bus, uint64_t base, uint64_t size, void *device, mmio_read_fn read, mmio_write_fn write);
 la64_mmio_region_t *la64_mmio_find(la64_mmio_bus_t *bus, uint64_t addr);
 
-#endif /* LA64VM_MMIO_H */
+#endif /* EMEX64VM_MMIO_H */

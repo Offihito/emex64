@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_COMPILER_H
-#define LA64ASM_COMPILER_H
+#ifndef EMEX64ASM_COMPILER_H
+#define EMEX64ASM_COMPILER_H
 
 #include <emex64asm/type.h>
 
 compiler_invocation_t *compiler_invocation_alloc(const char *output_path);
 void compiler_invocation_dealloc(compiler_invocation_t *ci);
 
-#endif /* LA64ASM_COMPILER_H */
+#endif /* EMEX64ASM_COMPILER_H */

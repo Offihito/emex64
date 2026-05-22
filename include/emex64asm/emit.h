@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_EMIT_H
-#define LA64ASM_EMIT_H
+#ifndef EMEX64ASM_EMIT_H
+#define EMEX64ASM_EMIT_H
 
 #include <emex64vm/core.h>
 #include <emex64vm/memory.h>
@@ -60,4 +60,4 @@ bool la64_compiler_emit_instr_default(const opcode_entry_t *opce, compiler_line_
 bool la64_compiler_emit(compiler_line_t *cl);
 bool la64_compiler_emit_all(compiler_invocation_t *ci);
 
-#endif /* LA64ASM_EMIT_H */
+#endif /* EMEX64ASM_EMIT_H */

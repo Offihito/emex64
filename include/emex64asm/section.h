@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_SECTION_H
-#define LA64ASM_SECTION_H
+#ifndef EMEX64ASM_SECTION_H
+#define EMEX64ASM_SECTION_H
 
 #include <emex64asm/type.h>
 
 void code_token_section(compiler_invocation_t *ci);
 void code_remove_sections(compiler_invocation_t *ci);
 
-#endif /* LA64ASM_SECTION_H */
+#endif /* EMEX64ASM_SECTION_H */

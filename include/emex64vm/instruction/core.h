@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_INSTRUCTION_CORE_H
-#define LA64VM_INSTRUCTION_CORE_H
+#ifndef EMEX64VM_INSTRUCTION_CORE_H
+#define EMEX64VM_INSTRUCTION_CORE_H
 
 #include <emex64vm/core.h>
 
 void la64_op_hlt(la64_core_t *core);
 void la64_op_nop(la64_core_t *core);
 
-#endif /* LA64VM_INSTRUCTION_CORE_H */
+#endif /* EMEX64VM_INSTRUCTION_CORE_H */

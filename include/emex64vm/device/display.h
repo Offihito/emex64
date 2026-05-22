@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_DEVICE_DISPLAY_H
-#define LA64VM_DEVICE_DISPLAY_H
+#ifndef EMEX64VM_DEVICE_DISPLAY_H
+#define EMEX64VM_DEVICE_DISPLAY_H
 
 /* the apple and linux part yayy */
 #if defined(__linux__) || defined(__APPLE__)
@@ -91,4 +91,4 @@ void la64_fb_write(la64_core_t *core, void *device, uint64_t offset, uint64_t va
 
 #endif /* __APPLE__ */
 
-#endif /* LA64VM_DEVICE_DISPLAY_H */
+#endif /* EMEX64VM_DEVICE_DISPLAY_H */

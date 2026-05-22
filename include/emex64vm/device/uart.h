@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_DEVICE_UART_H
-#define LA64VM_DEVICE_UART_H
+#ifndef EMEX64VM_DEVICE_UART_H
+#define EMEX64VM_DEVICE_UART_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -69,4 +69,4 @@ void la64_uart_dealloc(la64_uart_t *u);
 uint64_t la64_uart_read(la64_core_t *core, void *device, uint64_t offset, int size);
 void la64_uart_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
-#endif /* LA64VM_DEVICE_UART_H */
+#endif /* EMEX64VM_DEVICE_UART_H */

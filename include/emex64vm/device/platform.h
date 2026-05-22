@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_DEVICE_PLATFORM_H
-#define LA64VM_DEVICE_PLATFORM_H
+#ifndef EMEX64VM_DEVICE_PLATFORM_H
+#define EMEX64VM_DEVICE_PLATFORM_H
 
 #include <stdint.h>
 
@@ -37,4 +37,4 @@ typedef struct la64_core la64_core_t;
 uint64_t la64_platform_read(la64_core_t *core, void *device, uint64_t offset, int size);
 void la64_platform_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
-#endif /* LA64VM_DEVICE_PLATFORM_H */
+#endif /* EMEX64VM_DEVICE_PLATFORM_H */

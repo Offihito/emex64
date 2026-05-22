@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_REGISTER_H
-#define LA64ASM_REGISTER_H
+#ifndef EMEX64ASM_REGISTER_H
+#define EMEX64ASM_REGISTER_H
 
 #include <emex64vm/core.h>
 
@@ -34,4 +34,4 @@ typedef struct {
 
 register_entry_t *register_from_string(const char *name);
 
-#endif /* LA64ASM_REGISTER_H */
+#endif /* EMEX64ASM_REGISTER_H */

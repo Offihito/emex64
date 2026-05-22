@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2026 cr4zyengineer
+ * Copyright (c) 2026 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_MMU_H
-#define LA64VM_MMU_H
+#ifndef EMEX64VM_MMU_H
+#define EMEX64VM_MMU_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -55,4 +55,4 @@ typedef uint64_t la64_mmu_pfn_t;
 
 bool la64_mmu_access(la64_core_t *core, uint64_t vaddr, uint8_t acc, uint64_t *paddr);
 
-#endif /* LA64VM_MMU_H */
+#endif /* EMEX64VM_MMU_H */

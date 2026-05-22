@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_MACHINE_H
-#define LA64VM_MACHINE_H
+#ifndef EMEX64VM_MACHINE_H
+#define EMEX64VM_MACHINE_H
 
 #include <emex64vm/core.h>
 #include <emex64vm/memory.h>
@@ -54,4 +54,4 @@ typedef struct la64_machine {
 la64_machine_t *la64_machine_alloc(uint64_t memory_size);
 void la64_machine_dealloc(la64_machine_t *machine);
 
-#endif /* LA64VM_MACHINE_H */
+#endif /* EMEX64VM_MACHINE_H */

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_CMPTOK_H
-#define LA64ASM_CMPTOK_H
+#ifndef EMEX64ASM_CMPTOK_H
+#define EMEX64ASM_CMPTOK_H
 
 #define CMPTOK_LENGHT_MAX               2048    /* if anyone comes close to that size, bro pls fix your variable naming style O.O */
 
@@ -47,4 +47,4 @@ typedef struct {
 
 cmptok_return_t cmptok(const char *token);
 
-#endif /* LA64ASM_CMPTOK_H */
+#endif /* EMEX64ASM_CMPTOK_H */

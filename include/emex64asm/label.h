@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_LABEL_H
-#define LA64ASM_LABEL_H
+#ifndef EMEX64ASM_LABEL_H
+#define EMEX64ASM_LABEL_H
 
 #define COMPILER_LABEL_NOT_FOUND 0x0
 
@@ -35,4 +35,4 @@ void code_token_label_insert_start(compiler_invocation_t *ci);
 
 uint64_t label_lookup(compiler_invocation_t *ci, const char *name);
 
-#endif /* LA64ASM_LABEL_H */
+#endif /* EMEX64ASM_LABEL_H */

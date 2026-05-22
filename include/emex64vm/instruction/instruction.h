@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef LA64VM_INSTRUCTION_H
-#define LA64VM_INSTRUCTION_H
+#ifndef EMEX64VM_INSTRUCTION_H
+#define EMEX64VM_INSTRUCTION_H
 
 #define la64_instr_termcond(case)                                               \
     if(case)                                                                    \
@@ -32,4 +32,4 @@
         return;                                                                 \
     }    
 
-#endif /* LA64VM_INSTRUCTION_H */
+#endif /* EMEX64VM_INSTRUCTION_H */

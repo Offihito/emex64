@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 cr4zyengineer
+ * Copyright (c) 2024 emexlab
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef LA64ASM_CODE_H
-#define LA64ASM_CODE_H
+#ifndef EMEX64ASM_CODE_H
+#define EMEX64ASM_CODE_H
 
 #include <stdlib.h>
 #include <emex64asm/type.h>
 
 void code_tokengen(compiler_invocation_t *ci, const char **filev, int filec);
 
-#endif /* LA64ASM_CODE_H */
+#endif /* EMEX64ASM_CODE_H */
