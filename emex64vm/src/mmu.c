@@ -35,6 +35,8 @@ static bool la64_mmu_access_ctable(la64_core_t *core,
     la64_mmu_entry_t *table = (la64_mmu_entry_t *)&core->machine->memory->memory[ptbase];
     la64_mmu_entry_t entry = table[idx];
 
+    /* FIXME: missing bounds checks on entry have to check if its atleast one page size more */
+
     la64_mmu_flag_t flag = entry & LA64_MMU_MASK_FLAGS;
 
     if(!(flag & LA64_MMU_PT_PRESENT))
@@ -57,6 +59,8 @@ static bool la64_mmu_access_l1(la64_core_t *core,
 {
     la64_mmu_entry_t *table = (la64_mmu_entry_t *)&core->machine->memory->memory[ptbase];
     la64_mmu_entry_t entry = table[idx];
+
+    /* FIXME: missing bounds checks on entry have to check if its atleast one page size more */
 
     la64_mmu_flag_t flag = entry & LA64_MMU_MASK_FLAGS;
     la64_mmu_flag_t checkflg = 0;
