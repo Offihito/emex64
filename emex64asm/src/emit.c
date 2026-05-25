@@ -230,45 +230,47 @@ bool la64_compiler_emit_instr_clr(opcode_entry_t *opce,
 bool la64_compiler_emit_instr_default(const opcode_entry_t *opce,
                                       compiler_line_t *cl)
 {
-    /* setting opcode from entry */ 
+    /*
+     * every instruction starts with a
+     * opcode. so we emit one.
+     */
     la64_compiler_emit_opcode(cl->ci->fdwalker, opce->opcode);
 
-    /* parse parameters */
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
-        /* getting rule for current argument */
-        bool reg_only = opcode_arg_accepts_reg_only(opce,  i - 1);
-
-        /* checking for register */
         register_entry_t *reg = register_from_string(cl->token[i].str);
-
         if(reg != NULL)
         {
+            /* registers are always allowed so far */
             la64_compiler_emit_reg(cl->ci->fdwalker, reg->reg);
             continue;
         }
 
         /* checking if allowed to be something else than a register */
-        if(reg_only)
+        if(opcode_arg_accepts_reg_only(opce,  i - 1))
         {
             diag_error(&(cl->token[i]), "expected register, got intermediate or label \"%s\"\n", cl->token[i].str);
             return false;
         }
 
-        /* parsing value */
+        /*
+         * parsing value
+         *
+         * note: if its a string then it is a 64bit
+         *       label. 64bit defaulted because we
+         *       need to ensure early compatibility
+         *       with the new object file format we
+         *       are going to use later on, so the
+         *       relocations work perfectly fine.
+         */
         parser_return_t pr = parse_value_from_string(cl->token[i].str);
 
         if(pr.type == emexParserValueTypeString)
         {
-            /* its a label */
-            /* set mode to 64bit, because a label is 64bit wide */
             fdwalker_write(cl->ci->fdwalker, LA64_PARAMETER_CODING_IMM64, 3);
 
-            /* it must be a label and therefore a entry in the new relocation table ;) */
-            /* checking label type in question */
+            /* the label is either local or global */
             char *label = NULL;
-
-            /* checking for local label */
             if(cl->token[i].str[0] == '.')
             {
                 asprintf(&label, "%s%s", cl->ci->label_scope, cl->token[i].str);
@@ -278,22 +280,21 @@ bool la64_compiler_emit_instr_default(const opcode_entry_t *opce,
                 label = strdup(cl->token[i].str);
             }
 
-            reloc_table_entry_t *rtbe = cl->ci->rtbe;
-            while(rtbe != NULL &&
-                  rtbe->next != NULL)
-            {
-                rtbe = rtbe->next;
-            }
-
-            if(rtbe == NULL)
+            /*
+             * append label callsite to relocation
+             * table.
+             */
+            reloc_table_entry_t *rtbe = NULL;
+            if(cl->ci->rtbe == NULL)
             {
                 rtbe = calloc(1, sizeof(reloc_table_entry_t));
                 cl->ci->rtbe = rtbe;
             }
             else
             {
-                rtbe->next = calloc(1, sizeof(reloc_table_entry_t));
-                rtbe = rtbe->next;
+                rtbe = calloc(1, sizeof(reloc_table_entry_t));
+                rtbe->next = cl->ci->rtbe;
+                cl->ci->rtbe = rtbe;
             }
 
             rtbe->name = label;
