@@ -39,68 +39,76 @@ void code_tokengen(compiler_invocation_t *ci,
                    const char **filev,
                    int filec)
 {
-    /* setting file count for tokenizer */
+    /*
+     * preparing compiler invocation to
+     * map and parse files.
+     */
     ci->file_cnt = filec;
-
-    /* allocating code array */
     ci->file = calloc(filec, sizeof(compiler_file_t));
 
-    /* calculating the total buffer size needed to store the code into */
+    /* mapping files */
     for(int i = 0; i < filec; i++)
     {
-        /* opening file */
+        /* initial open */
         int fd = open(filev[i], O_RDONLY);
+        if(fd < 0)
+        {
+            diag_error(NULL, "couldnt open assembly file located at %s\n", ci->file[i].path);
+        }
 
-        /* resolve real path */
+        /*
+         * resolving the true paths is important
+         * so errors can reveal the actual file
+         * locations.
+         */
         ci->file[i].path = malloc(PATH_MAX);
         if(realpath(filev[i], ci->file[i].path) == NULL)
         {
             diag_error(NULL, "couldnt get realpath of assembly file located at %s\n", filev[i]);
         }
 
-        /* checking for succession */
-        if(fd < 0)
-        {
-            diag_error(NULL, "couldnt open assembly file located at %s\n", ci->file[i].path);
-        }
-
-        /* getting stat */
+        /* initially mapping assembly file */
         struct stat fdstat;
         if(fstat(fd, &fdstat) < 0)
         {
             diag_error(NULL, "couldnt get size of assembly file located at %s\n", ci->file[i].path);
         }
 
-        /* map assembly file */
-        ci->file[i].code = mmap(NULL, fdstat.st_size, PROT_READ, MAP_SHARED, fd, 0);
-
+        ci->file[i].len = fdstat.st_size;
+        ci->file[i].code = mmap(NULL, ci->file[i].len, PROT_READ, MAP_SHARED, fd, 0);
         if(ci->file[i].code == MAP_FAILED)
         {
             diag_error(NULL, "couldnt map assembly file located at %s\n", ci->file[i].path);
         }
 
-        /* setting lenght of file */
-        ci->file[i].len = fdstat.st_size;
+        close(fd);
     }
 
-    /* iterating through code and look for newline characters as indicator for a newline, all this to know how many lines exist here */
+    /*
+     * iterating through code and look for newline characters as
+     * indicator for a newline, all this to know how many lines
+     * exist here so we can allocate a list of lines.
+     * 
+     * note: we might switch to linked list later with those
+     *       things as it will be a lot faster than wasting
+     *       cpu cycles on dry passes.
+     */
+    size_t total_lines = 0;
     for(size_t a = 0; a < ci->file_cnt; a++)
     {
         for(size_t i = 0; i < ci->file[a].len; i++)
         {
             if(ci->file[a].code[i] == '\n')
             {
-                (ci->line_cnt)++;
+                total_lines++;
             }
         }
-        (ci->line_cnt)++;
+        total_lines++;
     }
 
-    /* allocate array of lines */
-    ci->line = calloc(ci->line_cnt, sizeof(compiler_line_t));
+    /* copy each line */
+    ci->line = calloc(total_lines, sizeof(compiler_line_t));
     ci->line_cnt = 0;
-
-    /* reset line count and then begin to copy */
     for(size_t a = 0; a < ci->file_cnt; a++)
     {
         size_t file_line_cnt = 0;
@@ -135,18 +143,24 @@ void code_tokengen(compiler_invocation_t *ci,
         /* using cmptok in first pass to get token count */
         for(cmptok_return_t token = cmptok(ci->line[i].str); token.token != NULL;)
         {
-            /* until this is not null i will not move anywhere else than my safe space which is this while loop :3*/
+            /*
+             * until this is not null i will not move
+             * anywhere else than my safe space which
+             * is this while loop :3
+             */
             ci->line[i].token_cnt++;
             token = cmptok(NULL);
         }
 
-        /* allocating memory for array of subtokens */
-        ci->line[i].token = calloc(sizeof(compiler_token_t), ci->line[i].token_cnt);
-
         /* copy subtokens */
+        ci->line[i].token = calloc(sizeof(compiler_token_t), ci->line[i].token_cnt);
         ci->line[i].token_cnt = 0;
 
-        /* again doing the same dance, over and over and over again, is this a carousell or why am I getting ill rn */
+        /*
+         * again doing the same dance, over and over
+         * and over again, is this a carousell or
+         * why am I getting ill rn.
+         */
         for(cmptok_return_t token = cmptok(ci->line[i].str); token.token != NULL;)
         {
             ci->line[i].token[ci->line[i].token_cnt].str = strdup(token.token);
@@ -160,70 +174,85 @@ void code_tokengen(compiler_invocation_t *ci,
     unsigned char section_mode = 0b0;
     for(unsigned long i = 0; i < ci->line_cnt; i++)
     {
-        /* checking if valid token in the first place */
         if(ci->line[i].token_cnt == 0)
         {
+            /* probably a whitespace */
             continue;
         }
-
-        /* lets go */
-        if(ci->line[i].token_cnt < 2)
+        else if(ci->line[i].token_cnt < 2)
         {
             /* getting size of subtoken */
             size_t size = strlen(ci->line[i].token[0].str);
-
-            /* anti wrap around check */
             if(size == 0)
             {
+                /* invalid size */
                 continue;
             }
 
-            /* checking if last character of token is a ':', because that means that its a label */
+            /*
+             * checking if last character of token is a ':',
+             * because that means that its a label.
+             */
             if(ci->line[i].token[0].str[size - 1] == ':')
             {
                 section_mode = 0b0;
 
-                /* checking what type of label it is */
-                if(ci->line[i].token[0].str[0] == '_')
+                /*
+                 * checking what type of label it is
+                 *
+                 * note: '_example' for example would be a global
+                 *       label, which means it can be called by
+                 *       any symbol in the same program, while
+                 *       '.example' is a local label which can only
+                 *       be called within the same global label's code. 
+                 */
+                switch(ci->line[i].token[0].str[0])
                 {
-                    ci->line[i].type = COMPILER_LINE_TYPE_GLOBAL_LABEL;
-                }
-                else if(ci->line[i].token[0].str[0] == '.')
-                {
-                    ci->line[i].type = COMPILER_LINE_TYPE_LOCAL_LABEL;
-                }
-                else
-                {
-                    diag_error(&(ci->line[i].token[0]), "illegal label definition \"%s\"\n", ci->line[i].token[0].str);
+                    case '_':
+                        ci->line[i].type = COMPILER_LINE_TYPE_GLOBAL_LABEL;
+                        break;
+                    case '.':
+                        ci->line[i].type = COMPILER_LINE_TYPE_LOCAL_LABEL;
+                        break;
+                    default:
+                        diag_error(&(ci->line[i].token[0]), "illegal label definition \"%s\"\n", ci->line[i].token[0].str);
+                        break;
                 }
 
                 continue;
             }
         }
-        else if(ci->line[i].token_cnt < 3 &&
-                strcmp(ci->line[i].token[0].str, "section") == 0)
+        else if(ci->line[i].token_cnt < 3 && strcmp(ci->line[i].token[0].str, "section") == 0)
         {
-            section_mode = 0b1;
+            section_mode = true;
             ci->line[i].type = COMPILER_LINE_TYPE_SECTION;
             continue;
         }
         else if(strcmp(ci->line[i].token[0].str, "%define%") == 0)
         {
-            section_mode = 0b0;
+            section_mode = false;
             ci->line[i].type = COMPILER_LINE_TYPE_MACRODEF;
             continue;
         }
 
-        /* last if else dance */
-        if(section_mode)
-        {
-            /* its part of a section definition */
-            ci->line[i].type = COMPILER_LINE_TYPE_SECTION_DATA;
-        }
-        else
-        {
-            /* its probably assembly code */
-            ci->line[i].type = COMPILER_LINE_TYPE_ASM;
-        }
+        /*
+         * it is either part of a section or
+         * assembly, this is a very important
+         * differentiation. 
+         */
+        ci->line[i].type = section_mode ? COMPILER_LINE_TYPE_SECTION_DATA : COMPILER_LINE_TYPE_ASM;
+    }
+
+    /*
+     * unmapping each code file, but this
+     * shall not be the case bruh, we shall
+     * use linked lists so we dont have to
+     * store the code into the files
+     * anyways.
+     */
+    for(int i = 0; i < filec; i++)
+    {
+        munmap(ci->file[i].code, ci->file[i].len);
+        ci->file[i].code = NULL;
     }
 }
