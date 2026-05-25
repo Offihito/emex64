@@ -284,18 +284,12 @@ bool la64_compiler_emit_instr_default(const opcode_entry_t *opce,
              * append label callsite to relocation
              * table.
              */
-            reloc_table_entry_t *rtbe = NULL;
-            if(cl->ci->rtbe == NULL)
+            reloc_table_entry_t *rtbe = malloc(sizeof(reloc_table_entry_t));
+            if(cl->ci->rtbe != NULL)
             {
-                rtbe = calloc(1, sizeof(reloc_table_entry_t));
-                cl->ci->rtbe = rtbe;
-            }
-            else
-            {
-                rtbe = calloc(1, sizeof(reloc_table_entry_t));
                 rtbe->next = cl->ci->rtbe;
-                cl->ci->rtbe = rtbe;
             }
+            cl->ci->rtbe = rtbe;
 
             rtbe->name = label;
             rtbe->byte_pos = cl->ci->fdwalker->byte_pos;
