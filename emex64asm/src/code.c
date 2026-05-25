@@ -171,7 +171,7 @@ void code_tokengen(compiler_invocation_t *ci,
     }
 
     /* token type evaluation */
-    unsigned char section_mode = 0b0;
+    bool section_mode = false;
     for(unsigned long i = 0; i < ci->line_cnt; i++)
     {
         if(ci->line[i].token_cnt == 0)
@@ -195,7 +195,7 @@ void code_tokengen(compiler_invocation_t *ci,
              */
             if(ci->line[i].token[0].str[size - 1] == ':')
             {
-                section_mode = 0b0;
+                section_mode = false;
 
                 /*
                  * checking what type of label it is
