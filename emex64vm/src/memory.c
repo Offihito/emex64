@@ -55,8 +55,7 @@ la64_memory_t *la64_memory_alloc(uint64_t size)
     memory->memory = mmap(NULL, memory->memory_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
     /* null pointer and sanity check */
-    if(memory->memory == MAP_FAILED ||
-       memory->memory == NULL)
+    if(memory->memory == MAP_FAILED)
     {
         free(memory);
         return NULL;
@@ -67,13 +66,7 @@ la64_memory_t *la64_memory_alloc(uint64_t size)
 
 void la64_memory_dealloc(la64_memory_t *memory)
 {
-    /* release the memory in case that its allocated */
-    if(memory->memory != MAP_FAILED ||
-       memory->memory != NULL)
-    {
-        munmap(memory->memory, memory->memory_size);
-    }
-
+    munmap(memory->memory, memory->memory_size);
     free(memory);
 }
 
@@ -149,13 +142,10 @@ bool la64_memory_read(la64_core_t *core,
         return false;
     }
 
-    /* finding mmio device */
+    /* MMIO devices exist ^^ */
     la64_mmio_region_t *mmio = la64_mmio_find(core->machine->mmio_bus, addr);
-
-    /* checking if address was indeed assigned to a MMIO device */
     if(mmio != NULL)
     {
-        /* getting value of MMIO device */
         if(mmio->read != NULL)
         {
             *value = mmio->read(core, mmio->device, addr - mmio->base_addr, (int)size);
@@ -164,16 +154,12 @@ bool la64_memory_read(la64_core_t *core,
         return false;
     }
 
-    /* accessing memory TODO: implement page tables */
     void *ptr = la64_memory_access(core, addr, size);
-
-    /* checking if memory access was successful */
     if(ptr == NULL)
     {
         return false;
     }
 
-    /* perform read from memory */
     switch(size)
     {
         case 1:
@@ -203,13 +189,10 @@ bool la64_memory_write(la64_core_t *core,
         return false;
     }
 
-    /* trying to find mmio device */
+    /* MMIO devices exist ^^ */
     la64_mmio_region_t *mmio = la64_mmio_find(core->machine->mmio_bus, addr);
-
-    /* null pointer checking potential mmio device */
     if(mmio != NULL)
     {
-        /* performing mmio write */
         if(mmio->write != NULL)
         {
             mmio->write(core, mmio->device, addr - mmio->base_addr, value, (int)size);
@@ -218,10 +201,7 @@ bool la64_memory_write(la64_core_t *core,
         return false;
     }
 
-    /* accessing memory TODO: implement page tables */
     void *ptr = la64_memory_access(core, addr, size);
-
-    /* checking if memory access was successful */
     if(ptr == NULL)
     {
         return false;
