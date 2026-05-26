@@ -155,37 +155,26 @@ bool la64_mmu_access(la64_core_t *core,
     uint64_t cr_pfn = (cr_pte & LA64_MMU_MASK_PFN) >> 8;
 
     /* precalculating all indexes */
-    uint16_t offset =  vaddr        & 0x1FFF;      /* 13bit offset (addressing within a page) */
-    uint16_t l1_idx = (vaddr >> 13) & 0x3FF;       /* 10 bits for each index  */
-    uint16_t l2_idx = (vaddr >> 23) & 0x3FF;
-    uint16_t l3_idx = (vaddr >> 33) & 0x3FF;
-    uint16_t l4_idx = (vaddr >> 43) & 0x3FF;
+    uint16_t pgd_index = (vaddr >> 43) & 0x3FF;     /* 10 bits for each level index  */
+    uint16_t pud_index = (vaddr >> 33) & 0x3FF;
+    uint16_t pmd_index = (vaddr >> 23) & 0x3FF;
+    uint16_t pte_index = (vaddr >> 13) & 0x3FF;
+    uint16_t offset = vaddr & 0x1FFF;               /* 13bit offset (addressing within a page) */
 
     /* now we calculate the address where the physical frame is */
-    uint64_t l1_addr = 0;
-    uint64_t l2_addr = 0;
-    uint64_t l3_addr = 0;
-    uint64_t l4_addr = cr_pfn << 13;
+    uint64_t pgd_addr = cr_pfn << 13;
+    uint64_t pud_addr, pmd_addr, pte_addr, physaddr;
 
     /* now access each table */
-    if(!la64_mmu_access_ctable(core, l4_addr, l4_idx, &l3_addr) ||
-       !la64_mmu_access_ctable(core, l3_addr, l3_idx, &l2_addr) ||
-       !la64_mmu_access_ctable(core, l2_addr, l2_idx, &l1_addr))
+    if(!la64_mmu_access_ctable(core, pgd_addr, pgd_index, &pud_addr) ||
+       !la64_mmu_access_ctable(core, pud_addr, pud_index, &pmd_addr) ||
+       !la64_mmu_access_ctable(core, pmd_addr, pmd_index, &pte_addr) ||
+       !la64_mmu_access_l1(core, pte_addr, pte_index, acc, &physaddr))
     {
         return false;
     }
 
-    /*
-     * now were at the l1 table, now things get very interesting
-     * we need to extract the flags now and such..
-     */
-    uint64_t paddr_raw = 0;
-    if(!la64_mmu_access_l1(core, l1_addr, l1_idx, acc, &paddr_raw))
-    {
-        return false;
-    }
-
-    *paddr = paddr_raw + offset;
+    *paddr = physaddr + offset;
 
     return true;
 }
