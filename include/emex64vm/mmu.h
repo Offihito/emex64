@@ -29,8 +29,6 @@
 #include <stdint.h>
 #include <emex64vm/core.h>
 
-#define LA64_MMU_PAGE_SIZE          8192   /* la64 uses 8K pages (I just desided that because my kernel uses 8K pages already and im too lazy to move to 4K pages) */
-
 /* page table entry flags */
 #define LA64_MMU_PT_PRESENT         0b00000001
 #define LA64_MMU_PT_USER            0b00000010
