@@ -27,24 +27,46 @@
 #include <emex64vm/machine.h>
 #include <stdio.h>
 
+typedef struct la64_mmu_entry_lookup {
+    bool oob_fail;
+    la64_mmu_entry_t entry;
+} la64_mmu_entry_lookup_t;
+
+static la64_mmu_entry_lookup_t la64_mmu_get_entry(la64_core_t *core,
+                                                  uint64_t ptbase,
+                                                  uint16_t idx)
+{
+    la64_mmu_entry_lookup_t lookup = {};
+
+    /*
+     * bounds check ptbase and check if it
+     * can be even a table.
+     */
+    ptbase = LA64_PAGE_ROUND_DOWN(ptbase);
+    if(!LA64_IN_PHYS_MEMORY(ptbase, LA64_PAGE_SIZE, core->machine->memory->memory, core->machine->memory->memory_size))
+    {
+        lookup.oob_fail = true;
+        return lookup;
+    }
+
+    /* now access the table and check its entry too */
+    la64_mmu_entry_t *table = (la64_mmu_entry_t *)&core->machine->memory->memory[ptbase];
+    lookup.entry = table[idx];
+    return lookup;
+}
+
 static bool la64_mmu_access_ctable(la64_core_t *core,
                                    uint64_t ptbase,
                                    uint16_t idx,
                                    uint64_t *oaddr)
 {
-    la64_mmu_entry_t *table = (la64_mmu_entry_t *)&core->machine->memory->memory[ptbase];
-    la64_mmu_entry_t entry = table[idx];
-
-    /* FIXME: missing bounds checks on entry have to check if its atleast one page size more */
-
-    la64_mmu_flag_t flag = entry & LA64_MMU_MASK_FLAGS;
-
-    if(!(flag & LA64_MMU_PT_PRESENT))
+    la64_mmu_entry_lookup_t lookup = la64_mmu_get_entry(core, ptbase, idx);
+    if(lookup.oob_fail || !((lookup.entry & LA64_MMU_MASK_FLAGS) & LA64_MMU_PT_PRESENT))
     {
         return false;
     }
 
-    la64_mmu_pfn_t pfn = (entry & LA64_MMU_MASK_PFN) >> 8;
+    la64_mmu_pfn_t pfn = (lookup.entry & LA64_MMU_MASK_PFN) >> 8;
 
     *oaddr = pfn << 13;
 
@@ -57,12 +79,12 @@ static bool la64_mmu_access_l1(la64_core_t *core,
                                uint8_t acc,
                                uint64_t *oaddr)
 {
-    la64_mmu_entry_t *table = (la64_mmu_entry_t *)&core->machine->memory->memory[ptbase];
-    la64_mmu_entry_t entry = table[idx];
+    la64_mmu_entry_lookup_t lookup = la64_mmu_get_entry(core, ptbase, idx);
+    if(lookup.oob_fail || !((lookup.entry & LA64_MMU_MASK_FLAGS) & LA64_MMU_PT_PRESENT))
+    {
+        return false;
+    }
 
-    /* FIXME: missing bounds checks on entry have to check if its atleast one page size more */
-
-    la64_mmu_flag_t flag = entry & LA64_MMU_MASK_FLAGS;
     la64_mmu_flag_t checkflg = 0;
 
     /* permission switch */
@@ -91,15 +113,17 @@ static bool la64_mmu_access_l1(la64_core_t *core,
     }
 
     /* action permission check */
-    if((flag & checkflg) != checkflg)
+    if(((lookup.entry & LA64_MMU_MASK_FLAGS) & checkflg) != checkflg)
     {
         /* TODO: cause page fault */
         return false;
     }
 
-    la64_mmu_pfn_t pfn = (entry & LA64_MMU_MASK_PFN) >> 8;
+    la64_mmu_pfn_t pfn = (lookup.entry & LA64_MMU_MASK_PFN) >> 8;
 
     *oaddr = pfn << 13;
+
+    /* still many missing bounds checks */
 
     return true;
 }

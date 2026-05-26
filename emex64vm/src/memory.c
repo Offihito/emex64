@@ -39,17 +39,20 @@
 
 la64_memory_t *la64_memory_alloc(uint64_t size)
 {
-    /* allocating memory */
-    la64_memory_t *memory = calloc(1, sizeof(la64_memory_t));
-
-    /* null pointer check */
+    /*
+     * allocating random access memory, which
+     * must be aligned to page size for the
+     * sake of god.
+     */
+    la64_memory_t *memory = malloc(sizeof(la64_memory_t));
     if(memory == NULL)
     {
         return NULL;
     }
 
     /* allocate raw memory (using mmap for larger sizes, better than heap in this case) */
-    memory->memory = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    memory->memory_size = LA64_PAGE_ROUND_UP(size);
+    memory->memory = mmap(NULL, memory->memory_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
     /* null pointer and sanity check */
     if(memory->memory == MAP_FAILED ||
@@ -58,9 +61,6 @@ la64_memory_t *la64_memory_alloc(uint64_t size)
         free(memory);
         return NULL;
     }
-
-    /* setting property */
-    memory->memory_size = size;
 
     return memory;
 }
