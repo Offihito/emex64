@@ -36,8 +36,6 @@ static la64_mmu_entry_lookup_t la64_mmu_lookup_pte(la64_core_t *core,
                                                    uint64_t pt_addr,
                                                    uint16_t idx)
 {
-    la64_mmu_entry_lookup_t lookup = {};
-
     /*
      * bounds check ptbase and check if it
      * can be even a table.
@@ -45,21 +43,19 @@ static la64_mmu_entry_lookup_t la64_mmu_lookup_pte(la64_core_t *core,
     pt_addr = LA64_PAGE_ROUND_DOWN(pt_addr);
     if(!LA64_IN_PHYS_MEMORY(pt_addr, LA64_PAGE_SIZE, core->machine->memory->memory, core->machine->memory->memory_size))
     {
-        lookup.fail = true;
-        return lookup;
+        return (la64_mmu_entry_lookup_t){ .fail = false, .pte = 0x0 };
     }
 
     /* now access the table and check its entry too */
     uint64_t *pt = (uint64_t*)&core->machine->memory->memory[pt_addr];
-    lookup.pte = pt[idx];
+    uint64_t pte = pt[idx];
 
-    if(!((lookup.pte & LA64_MMU_MASK_FLAGS) & LA64_MMU_PT_PRESENT))
+    if(!((pte & LA64_MMU_MASK_FLAGS) & LA64_MMU_PT_PRESENT))
     {
-        lookup.fail = true;
-        return lookup;
+        return (la64_mmu_entry_lookup_t){ .fail = false, .pte = 0x0 };
     }
 
-    return lookup;
+    return (la64_mmu_entry_lookup_t){ .fail = false, .pte = pte };
 }
 
 static bool la64_mmu_access_ctable(la64_core_t *core,
