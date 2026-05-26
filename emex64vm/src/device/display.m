@@ -281,6 +281,12 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
     _timer = nil;
 }
 
+- (BOOL)windowShouldClose:(id)sender
+{
+    [NSApp terminate:nil];
+    return YES;
+}
+
 @end
 
 void *display_start(void *arg)
@@ -297,10 +303,11 @@ void *display_start(void *arg)
 
             NSRect r = NSMakeRect(100, 100, 500, 500);
             NSWindow *win = [[NSWindow alloc] initWithContentRect:r styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |  NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable) backing:NSBackingStoreBuffered defer:NO];
-            [win setTitle:@"LA64LCD @ 60Hz"];
+            [win setTitle:@"EMEX64LCD @ 60Hz"];
 
             LA64GLView *glView = [[LA64GLView alloc] initWithFrame:r display:display];
             [win setContentView:glView];
+            [win setDelegate:glView];
 
             [win makeKeyAndOrderFront:nil];
             [NSApp run];
@@ -308,60 +315,5 @@ void *display_start(void *arg)
     }
     return NULL;
 }
-
-/*la64_display_t *la64_display_alloc(void)
-{
-    la64_display_t *display = calloc(1, sizeof(la64_display_t));
-    if(display == NULL)
-    {
-        return NULL;
-    }
-    display->palette = calloc(3, 256);
-    if(display->palette == NULL)
-    {
-        free(display);
-        return NULL;
-    }
-
-    for(int i = 0; i < 256; i++)
-    {
-        uint8_t g = (uint8_t)i;
-        display->palette[i*3 + 0] = g;
-        display->palette[i*3 + 1] = g;
-        display->palette[i*3 + 2] = g;
-    }
-
-    display->fb = calloc(1, LA64_FB_SIZE);
-    if(display->fb == NULL)
-    {
-        free(display->palette);
-        free(display);
-        return NULL;
-    }
-
-    display->enabled = 0;
-    return display;
-}
-
-void la64_display_dealloc(la64_display_t *display)
-{
-    if(display == NULL) return;
-
-    if(display->enabled)
-    {
-        pthread_cancel(display->pthread);
-        pthread_join(display->pthread, NULL);
-    }
-
-    if(display->palette)
-    {
-        free(display->palette);
-    }
-    if(display->fb)
-    {
-        free(display->fb);
-    }
-    free(display);
-}*/
 
 #endif /* __APPLE__ */

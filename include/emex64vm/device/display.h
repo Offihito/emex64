@@ -74,7 +74,7 @@ void la64_fb_write(la64_core_t *core, void *device, uint64_t offset, uint64_t va
 #import <OpenGL/gl3.h>
 #import <OpenGL/OpenGL.h>
 
-@interface LA64GLView : NSOpenGLView
+@interface LA64GLView : NSOpenGLView <NSWindowDelegate>
 {
     la64_display_t *_display;
 
