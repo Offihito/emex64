@@ -24,6 +24,8 @@
 
 %define% PLATFORM_PWR   0x1FE00500
 
+%define% PT_PAGE_SIZE   0x2000
+
 %define% PT_PRESENT     0b00000001
 %define% PT_USER        0b00000010
 %define% PT_DIRTY       0b00000100
@@ -53,6 +55,74 @@ _exception_handler:
     ; iret
 
 ;
+; r0: address
+; rr: page down aligned
+;
+_pt_align_addr_down:
+    ; ((r0) & ~((PT_PAGE_SIZE) - 1))
+    and rr, r0, 0xFFFFE000 ; FRIDA, WE NEED STATIC COMPILER EXPRESSIONS?!?!?
+    ret
+
+
+;
+; r0: page table address
+; r1: index
+;
+; rr: page table entry
+;
+_pt_entry_lookup:
+    ; align address down to page size
+    bl _pt_align_addr_down, r0
+    mov r0, rr
+
+    ; expand index to address (like a cast in C for arrays)
+    mul r1, 8
+    add r0, r1 ; pointer arithmetic
+
+    ; load page table entry quad word
+    ldq rr, r0
+    ret
+
+;
+; r0: page table pte (same value as valid in CRPTB)
+; r1: physical address
+; r2: physical lenght
+; r3: flags
+;
+; rr: if it's not null then it's a page address for the root page
+;
+; description: automatically allocates pages
+;              zeros them out and sets them
+;              up with the givven permitives.
+;
+; note: in case there is no page table entry
+;       passed as the main pte it will create
+;       one for you and return in rr.
+;
+_pt_map:
+    ; checking weither root page table is present
+    and r4, r0, PT_PRESENT
+    cmp r4, PT_PRESENT
+    shl r4, r0, 13
+    bne .skip_creating_root_table
+
+    ; creating root page table
+    bl _pmm_alloc_zero
+    mov r4, rr  ; just move that shi
+
+.skip_creating_root_table:
+    ; now it shall be created and the pgd table sits in r4
+    
+    
+    ret
+
+_pt_unmap:
+    ret
+
+_pt_destroy:
+    ret
+
+;
 ; r0: table
 ; r1: idx
 ; r2: pnf
@@ -76,7 +146,7 @@ _mmu_table_add_krwx_pnf:
 ; r2: addr
 ;
 _mmu_table_add_krwx_addr:
-    div r2, 8192
+    div r2, PT_PAGE_SIZE
     b _mmu_table_add_krwx_pnf
 
 ; poc entry
@@ -89,12 +159,16 @@ _poc_main:
 
 ; kernel entry
 _main:
-    ; registering exception handler
     bl _interrupt_register_handler IRQ_EXCEPTION, _exception_handler
 
-    ; l1 page table
-    bl _pmm_alloc
-    bl _memset, rr, 0x0, 0x2000
+    ; l1 page table setup
+    ; we need to first allocate the page
+    ; the address of its start lands inside
+    ; of rr(return register), to make sure
+    ; there are no ghost page tables registered
+    ; we gotta have to set all addresses to
+    ; zero.
+    bl _pmm_alloc_zero
     mov r0, rr
 
     ; registering 1st page as rw
@@ -106,20 +180,17 @@ _main:
     blt .loop
 
     ; l2 page table
-    bl _pmm_alloc
-    bl _memset, rr, 0x0, 0x2000
+    bl _pmm_alloc_zero
     mov r1, rr
     bl _mmu_table_add_krwx_addr, r1, 0x0, r0
 
     ; l3 page table
-    bl _pmm_alloc
-    bl _memset, rr, 0x0, 0x2000
+    bl _pmm_alloc_zero
     mov r2, rr
     bl _mmu_table_add_krwx_addr, r2, 0x0, r1
 
     ; l4 page table
-    bl _pmm_alloc
-    bl _memset, rr, 0x0, 0x2000
+    bl _pmm_alloc_zero
     mov r3, rr
     bl _mmu_table_add_krwx_addr, r3, 0x0, r2
 
@@ -133,6 +204,18 @@ _main:
     shr r4, r3, 13
     shl r5, r4, 8
     or r5, PT_PRESENT
+
+    ;shr r6, r5, 8
+    ;and r6, r5, PT_PRESENT
+    ;shr r6, 8
+    ;mov r7, PT_PRESENT
+    ;bl _putbase, r5, 2
+    ;bl _putc, ' '
+    ;bl _putbase, r6, 2
+    ;bl _putc, ' '
+    ;bl _putbase, r7, 2
+    ;bl _putc, '\n'
+    
     mov cr4, r5
 
     ; run PoC
