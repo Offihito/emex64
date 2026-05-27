@@ -14,6 +14,7 @@ add_executable(emex64asm
     src/section.c
     src/macro.c
     src/diag.c
+    src/ir.c
 )
 
 target_include_directories(emex64asm
