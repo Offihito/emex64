@@ -40,7 +40,7 @@
 #include <emex64vm/instruction/alu.h>
 #include <emex64vm/instruction/ctrl.h>
 
-#include <emexutils/bitwalker.h>
+#include <emex64lib/bitwalker.h>
 
 #if defined(__APPLE__)
 #include <CoreFoundation/CFRunLoop.h>

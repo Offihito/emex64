@@ -22,21 +22,22 @@
  * SOFTWARE.
  */
 
-#include <emex64asm/compiler.h>
-#include <emex64asm/diag.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <emexutils/parser.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include <emex64lib/parser.h>
+#include <emex64lib/fdwalker.h>
+
+#include <emex64asm/compiler.h>
+#include <emex64asm/diag.h>
 #include <emex64asm/opcode.h>
 #include <emex64asm/register.h>
 #include <emex64asm/label.h>
-
-#include <emexutils/fdwalker.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 void la64_compiler_emit_opcode(fdwalker_t *fw,
                                uint8_t op)

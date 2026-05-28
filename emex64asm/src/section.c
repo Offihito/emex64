@@ -26,9 +26,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#include <emex64lib/parser.h>
+#include <emex64lib/bitwalker.h>
+
 #include <emex64asm/section.h>
-#include <emexutils/parser.h>
-#include <emexutils/bitwalker.h>
 #include <emex64asm/code.h>
 #include <emex64asm/diag.h>
 

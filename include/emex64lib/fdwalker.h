@@ -25,7 +25,7 @@
 #ifndef EMEXUTILS_FDWALKER_H
 #define EMEXUTILS_FDWALKER_H
 
-#include <emexutils/bitwalker.h>
+#include <emex64lib/bitwalker.h>
 
 typedef struct {
     int         fd;

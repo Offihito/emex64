@@ -29,7 +29,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-thread_local bool warning_error = false;
+_Thread_local bool warning_error = false;
 
 static inline int putchar_c(char c)
 {

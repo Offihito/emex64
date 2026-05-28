@@ -23,7 +23,6 @@
  */
 
 #include <emex64vm/machine.h>
-
 #include <emex64vm/device/mc.h>
 
 #include <stdlib.h>

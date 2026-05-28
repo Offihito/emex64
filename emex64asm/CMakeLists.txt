@@ -22,7 +22,7 @@ target_include_directories(emex64asm
 )
 
 target_link_libraries(emex64asm
-    PRIVATE emexutils
+    PRIVATE emex64lib
 )
 
 target_compile_features(emex64asm PRIVATE c_std_99)

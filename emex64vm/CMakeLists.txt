@@ -31,7 +31,7 @@ target_include_directories(emex64vm
 )
 
 target_link_libraries(emex64vm
-    PRIVATE emexutils
+    PRIVATE emex64lib
 )
 
 if(UNIX AND NOT APPLE)

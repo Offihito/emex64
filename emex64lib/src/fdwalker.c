@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <emexutils/fdwalker.h>
+#include <emex64lib/fdwalker.h>
 #include <unistd.h>
 #include <assert.h>
 
