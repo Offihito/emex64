@@ -52,8 +52,8 @@ void code_token_label(compiler_invocation_t *ci)
     ci->label_cnt = 0;
 }
 
-compiler_label_t *label_lookup_internal(compiler_invocation_t *ci,
-                                        const char *name)
+compiler_label_t *label_lookup(compiler_invocation_t *ci,
+                               const char *name)
 {
     /* iterating through all labels */
     for(int i = 0; i < ci->label_cnt; i++)
@@ -109,9 +109,7 @@ void code_token_label_append(compiler_token_t *ct)
     }
 
     /* checking for duplicated labels */
-    compiler_label_t *label = label_lookup_internal(ci, name);
-
-    /* here we go */
+    compiler_label_t *label = label_lookup(ci, name);
     if(label != NULL)
     {
         diag_note(label->ctlink, "label \"%s\" already defined here\n", name);
@@ -122,20 +120,11 @@ void code_token_label_append(compiler_token_t *ct)
     ci->label[ci->label_cnt++].name = name;
 }
 
-uint64_t label_lookup(compiler_invocation_t *ci,
-                      const char *name)
-{
-    /* using internal implementation of the symbol */
-    compiler_label_t *label = label_lookup_internal(ci, name);
-    return (label == NULL) ? 0x0 : label->addr;
-}
-
 void code_token_label_insert_start(compiler_invocation_t *ci)
 {
     /* finding start label */
-    uint64_t addr = label_lookup(ci, ci->start_entry_name);
-
-    if(addr == 0x0)
+    compiler_label_t *label = label_lookup(ci, ci->start_entry_name);
+    if(label == NULL)
     {
         diag_error(NULL, "\"%s\" label not found, cannot produce boot image\n", ci->start_entry_name);
     }
@@ -143,5 +132,5 @@ void code_token_label_insert_start(compiler_invocation_t *ci)
     /* writing start address into the start of the image */
     fdwalker_t fw = *(ci->fdwalker);
     fdwalker_seek(&fw, 0, 0);
-    fdwalker_write(&fw, addr, 64);
+    fdwalker_write(&fw, label->addr, 64);
 }

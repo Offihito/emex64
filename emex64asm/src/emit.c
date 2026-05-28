@@ -402,18 +402,15 @@ bool la64_compiler_emit_all(compiler_invocation_t *ci)
     reloc_table_entry_t *rtbe = ci->rtbe;
     while(rtbe != NULL)
     {
-        uint64_t addr = label_lookup(ci, rtbe->name);
-
-        if(addr != 0x0)
-        {
-            fdwalker_seek(ci->fdwalker, rtbe->byte_pos, rtbe->bit_idx);
-            fdwalker_write(ci->fdwalker, addr, 64);
-        }
-        else
+        compiler_label_t *label = label_lookup(ci, rtbe->name);
+        if(label == NULL)
         {
             diag_error(rtbe->ctlink, "label \"%s\" not found\n", rtbe->name);
             return false;
         }
+
+        fdwalker_seek(ci->fdwalker, rtbe->byte_pos, rtbe->bit_idx);
+        fdwalker_write(ci->fdwalker, label->addr, 64);
 
         rtbe = rtbe->next;
     }
