@@ -30,4 +30,6 @@
 
 void code_tokengen(compiler_invocation_t *ci, const char **filev, int filec);
 
+char *compiler_line_str_for_line(compiler_line_t *line);
+
 #endif /* EMEX64ASM_CODE_H */

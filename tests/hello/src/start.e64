@@ -5,19 +5,18 @@
 %define% UART_STATUS_TX_EMPTY 0x02
 
 section .data
-    msg db "hello, emex64!\r\n\0"
+    msg db "hello\r\n\0"
 
 _start:
-    mov r0, msg
+    mov r0, 8   ; compilation must be using -fno_page_align, because then the string starts 8 bytes right after null
 .loop:
     ldb r1, r0
-    bz r1, .end
-.uart_not_ready:
+.retry:
     ldd r2, UART_STATUS
     and r2, UART_STATUS_TX_EMPTY
-    bz r2, .uart_not_ready
+    bz r2, .retry
     std UART_DATA, r1
     inc r0
-    b .loop
+    bnz r1, .loop
 .end:
     stb PLATFORM_PWR, 0

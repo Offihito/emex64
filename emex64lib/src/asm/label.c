@@ -34,7 +34,13 @@
 
 void code_token_label(compiler_invocation_t *ci)
 {
-    /* counting labels caught at token parsing */
+    /*
+     * counting labels caught at token parsing
+     * the reason it starts at 1 is because of
+     * a inbuilt relocation value called
+     * __la64_exec_img_end which is appended in
+     * the end of code emitting.
+     */
     ci->label_cnt = 1;
     for(uint64_t i = 0; i < ci->line_cnt; i++)
     {
@@ -48,21 +54,16 @@ void code_token_label(compiler_invocation_t *ci)
 
     /* allocating memory for those */
     ci->label = calloc(ci->label_cnt, sizeof(compiler_label_t));
-
-    /* reset label count for compiler */
     ci->label_cnt = 0;
 }
 
 compiler_label_t *label_lookup(compiler_invocation_t *ci,
                                const char *name)
 {
-    /* iterating through all labels */
     for(uint64_t i = 0; i < ci->label_cnt; i++)
     {
-        /* checking if request name matches */
         if(strcmp(ci->label[i].name, name) == 0)
         {
-            /* returning label address*/
             return &(ci->label[i]);
         }
     }
@@ -77,34 +78,36 @@ void code_token_label_append(compiler_token_t *ct)
     compiler_invocation_t *ci = cl->ci;
 
     /* assign address to label */
-    ci->label[ci->label_cnt].addr = fdwalker_bytes_used(ct->cl->ci->fdwalker);
+    ci->label[ci->label_cnt].addr = fdwalker_bytes_used(ci->fdwalker);
+
+    char *name = NULL;
 
     /* copying label name */
-    size_t size = strlen(ct->str);
-    char *name = strdup(ct->str);
-    name[size - 1] = '\0';
-
-    /* checking if its in scope */
     if(ct->cl->type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL)
     {
-        /* null poiner checking scope */
+        /* constructing scoped label */
+        size_t label_scope_len = strlen(ci->label_scope);
+        size_t ct_len = strlen(ct->str);
+        size_t size = label_scope_len + ct_len;
+        name = malloc(size);
+        memcpy(name, ci->label_scope, label_scope_len);
+        memcpy(name + label_scope_len, ct->str, ct_len - 1); /* minus 1 to ommit the ':' character */
+        name[size - 1] = '\0';
+
+        /* checking if we are in a scope */
         if(ci->label_scope == NULL)
         {
             diag_error(ct, "defining a local label out of any global label is illegal \"%s\"\n", name);
         }
-
-        /* adjust size */
-        size += strlen(ci->label_scope);
-
-        /* reallocate buffer */
-        name = realloc(name, (size) + 1);
-
-        /* recopy */
-        sprintf(name, "%s%s", ci->label_scope, cl->str);
-        name[size - 1] = '\0';
     }
     else
     {
+        /* constructing global label */
+        size_t size = strlen(ct->str);
+        name = malloc(size);
+        memcpy(name, ct->str, size - 1);
+        name[size - 1] = '\0';
+
         /* set it as scope */
         ci->label_scope = name;
     }
