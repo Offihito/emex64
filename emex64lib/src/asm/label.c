@@ -32,7 +32,7 @@
 #include <emex64lib/asm/label.h>
 #include <emex64lib/asm/diag.h>
 
-void code_token_label(compiler_invocation_t *ci)
+void assembler_label_prealloc(assembler_invocation_t *inv)
 {
     /*
      * counting labels caught at token parsing
@@ -41,37 +41,37 @@ void code_token_label(compiler_invocation_t *ci)
      * __la64_exec_img_end which is appended in
      * the end of code emitting.
      */
-    ci->label_cnt = 1;
-    for(uint64_t i = 0; i < ci->line_cnt; i++)
+    inv->label_cnt = 1;
+    for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(ci->line[i].type == ASSEMBLER_LINE_TYPE_GLOBAL_LABEL ||
-           ci->line[i].type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL ||
-           ci->line[i].type == ASSEMBLER_LINE_TYPE_SECTION_DATA)
+        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_GLOBAL_LABEL ||
+           inv->line[i].type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL ||
+           inv->line[i].type == ASSEMBLER_LINE_TYPE_SECTION_DATA)
         {
-            (ci->label_cnt)++;
+            (inv->label_cnt)++;
         }
     }
 
     /* allocating memory for those */
-    ci->label = calloc(ci->label_cnt, sizeof(compiler_label_t));
-    ci->label_cnt = 0;
+    inv->label = calloc(inv->label_cnt, sizeof(compiler_label_t));
+    inv->label_cnt = 0;
 }
 
-compiler_label_t *label_lookup(compiler_invocation_t *ci,
-                               const char *name)
+compiler_label_t *assembler_label_lookup(assembler_invocation_t *inv,
+                                         const char *name)
 {
-    for(uint64_t i = 0; i < ci->label_cnt; i++)
+    for(uint64_t i = 0; i < inv->label_cnt; i++)
     {
-        if(strcmp(ci->label[i].name, name) == 0)
+        if(strcmp(inv->label[i].name, name) == 0)
         {
-            return &(ci->label[i]);
+            return &(inv->label[i]);
         }
     }
 
     return NULL;
 }
 
-void code_token_label_append(compiler_token_t *ct)
+void assembler_label_append(compiler_token_t *ct)
 {
     /* accessing compiler line and invocation */
     compiler_line_t *cl = ct->cl;
@@ -113,7 +113,7 @@ void code_token_label_append(compiler_token_t *ct)
     }
 
     /* checking for duplicated labels */
-    compiler_label_t *label = label_lookup(ci, name);
+    compiler_label_t *label = assembler_label_lookup(ci, name);
     if(label != NULL)
     {
         diag_note(label->ctlink, "label \"%s\" already defined here\n", name);
@@ -124,17 +124,17 @@ void code_token_label_append(compiler_token_t *ct)
     ci->label[ci->label_cnt++].name = name;
 }
 
-void code_token_label_insert_start(compiler_invocation_t *ci)
+void assembler_label_insert_start_entry(assembler_invocation_t *inv)
 {
     /* finding start label */
-    compiler_label_t *label = label_lookup(ci, ci->start_entry_name);
+    compiler_label_t *label = assembler_label_lookup(inv, inv->start_entry_name);
     if(label == NULL)
     {
-        diag_error(NULL, "\"%s\" label not found, cannot produce boot image\n", ci->start_entry_name);
+        diag_error(NULL, "\"%s\" label not found, cannot produce boot image\n", inv->start_entry_name);
     }
 
     /* writing start address into the start of the image */
-    fdwalker_t fw = *(ci->fdwalker);
+    fdwalker_t fw = *(inv->fdwalker);
     fdwalker_seek(&fw, 0, 0);
     fdwalker_write(&fw, label->addr, 64);
 }

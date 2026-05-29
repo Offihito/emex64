@@ -155,16 +155,16 @@ int main(int argc, char *argv[])
     }
 
     /* allocating compiler invocation */
-    assembler_invocation_t *ai = assembler_invocation_alloc(output_path);
-    if(ai == NULL)
+    assembler_invocation_t *inv = assembler_invocation_alloc(output_path);
+    if(inv == NULL)
     {
         diag_error(NULL, "something went terribly wrong\n");
     }
 
-    ai->page_align = page_align;
-    ai->start_entry_name = start_entry_name;
-    ai->warning_error = warning_error;
-    ai->warning_deprecated = warning_deprecated;
+    inv->page_align = page_align;
+    inv->start_entry_name = start_entry_name;
+    inv->warning_error = warning_error;
+    inv->warning_deprecated = warning_deprecated;
 
     /* remaining arguments are input files */
     if(file_count <= 0)
@@ -173,18 +173,18 @@ int main(int argc, char *argv[])
     }
 
     /* generating tokens,labels,sections out of the code */
-    code_tokengen(ai, (const char **)files, file_count);
+    code_tokengen(inv, (const char **)files, file_count);
 
     /* doing parsing acrobatic */
-    code_token_label(ai);
-    assembler_section_parse(ai);
-    assembler_macro_expand(ai);
+    assembler_label_prealloc(inv);
+    assembler_section_parse(inv);
+    assembler_macro_expand(inv);
 
     /* finally compiling it to machine code */
-    la64_compiler_emit_all(ai);
+    la64_compiler_emit_all(inv);
 
     /* insert entry */
-    code_token_label_insert_start(ai);
+    assembler_label_insert_start_entry(inv);
 
     /* cleanup */
     for(int i = 0; i < file_count; i++)

@@ -369,7 +369,7 @@ bool la64_compiler_emit_all(compiler_invocation_t *ci)
            ci->line[i].type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL)
         {
             /* insert into labels */
-            code_token_label_append(&(ci->line[i].token[0]));
+            assembler_label_append(&(ci->line[i].token[0]));
         }
         else if(ci->line[i].type == ASSEMBLER_LINE_TYPE_ASM)
         {
@@ -403,7 +403,7 @@ bool la64_compiler_emit_all(compiler_invocation_t *ci)
     reloc_table_entry_t *rtbe = ci->rtbe;
     while(rtbe != NULL)
     {
-        compiler_label_t *label = label_lookup(ci, rtbe->name);
+        compiler_label_t *label = assembler_label_lookup(ci, rtbe->name);
         if(label == NULL)
         {
             diag_error(rtbe->ctlink, "label \"%s\" not found\n", rtbe->name);

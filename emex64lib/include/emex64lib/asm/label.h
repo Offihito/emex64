@@ -28,10 +28,10 @@
 #include <emex64lib/asm/type.h>
 #include <emex64lib/asm/invocation.h>
 
-void code_token_label(compiler_invocation_t *ci);
-void code_token_label_append(compiler_token_t *ct);
-void code_token_label_insert_start(compiler_invocation_t *ci);
+void assembler_label_prealloc(assembler_invocation_t *inv);
+void assembler_label_append(compiler_token_t *ct);
+void assembler_label_insert_start_entry(assembler_invocation_t *inv);
 
-compiler_label_t *label_lookup(compiler_invocation_t *ci, const char *name);
+compiler_label_t *assembler_label_lookup(assembler_invocation_t *inv, const char *name);
 
 #endif /* EMEX64ASM_LABEL_H */
