@@ -252,6 +252,8 @@ void *display_start(void *arg)
 
 #endif /* __linux__ */
 
+#if defined(__linux__) || defined(__APPLE__)
+
 extern void *display_start(void *arg);
 
 la64_display_t *la64_display_alloc(la64_machine_t *machine)
@@ -404,3 +406,5 @@ void la64_fb_write(la64_core_t *core,
         display->enabled = (uint8_t)value;
     }
 }
+
+#endif // __linux__ || __APPLE__
