@@ -265,7 +265,7 @@ static void diag_vemit(diag_level_t level,
             break;
     }
 
-    diag_helper(msg, &args);
+    diag_helper(msg, (va_list*)&args);
 
     if(level == DIAG_ERROR)
     {
