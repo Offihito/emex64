@@ -33,13 +33,13 @@ typedef struct {
     const char *value;
 } compiler_macro_t;
 
-void code_token_macro(compiler_invocation_t *ci)
+void assembler_macro_expand(assembler_invocation_t *inv)
 {
     /* count the amount of macros */
     uint64_t c = 0;
-    for(uint64_t i = 0; i < ci->line_cnt; i++)
+    for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(ci->line[i].type == ASSEMBLER_LINE_TYPE_MACRODEF)
+        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_MACRODEF)
         {
             c++;
         }
@@ -50,29 +50,29 @@ void code_token_macro(compiler_invocation_t *ci)
 
     /* adding stuff */
     c = 0;
-    for(uint64_t i = 0; i < ci->line_cnt; i++)
+    for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(ci->line[i].type == ASSEMBLER_LINE_TYPE_MACRODEF)
+        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_MACRODEF)
         {
-            cm[c].name = ci->line[i].token[1].str;
-            cm[c].value = ci->line[i].token[2].str;
+            cm[c].name = inv->line[i].token[1].str;
+            cm[c].value = inv->line[i].token[2].str;
             c++;
         }
     }
 
     /* now replacing */
-    for(uint64_t i = 0; i < ci->line_cnt; i++)
+    for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(ci->line[i].type == ASSEMBLER_LINE_TYPE_ASM)
+        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_ASM)
         {
-            for(uint64_t a = 0; a < ci->line[i].token_cnt; a++)
+            for(uint64_t a = 0; a < inv->line[i].token_cnt; a++)
             {
                 for(uint64_t b = 0; b < c; b++)
                 {
-                    if(strcmp(ci->line[i].token[a].str, cm[b].name) == 0)
+                    if(strcmp(inv->line[i].token[a].str, cm[b].name) == 0)
                     {
-                        free(ci->line[i].token[a].str);
-                        ci->line[i].token[a].str = strdup(cm[b].value);
+                        free(inv->line[i].token[a].str);
+                        inv->line[i].token[a].str = strdup(cm[b].value);
                     }
                 }
             }

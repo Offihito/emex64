@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     /* doing parsing acrobatic */
     code_token_label(ai);
     code_token_section(ai);
-    code_token_macro(ai);
+    assembler_macro_expand(ai);
 
     /* finally compiling it to machine code */
     la64_compiler_emit_all(ai);

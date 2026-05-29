@@ -28,6 +28,6 @@
 #include <emex64lib/asm/type.h>
 #include <emex64lib/asm/invocation.h>
 
-void code_token_macro(compiler_invocation_t *ci);
+void assembler_macro_expand(assembler_invocation_t *inv);
 
 #endif /* EMEX64ASM_MACRO_H */
