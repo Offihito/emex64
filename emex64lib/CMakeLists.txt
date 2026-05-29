@@ -21,11 +21,7 @@ if(EMEX64VM_DEVICE_DISPLAY)
     endif()
 endif()
 
-if(APPLE)
-    option(EMEX64LIB_STATIC "Link statically against emex64lib" OFF)
-else()
-    option(EMEX64LIB_STATIC "Link statically against emex64lib" ON)
-endif()
+option(EMEX64LIB_STATIC "Link statically against emex64lib" OFF)
 
 if(EMEX64LIB_STATIC)
     set(LIB_TYPE STATIC)

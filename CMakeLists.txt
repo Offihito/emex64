@@ -6,11 +6,7 @@ add_subdirectory(emex64lib)
 add_subdirectory(emex64vm)
 add_subdirectory(emex64asm)
 
-if(APPLE)
-    option(EMEX64LIB_STATIC "Link statically against emex64lib" OFF)
-else()
-    option(EMEX64LIB_STATIC "Link statically against emex64lib" ON)
-endif()
+option(EMEX64LIB_STATIC "Link statically against emex64lib" OFF)
 
 if(APPLE AND NOT EMEX64LIB_STATIC)
     set(CMAKE_MACOSX_RPATH TRUE)
