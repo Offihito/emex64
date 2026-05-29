@@ -299,9 +299,11 @@ void la64_core_execute(la64_core_t *core)
     /* invoking execution */
     pthread_create(&(core->pthread), NULL, la64_core_execute_thread, (void*)core);
 
-#if defined(__APPLE__)
+    #if EMEX64VM_DEVICE_DISPLAY
+    #if defined(__APPLE__)
     CFRunLoopRun();
-#endif /* __APPLE__ */
+    #endif /* __APPLE__ */
+    #endif /* #if EMEX64VM_DEVICE_DISPLAY */
     
     pthread_join(core->pthread, NULL);
 }

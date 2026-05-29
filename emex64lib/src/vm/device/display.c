@@ -311,10 +311,12 @@ void la64_display_dealloc(la64_display_t *display)
         return;
     }
 
+    #if EMEX64VM_DEVICE_DISPLAY
     if(display->enabled)
     {
         pthread_cancel(display->pthread);
     }
+    #endif /* EMEX64VM_DEVICE_DISPLAY */
 
     if(display->palette != NULL)
     {
@@ -388,6 +390,7 @@ void la64_fb_write(la64_core_t *core,
     }
     else
     {
+        #if EMEX64VM_DEVICE_DISPLAY
         if((uint8_t)value)
         {
             pthread_create(&(display->pthread), NULL, display_start, device);
@@ -396,6 +399,7 @@ void la64_fb_write(la64_core_t *core,
         {
             pthread_cancel(display->pthread);
         }
+        #endif /* EMEX64VM_DEVICE_DISPLAY */
 
         display->enabled = (uint8_t)value;
     }

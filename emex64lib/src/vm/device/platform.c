@@ -45,9 +45,11 @@ void la64_platform_write(la64_core_t *core, void *device, uint64_t offset, uint6
 {
     if(value == 0)
     {
+        #if EMEX64VM_DEVICE_DISPLAY
         #if defined(__APPLE__)
         CFRunLoopStop(CFRunLoopGetMain());
         #endif /* __APPLE__ */
+        #endif /* EMEX64VM_DEVICE_DISPLAY */
         
         /* to be fully implemented */
         la64_core_terminate(core->machine->core);

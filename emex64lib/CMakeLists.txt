@@ -5,14 +5,18 @@ project(emex64lib
     LANGUAGES C
 )
 
-find_package(OpenGL REQUIRED)
+option(EMEX64VM_DEVICE_DISPLAY "Enable display device support" ON)
 
-if(UNIX AND NOT APPLE)
-    find_package(glfw3 REQUIRED)
-    find_package(GLEW REQUIRED)
-elseif(APPLE)
-    find_library(COCOA_FRAMEWORK Cocoa REQUIRED)
-    find_library(OPENGL_FRAMEWORK OpenGL REQUIRED)
+if(EMEX64VM_DEVICE_DISPLAY)
+    find_package(OpenGL REQUIRED)
+
+    if(UNIX AND NOT APPLE)
+        find_package(glfw3 REQUIRED)
+        find_package(GLEW REQUIRED)
+    elseif(APPLE)
+        find_library(COCOA_FRAMEWORK Cocoa REQUIRED)
+        find_library(OPENGL_FRAMEWORK OpenGL REQUIRED)
+    endif()
 endif()
 
 add_library(emex64lib SHARED
@@ -58,6 +62,10 @@ add_library(emex64lib SHARED
     src/asm/diag.c
 )
 
+target_compile_definitions(emex64lib PRIVATE
+    EMEX64VM_DEVICE_DISPLAY=$<BOOL:${EMEX64VM_DEVICE_DISPLAY}>
+)
+
 target_include_directories(emex64lib
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -72,31 +80,33 @@ else()
     target_compile_options(emex64lib PRIVATE -Wall -Wextra -Wpedantic -Wno-unused-parameter)
 endif()
 
-if(UNIX AND NOT APPLE)
-    target_link_libraries(emex64lib
-        PRIVATE
-            glfw
-            GLEW::GLEW
-            OpenGL::GL
-    )
-elseif(APPLE)
-    target_sources(emex64lib
-        PRIVATE
-            src/vm/device/display.m
-    )
+if(EMEX64VM_DEVICE_DISPLAY)
+    if(UNIX AND NOT APPLE)
+        target_link_libraries(emex64lib
+            PRIVATE
+                glfw
+                GLEW::GLEW
+                OpenGL::GL
+        )
+    elseif(APPLE)
+        target_sources(emex64lib
+            PRIVATE
+                src/vm/device/display.m
+        )
 
-    find_library(COCOA_FRAMEWORK Cocoa REQUIRED)
-    find_library(OPENGL_FRAMEWORK OpenGL REQUIRED)
+        find_library(COCOA_FRAMEWORK Cocoa REQUIRED)
+        find_library(OPENGL_FRAMEWORK OpenGL REQUIRED)
 
-    target_link_libraries(emex64lib
-        PRIVATE
-            ${COCOA_FRAMEWORK}
-            ${OPENGL_FRAMEWORK}
-    )
+        target_link_libraries(emex64lib
+            PRIVATE
+                ${COCOA_FRAMEWORK}
+                ${OPENGL_FRAMEWORK}
+        )
 
-    set_source_files_properties(src/vm/device/display.m PROPERTIES
-        COMPILE_FLAGS "-fobjc-arc"
-    )
+        set_source_files_properties(src/vm/device/display.m PROPERTIES
+            COMPILE_FLAGS "-fobjc-arc"
+        )
+    endif()
 endif()
 
 install(TARGETS emex64lib
