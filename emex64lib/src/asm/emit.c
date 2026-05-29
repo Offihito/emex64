@@ -39,77 +39,77 @@
 #include <emex64lib/asm/register.h>
 #include <emex64lib/asm/label.h>
 
-void la64_compiler_emit_opcode(fdwalker_t *fw,
-                               uint8_t op)
+void assembler_emit_opcode(assembler_invocation_t *inv,
+                           uint8_t op)
 {
-    fdwalker_write(fw, op, 8);
+    fdwalker_write(inv->fdwalker, op, 8);
 }
 
-void la64_compiler_emit_reg(fdwalker_t *fw,
-                            uint8_t reg)
+void assembler_emit_register(assembler_invocation_t *inv,
+                             uint8_t reg)
 {
     assert(reg < LA64_REGISTER_MAX);
 
-    fdwalker_write(fw, LA64_PARAMETER_CODING_REG, 3);
-    fdwalker_write(fw, reg, 5);
+    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_REG, 3);
+    fdwalker_write(inv->fdwalker, reg, 5);
 }
 
-void la64_compiler_emit_imm8(fdwalker_t *fw,
-                             uint8_t imm)
+void assembler_emit_imm8(assembler_invocation_t *inv,
+                         uint8_t imm)
 {
-    fdwalker_write(fw, LA64_PARAMETER_CODING_IMM8, 3);
-    fdwalker_write(fw, imm, 8);
+    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_IMM8, 3);
+    fdwalker_write(inv->fdwalker, imm, 8);
 }
 
-void la64_compiler_emit_imm16(fdwalker_t *fw,
-                              uint16_t imm)
+void assembler_emit_imm16(assembler_invocation_t *inv,
+                          uint16_t imm)
 {
-    fdwalker_write(fw, LA64_PARAMETER_CODING_IMM16, 3);
-    fdwalker_write(fw, imm, 16);
+    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_IMM16, 3);
+    fdwalker_write(inv->fdwalker, imm, 16);
 }
 
-void la64_compiler_emit_imm32(fdwalker_t *fw,
-                              uint32_t imm)
+void assembler_emit_imm32(assembler_invocation_t *inv,
+                          uint32_t imm)
 {
-    fdwalker_write(fw, LA64_PARAMETER_CODING_IMM32, 3);
-    fdwalker_write(fw, imm, 32);
+    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_IMM32, 3);
+    fdwalker_write(inv->fdwalker, imm, 32);
 }
 
-void la64_compiler_emit_imm64(fdwalker_t *fw,
-                              uint64_t imm)
+void assembler_emit_imm64(assembler_invocation_t *inv,
+                          uint64_t imm)
 {
-    fdwalker_write(fw, LA64_PARAMETER_CODING_IMM64, 3);
-    fdwalker_write(fw, imm, 64);
+    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_IMM64, 3);
+    fdwalker_write(inv->fdwalker, imm, 64);
 }
 
-void la64_compiler_emit_imm(fdwalker_t *fw,
-                            uint64_t imm)
+void assembler_emit_imm(assembler_invocation_t *inv,
+                        uint64_t imm)
 {
     if(imm <= 0xFF)
     {
-        la64_compiler_emit_imm8(fw, (uint8_t)imm);
+        assembler_emit_imm8(inv, (uint8_t)imm);
     }
     else if(imm <= 0xFFFF)
     {
-        la64_compiler_emit_imm16(fw, (uint16_t)imm);
+        assembler_emit_imm16(inv, (uint16_t)imm);
     }
     else if(imm <= 0xFFFFFFFF)
     {
-        la64_compiler_emit_imm32(fw, (uint32_t)imm);
+        assembler_emit_imm32(inv, (uint32_t)imm);
     }
     else if(imm <= 0xFFFFFFFFFFFFFFFF)
     {
-        la64_compiler_emit_imm64(fw, (uint64_t)imm);
+        assembler_emit_imm64(inv, (uint64_t)imm);
     }
 }
 
-void la64_compiler_emit_end(fdwalker_t *fw)
+void assembler_emit_end(assembler_invocation_t *inv)
 {
-    fdwalker_write(fw, LA64_PARAMETER_CODING_INSTR_END, 3);
+    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_INSTR_END, 3);
 }
 
-bool la64_compiler_emit_instr_inc(opcode_entry_t *opce,
-                                  compiler_line_t *cl)
+bool assembler_emit_instruction_inc(const opcode_entry_t *opce,
+                                    compiler_line_t *cl)
 {
     /*
      * background is this was a native instruction, but
@@ -124,7 +124,7 @@ bool la64_compiler_emit_instr_inc(opcode_entry_t *opce,
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
         /* increment means each parameter, one opcode */
-        la64_compiler_emit_opcode(cl->ci->fdwalker, LA64_OPCODE_ADD);
+        assembler_emit_opcode(cl->ci, LA64_OPCODE_ADD);
 
         /* it must be a register */
         register_entry_t *reg = register_from_string(cl->token[i].str);
@@ -135,17 +135,17 @@ bool la64_compiler_emit_instr_inc(opcode_entry_t *opce,
         }
 
         /* emit parameters */
-        la64_compiler_emit_reg(cl->ci->fdwalker, reg->reg);
-        la64_compiler_emit_imm8(cl->ci->fdwalker, 1);
-        la64_compiler_emit_end(cl->ci->fdwalker);
+        assembler_emit_register(cl->ci, reg->reg);
+        assembler_emit_imm8(cl->ci, 1);
+        assembler_emit_end(cl->ci);
         fdwalker_align_byte(cl->ci->fdwalker);
     }
 
     return true;
 }
 
-bool la64_compiler_emit_instr_dec(opcode_entry_t *opce,
-                                  compiler_line_t *cl)
+bool assembler_emit_instruction_dec(const opcode_entry_t *opce,
+                                    compiler_line_t *cl)
 {
     /*
      * background is this was a native instruction, but
@@ -159,7 +159,7 @@ bool la64_compiler_emit_instr_dec(opcode_entry_t *opce,
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
         /* increment means each parameter, one opcode */
-        la64_compiler_emit_opcode(cl->ci->fdwalker, LA64_OPCODE_SUB);
+        assembler_emit_opcode(cl->ci, LA64_OPCODE_SUB);
 
         /* it must be a register */
         register_entry_t *reg = register_from_string(cl->token[i].str);
@@ -171,17 +171,17 @@ bool la64_compiler_emit_instr_dec(opcode_entry_t *opce,
         }
 
         /* emit parameters */
-        la64_compiler_emit_reg(cl->ci->fdwalker, reg->reg);
-        la64_compiler_emit_imm8(cl->ci->fdwalker, 1);
-        la64_compiler_emit_end(cl->ci->fdwalker);
+        assembler_emit_register(cl->ci, reg->reg);
+        assembler_emit_imm8(cl->ci, 1);
+        assembler_emit_end(cl->ci);
         fdwalker_align_byte(cl->ci->fdwalker);
     }
 
     return true;
 }
 
-bool la64_compiler_emit_instr_clr(opcode_entry_t *opce,
-                                  compiler_line_t *cl)
+bool assembler_emit_instruction_clr(const opcode_entry_t *opce,
+                                    compiler_line_t *cl)
 {
     /*
      * people would argue to emit XOR but XOR 
@@ -200,7 +200,7 @@ bool la64_compiler_emit_instr_clr(opcode_entry_t *opce,
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
         /* increment means each parameter, one opcode */
-        la64_compiler_emit_opcode(cl->ci->fdwalker, LA64_OPCODE_MOV);
+        assembler_emit_opcode(cl->ci, LA64_OPCODE_MOV);
 
         /* it must be a register */
         register_entry_t *reg = register_from_string(cl->token[i].str);
@@ -212,22 +212,22 @@ bool la64_compiler_emit_instr_clr(opcode_entry_t *opce,
         }
 
         /* emit parameters */
-        la64_compiler_emit_reg(cl->ci->fdwalker, reg->reg);
-        la64_compiler_emit_imm8(cl->ci->fdwalker, 0);
+        assembler_emit_register(cl->ci, reg->reg);
+        assembler_emit_imm8(cl->ci, 0);
         fdwalker_align_byte(cl->ci->fdwalker);
     }
 
     return true;
 }
 
-bool la64_compiler_emit_instr_default(const opcode_entry_t *opce,
-                                      compiler_line_t *cl)
+bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
+                                        compiler_line_t *cl)
 {
     /*
      * every instruction starts with a
      * opcode. so we emit one.
      */
-    la64_compiler_emit_opcode(cl->ci->fdwalker, opce->opcode);
+    assembler_emit_opcode(cl->ci, opce->opcode);
 
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
@@ -235,7 +235,7 @@ bool la64_compiler_emit_instr_default(const opcode_entry_t *opce,
         if(reg != NULL)
         {
             /* registers are always allowed so far */
-            la64_compiler_emit_reg(cl->ci->fdwalker, reg->reg);
+            assembler_emit_register(cl->ci, reg->reg);
             continue;
         }
 
@@ -300,13 +300,13 @@ bool la64_compiler_emit_instr_default(const opcode_entry_t *opce,
         else
         {
             /* its a intermediate */
-            la64_compiler_emit_imm(cl->ci->fdwalker, pr.value);
+            assembler_emit_imm(cl->ci, pr.value);
         }
     }
 
     if(opce->maxargs == 32 || opce->maxargs != (cl->token_cnt - 1))
     {
-        la64_compiler_emit_end(cl->ci->fdwalker);
+        assembler_emit_end(cl->ci);
     }
 
     fdwalker_align_byte(cl->ci->fdwalker);
@@ -314,7 +314,7 @@ bool la64_compiler_emit_instr_default(const opcode_entry_t *opce,
     return true;
 }
 
-bool la64_compiler_emit(compiler_line_t *cl)
+bool assembler_emit_line(compiler_line_t *cl)
 {
     /* parameter count check */
     if(cl->token_cnt <= 0)
@@ -359,21 +359,21 @@ bool la64_compiler_emit(compiler_line_t *cl)
     return opce->handler(opce, cl);
 }
 
-bool la64_compiler_emit_all(compiler_invocation_t *ci)
+bool assembler_emit(assembler_invocation_t *inv)
 {
     /* iterate through each token */
-    for(uint64_t i = 0; i < ci->line_cnt; i++)
+    for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
         /* checking for label */
-        if(ci->line[i].type == ASSEMBLER_LINE_TYPE_GLOBAL_LABEL ||
-           ci->line[i].type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL)
+        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_GLOBAL_LABEL ||
+           inv->line[i].type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL)
         {
             /* insert into labels */
-            assembler_label_append(&(ci->line[i].token[0]));
+            assembler_label_append(&(inv->line[i].token[0]));
         }
-        else if(ci->line[i].type == ASSEMBLER_LINE_TYPE_ASM)
+        else if(inv->line[i].type == ASSEMBLER_LINE_TYPE_ASM)
         {
-            if(!la64_compiler_emit(&(ci->line[i])))
+            if(!assembler_emit_line(&(inv->line[i])))
             {
                 return false;
             }
@@ -385,13 +385,13 @@ bool la64_compiler_emit_all(compiler_invocation_t *ci)
      * constant.
      */
     struct stat st;
-    if(fstat(ci->fdwalker->fd, &st) == -1)
+    if(fstat(inv->fdwalker->fd, &st) == -1)
     {
         diag_error(NULL, "fatal error occured, pls report\n");
     }
 
-    ci->label[ci->label_cnt].addr = st.st_size;
-    ci->label[ci->label_cnt++].name = strdup("__la64_exec_img_end");
+    inv->label[inv->label_cnt].addr = st.st_size;
+    inv->label[inv->label_cnt++].name = strdup("__la64_exec_img_end");
 
     /*
      * the main code emitter appended labels the code
@@ -400,23 +400,23 @@ bool la64_compiler_emit_all(compiler_invocation_t *ci)
      * and insert each label at the place where a label
      * shall be.
      */
-    reloc_table_entry_t *rtbe = ci->rtbe;
+    reloc_table_entry_t *rtbe = inv->rtbe;
     while(rtbe != NULL)
     {
-        compiler_label_t *label = assembler_label_lookup(ci, rtbe->name);
+        compiler_label_t *label = assembler_label_lookup(inv, rtbe->name);
         if(label == NULL)
         {
             diag_error(rtbe->ctlink, "label \"%s\" not found\n", rtbe->name);
             return false;
         }
 
-        fdwalker_seek(ci->fdwalker, rtbe->byte_pos, rtbe->bit_idx);
-        fdwalker_write(ci->fdwalker, label->addr, 64);
+        fdwalker_seek(inv->fdwalker, rtbe->byte_pos, rtbe->bit_idx);
+        fdwalker_write(inv->fdwalker, label->addr, 64);
 
         rtbe = rtbe->next;
     }
 
-    fsync(ci->fdwalker->fd);
+    fsync(inv->fdwalker->fd);
 
     return true;
 }

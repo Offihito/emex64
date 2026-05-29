@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
     assembler_macro_expand(inv);
 
     /* finally compiling it to machine code */
-    la64_compiler_emit_all(inv);
+    assembler_emit(inv);
 
     /* insert entry */
     assembler_label_insert_start_entry(inv);
