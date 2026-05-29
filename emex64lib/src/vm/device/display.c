@@ -35,7 +35,7 @@
 #include <emex64lib/vm/machine.h>
 #include <emex64lib/vm/device/display.h>
 
-#if defined(__linux__)
+#if defined(__linux__) && EMEX64VM_DEVICE_DISPLAY
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
