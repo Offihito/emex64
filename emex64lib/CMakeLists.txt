@@ -128,7 +128,15 @@ if(EMEX64VM_DEVICE_DISPLAY)
     endif()
 endif()
 
-install(TARGETS emex64lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-)
+if(APPLE)
+    option(EMEX64LIB_STATIC "Link statically against emex64lib" OFF)
+else()
+    option(EMEX64LIB_STATIC "Link statically against emex64lib" ON)
+endif()
+
+if(NOT EMEX64LIB_STATIC)
+    install(TARGETS emex64lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
+    )
+endif()
