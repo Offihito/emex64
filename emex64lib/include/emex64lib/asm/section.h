@@ -28,7 +28,6 @@
 #include <emex64lib/asm/type.h>
 #include <emex64lib/asm/invocation.h>
 
-void code_token_section(compiler_invocation_t *ci);
-void code_remove_sections(compiler_invocation_t *ci);
+void assembler_section_parse(assembler_invocation_t *inv);
 
 #endif /* EMEX64ASM_SECTION_H */
