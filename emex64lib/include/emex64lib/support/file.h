@@ -22,29 +22,21 @@
  * SOFTWARE.
  */
 
-#ifndef EMEX64ASM_INVOCATION_H
-#define EMEX64ASM_INVOCATION_H
+#ifndef EMEX64_FILE_H
+#define EMEX64_FILE_H
 
-#include <emex64lib/support/file.h>
+#include <stdbool.h>
 
-#include <emex64lib/asm/type.h>
-#include <emex64lib/asm/options.h>
+typedef struct emex_file {
+    char *path;
+    char *code;
+    size_t len;
+} emex_file_t;
 
-typedef struct assembler_invocation {
-    emex_file_t **file;                     /* code files */
-    size_t file_cnt;                        /* count of files */
-    compiler_line_t *line;                  /* token array */
-    uint64_t line_cnt;                      /* count of tokens */
-    char *label_scope;                      /* current resolved label scope */
-    compiler_label_t *label;                /* label array */
-    uint64_t label_cnt;                     /* count of labels */
-    reloc_table_entry_t *rtbe;              /* relocation table root entry */
-    fdwalker_t *fdwalker;
+emex_file_t *emex_file_alloc(const char *path);
+void emex_file_dealloc(emex_file_t *f);
 
-    assembler_options_t options;
-} assembler_invocation_t;
+bool emex_file_open(emex_file_t *f);
+void emex_file_close(emex_file_t *f);
 
-assembler_invocation_t *assembler_invocation_alloc(const char *output_path, assembler_options_t options);
-void assembler_invocation_dealloc(assembler_invocation_t *inv);
-
-#endif /* EMEX64ASM_INVOCATION_H */
+#endif /* EMEX64_FILE_H */

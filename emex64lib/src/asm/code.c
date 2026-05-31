@@ -46,44 +46,22 @@ void assembler_code_parse(assembler_invocation_t *inv,
      * map and parse files.
      */
     inv->file_cnt = filec;
-    inv->file = calloc(filec, sizeof(compiler_file_t));
+    inv->file = calloc(filec, sizeof(emex_file_t*));
 
     /* mapping files */
     for(int i = 0; i < filec; i++)
     {
         /* initial open */
-        int fd = open(filev[i], O_RDONLY);
-        if(fd < 0)
+        inv->file[i] = emex_file_alloc(filev[i]);
+        if(inv->file[i] == NULL)
         {
-            diag_error(NULL, "couldnt open assembly file located at %s\n", inv->file[i].path);
+            diag_error(NULL, "failed to find file at path \"%s\"", filev[i]);
         }
 
-        /*
-         * resolving the true paths is important
-         * so errors can reveal the actual file
-         * locations.
-         */
-        inv->file[i].path = malloc(PATH_MAX);
-        if(realpath(filev[i], inv->file[i].path) == NULL)
+        if(!emex_file_open(inv->file[i]))
         {
-            diag_error(NULL, "couldnt get realpath of assembly file located at %s\n", filev[i]);
+            diag_error(NULL, "failed to open file at path \"%s\"", filev[i]);
         }
-
-        /* initially mapping assembly file */
-        struct stat fdstat;
-        if(fstat(fd, &fdstat) < 0)
-        {
-            diag_error(NULL, "couldnt get size of assembly file located at %s\n", inv->file[i].path);
-        }
-
-        inv->file[i].len = fdstat.st_size;
-        inv->file[i].code = mmap(NULL, inv->file[i].len, PROT_READ, MAP_SHARED, fd, 0);
-        if(inv->file[i].code == MAP_FAILED)
-        {
-            diag_error(NULL, "couldnt map assembly file located at %s\n", inv->file[i].path);
-        }
-
-        close(fd);
     }
 
     /*
@@ -98,9 +76,9 @@ void assembler_code_parse(assembler_invocation_t *inv,
     size_t total_lines = 0;
     for(size_t a = 0; a < inv->file_cnt; a++)
     {
-        for(size_t i = 0; i < inv->file[a].len; i++)
+        for(size_t i = 0; i < inv->file[a]->len; i++)
         {
-            if(inv->file[a].code[i] == '\n')
+            if(inv->file[a]->code[i] == '\n')
             {
                 total_lines++;
             }
@@ -115,10 +93,10 @@ void assembler_code_parse(assembler_invocation_t *inv,
     {
         size_t file_line_cnt = 0;
         size_t start_off = 0;   /* this offset is used to determine the lenght of each line */
-        for(size_t i = 0; i <= inv->file[a].len; i++)
+        for(size_t i = 0; i <= inv->file[a]->len; i++)
         {
             /* checking for new line character*/
-            if(inv->file[a].code[i] == '\n' || i == inv->file[a].len)
+            if(inv->file[a]->code[i] == '\n' || i == inv->file[a]->len)
             {
                 size_t end_off = i;
 
@@ -127,7 +105,7 @@ void assembler_code_parse(assembler_invocation_t *inv,
 
                 /* allocate and copy line string */
                 inv->line[inv->line_cnt].str = malloc(len + 1);
-                memcpy(inv->line[inv->line_cnt].str, &(inv->file[a].code[start_off]), len);
+                memcpy(inv->line[inv->line_cnt].str, &(inv->file[a]->code[start_off]), len);
                 inv->line[inv->line_cnt].str[len] = '\0';
 
                 /* store diagnostic info */
@@ -254,7 +232,6 @@ void assembler_code_parse(assembler_invocation_t *inv,
      */
     for(int i = 0; i < filec; i++)
     {
-        munmap(inv->file[i].code, inv->file[i].len);
-        inv->file[i].code = NULL;
+        emex_file_close(inv->file[i]);
     }
 }

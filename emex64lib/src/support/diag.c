@@ -222,7 +222,7 @@ void diag_note(compiler_token_t *ct,
     /* handling compiler token if passed */
     if(ct != NULL)
     {
-        printf("%s:%zu:%zu: ", ct->cl->ci->file[ct->cl->file_idx].path, ct->cl->line_num, ct->column_num);
+        printf("%s:%zu:%zu: ", ct->cl->ci->file[ct->cl->file_idx]->path, ct->cl->line_num, ct->column_num);
     }
 
     /* initial debug print */
@@ -252,7 +252,7 @@ static void diag_vemit(diag_level_t level,
 
     if(ct != NULL)
     {
-        printf("%s:%zu:%zu: ", ct->cl->ci->file[ct->cl->file_idx].path, ct->cl->line_num, ct->column_num);
+        printf("%s:%zu:%zu: ", ct->cl->ci->file[ct->cl->file_idx]->path, ct->cl->line_num, ct->column_num);
     }
 
     switch(level)

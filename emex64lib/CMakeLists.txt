@@ -36,6 +36,7 @@ add_library(emex64lib ${LIB_TYPE}
     src/support/parser.c
     src/support/fdwalker.c
     src/support/diag.c
+    src/support/file.c
 
     # Virtual Machine
 

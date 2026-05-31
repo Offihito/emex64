@@ -60,12 +60,6 @@ typedef struct compiler_line {
 } compiler_line_t;
 
 typedef struct {
-    char *path;
-    char *code;
-    size_t len;
-} compiler_file_t;
-
-typedef struct {
     char *name;                             /* name of resolved label */
     uint64_t addr;                          /* address of resolved label */
     compiler_token_t *ctlink;               /* link to the originator of the label */
