@@ -8,7 +8,7 @@ compile:
 	rm badapple.o
 
 execute:
-	emex64vm ./badapple
+	emex64vm --bios ./badapple --memory 75
 
 clean:
 	rm -rf badapple

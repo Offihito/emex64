@@ -30,23 +30,60 @@
 
 #include <emex64lib/support/bitwalker.h>
 #include <emex64lib/support/diag.h>
+#include <emex64lib/support/parser.h>
 
 #include <emex64lib/vm/machine.h>
 #include <emex64lib/vm/device/display.h>
 
 int main(int argc, char *argv[])
 {
-    if(argc < 2 || argv == NULL || argv[1] == NULL)
+    int opt;
+    const char *bios_image = NULL;
+    uint64_t memsize = 100 * 1024 * 1024;   /* standard is 100MB */
+
+    /* parse arguments */
+    for(int i = 1; i < argc; i++)
     {
-        goto usage;
+        if(strcmp(argv[i], "--help") == 0)
+        {
+            printf("%s [options]\n", argv[0]);
+            printf("\t--help                 : showing help menu\n");
+            printf("\t--bios <image path>    : providing bios image\n");
+            printf("\t--memory <memory size> : providing memory size in megabyte\n");
+            return 0;
+        }
+        else if(strcmp(argv[i], "--bios") == 0 && i + 1 < argc)
+        {
+            bios_image = argv[++i];
+        }
+        else if(strcmp(argv[i], "--memory") == 0 && i + 1 < argc)
+        {
+            parser_return_t pr = parse_value_from_string(argv[++i]);
+            if(pr.type == emexParserValueTypeNumber)
+            {
+                memsize = pr.value * 1024 * 1024;
+            }
+            else
+            {
+                diag_error(NULL, "illegal value type used\n", argv[i]);
+            }
+        }
+        else
+        {
+            diag_error(NULL, "unknown option '%s'\n", argv[i]);
+        }
+    }
+
+    if(bios_image == NULL)
+    {
+        diag_error(NULL, "no bios image provided\n");
     }
 
     /* creating new la16 virtual machine */
-    la64_machine_t *machine = la64_machine_alloc(0x20000000);
+    la64_machine_t *machine = la64_machine_alloc(memsize);
     if(machine == NULL)
     {
         diag_error(NULL, "failed to allocated machine\n");
-        return 1;
     }
 
     /*
@@ -54,7 +91,7 @@ int main(int argc, char *argv[])
      * mapping and open the image it self as memory,
      * just size it.
      */
-    if(!la64_memory_load_image(machine->memory, argv[1]))
+    if(!la64_memory_load_image(machine->memory, bios_image))
     {
         goto usage;
     }
