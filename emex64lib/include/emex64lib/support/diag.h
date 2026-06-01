@@ -29,8 +29,8 @@
 
 extern _Thread_local bool warning_error;
 
-void diag_note(compiler_token_t *ct, const char *msg, ...);
-void diag_warn(compiler_token_t *ct, const char *msg, ...);
-void diag_error(compiler_token_t *ct, const char *msg, ...);
+void diag_note(assembler_token_t *at, const char *msg, ...);
+void diag_warn(assembler_token_t *at, const char *msg, ...);
+void diag_error(assembler_token_t *at, const char *msg, ...);
 
 #endif /* EMEX64ASM_DIAG_H */

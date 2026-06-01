@@ -79,10 +79,10 @@ compiler_label_t *assembler_label_lookup(assembler_invocation_t *inv,
     return NULL;
 }
 
-bool assembler_label_append(compiler_token_t *ct)
+bool assembler_label_append(assembler_token_t *at)
 {
     /* accessing compiler line and invocation */
-    assembler_invocation_t *inv = ct->al->inv;
+    assembler_invocation_t *inv = at->al->inv;
 
     /* assign address to label */
     inv->label[inv->label_cnt].addr = fdwalker_bytes_used(inv->fdwalker);
@@ -90,40 +90,40 @@ bool assembler_label_append(compiler_token_t *ct)
     char *name = NULL;
 
     /* copying label name */
-    if(ct->al->type == kAssemblerLineTypeLocalLabel)
+    if(at->al->type == kAssemblerLineTypeLocalLabel)
     {
         /* constructing scoped label */
         size_t label_scope_len = strlen(inv->label_scope);
-        size_t ct_len = strlen(ct->str);
+        size_t ct_len = strlen(at->str);
         size_t size = label_scope_len + ct_len;
         name = malloc(size);
         if(name == NULL)
         {
-            diag_error(ct, "failed to allocate memory for this label\n");
+            diag_error(at, "failed to allocate memory for this label\n");
             return false;
         }
         memcpy(name, inv->label_scope, label_scope_len);
-        memcpy(name + label_scope_len, ct->str, ct_len - 1); /* minus 1 to ommit the ':' character */
+        memcpy(name + label_scope_len, at->str, ct_len - 1); /* minus 1 to ommit the ':' character */
         name[size - 1] = '\0';
 
         /* checking if we are in a scope */
         if(inv->label_scope == NULL)
         {
-            diag_error(ct, "defining a local label out of any global label is illegal \"%s\"\n", name);
+            diag_error(at, "defining a local label out of any global label is illegal \"%s\"\n", name);
             return false;
         }
     }
     else
     {
         /* constructing global label */
-        size_t size = strlen(ct->str);
+        size_t size = strlen(at->str);
         name = malloc(size);
         if(name == NULL)
         {
-            diag_error(ct, "failed to allocate memory for this label\n");
+            diag_error(at, "failed to allocate memory for this label\n");
             return false;
         }
-        memcpy(name, ct->str, size - 1);
+        memcpy(name, at->str, size - 1);
         name[size - 1] = '\0';
 
         /* set it as scope */
@@ -134,12 +134,12 @@ bool assembler_label_append(compiler_token_t *ct)
     compiler_label_t *label = assembler_label_lookup(inv, name);
     if(label != NULL)
     {
-        diag_note(label->ctlink, "label \"%s\" already defined here\n", name);
-        diag_error(ct, "duplicated label \"%s\"\n", name);
+        diag_note(label->at_link, "label \"%s\" already defined here\n", name);
+        diag_error(at, "duplicated label \"%s\"\n", name);
         return false;
     }
 
-    inv->label[inv->label_cnt].ctlink = ct;
+    inv->label[inv->label_cnt].at_link = at;
     inv->label[inv->label_cnt++].name = name;
 
     return true;

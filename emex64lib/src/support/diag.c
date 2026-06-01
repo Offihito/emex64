@@ -222,7 +222,7 @@ typedef enum {
 } diag_level_t;
 
 static void diag_vemit(diag_level_t level,
-                       compiler_token_t *ct,
+                       assembler_token_t *at,
                        const char *msg,
                        va_list args)
 {
@@ -231,9 +231,9 @@ static void diag_vemit(diag_level_t level,
         level = DIAG_ERROR;
     }
 
-    if(ct != NULL)
+    if(at != NULL)
     {
-        printf("%s:%zu:%zu: ", ct->al->inv->file[ct->al->file_idx]->path, ct->al->line_num, ct->column_num);
+        printf("%s:%zu:%zu: ", at->al->inv->file[at->al->file_idx]->path, at->al->line_num, at->column_num);
     }
 
     switch(level)
@@ -253,35 +253,35 @@ static void diag_vemit(diag_level_t level,
     diag_helper(msg, (va_list*)&args);
 }
 
-void diag_note(compiler_token_t *ct,
+void diag_note(assembler_token_t *at,
                const char *msg,
                ...)
 {
     va_list args;
 
     va_start(args, msg);
-    diag_vemit(DIAG_NOTE, ct, msg, args);
+    diag_vemit(DIAG_NOTE, at, msg, args);
     va_end(args);
 }
 
-void diag_warn(compiler_token_t *ct,
+void diag_warn(assembler_token_t *at,
                const char *msg,
                ...)
 {
     va_list args;
 
     va_start(args, msg);
-    diag_vemit(DIAG_WARN, ct, msg, args);
+    diag_vemit(DIAG_WARN, at, msg, args);
     va_end(args);
 }
 
-void diag_error(compiler_token_t *ct,
+void diag_error(assembler_token_t *at,
                 const char *msg,
                 ...)
 {
     va_list args;
 
     va_start(args, msg);
-    diag_vemit(DIAG_ERROR, ct, msg, args);
+    diag_vemit(DIAG_ERROR, at, msg, args);
     va_end(args);
 }

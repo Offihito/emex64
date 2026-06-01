@@ -287,7 +287,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
             rtbe->name = label;
             rtbe->byte_pos = al->inv->fdwalker->byte_pos;
             rtbe->bit_idx = al->inv->fdwalker->bit_idx;
-            rtbe->ctlink = &(al->token[i]);
+            rtbe->at_link = &(al->token[i]);
 
             /*
              * skip the 64bit the label occupies
@@ -410,7 +410,7 @@ bool assembler_emit(assembler_invocation_t *inv)
         compiler_label_t *label = assembler_label_lookup(inv, rtbe->name);
         if(label == NULL)
         {
-            diag_error(rtbe->ctlink, "label \"%s\" not found\n", rtbe->name);
+            diag_error(rtbe->at_link, "label \"%s\" not found\n", rtbe->name);
             return false;
         }
 

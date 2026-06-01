@@ -41,16 +41,16 @@ typedef enum assemblerLineType {
     kAssemblerLineTypeMacroDef
 } assembler_line_type_t;
 
-typedef struct {
+typedef struct assembler_token {
     char *str;
     size_t column_num;                      /* start offset of column */
     struct assembler_line *al;              /* pointer back to compiler line */
-} compiler_token_t;
+} assembler_token_t;
 
 typedef struct assembler_line {
     char *str;
     assembler_line_type_t type;             /* type of line */
-    compiler_token_t *token;                /* subtokens */
+    struct assembler_token *token;          /* subtokens */
     uint64_t token_cnt;                     /* count of subtokens */
     size_t line_num;                        /* line number in file */   
     size_t file_idx;                        /* index of file in compiler invocation */
@@ -60,17 +60,15 @@ typedef struct assembler_line {
 typedef struct {
     char *name;                             /* name of resolved label */
     uint64_t addr;                          /* address of resolved label */
-    compiler_token_t *ctlink;               /* link to the originator of the label */
+    struct assembler_token *at_link;        /* link to the originator of the label */
 } compiler_label_t;
 
-typedef struct reloc_table_entry reloc_table_entry_t;
-
-struct reloc_table_entry {
+typedef struct reloc_table_entry {
     char *name;                             /* resolved label name */
     size_t byte_pos;                        /* position */
     uint8_t bit_idx;
-    compiler_token_t *ctlink;               /* link to the originator of the entry */
-    reloc_table_entry_t *next;              /* pointer to next entry */
-};
+    struct assembler_token *at_link;        /* link to the originator of the entry */
+    struct reloc_table_entry *next;         /* pointer to next entry */
+} reloc_table_entry_t;
 
 #endif /* EMEX64ASM_TYPE_H */
