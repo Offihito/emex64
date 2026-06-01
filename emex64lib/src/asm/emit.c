@@ -124,7 +124,7 @@ bool assembler_emit_instruction_inc(const opcode_entry_t *opce,
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
         /* increment means each parameter, one opcode */
-        assembler_emit_opcode(cl->ci, LA64_OPCODE_ADD);
+        assembler_emit_opcode(cl->inv, LA64_OPCODE_ADD);
 
         /* it must be a register */
         register_entry_t *reg = register_from_string(cl->token[i].str);
@@ -135,10 +135,10 @@ bool assembler_emit_instruction_inc(const opcode_entry_t *opce,
         }
 
         /* emit parameters */
-        assembler_emit_register(cl->ci, reg->reg);
-        assembler_emit_imm8(cl->ci, 1);
-        assembler_emit_end(cl->ci);
-        fdwalker_align_byte(cl->ci->fdwalker);
+        assembler_emit_register(cl->inv, reg->reg);
+        assembler_emit_imm8(cl->inv, 1);
+        assembler_emit_end(cl->inv);
+        fdwalker_align_byte(cl->inv->fdwalker);
     }
 
     return true;
@@ -159,7 +159,7 @@ bool assembler_emit_instruction_dec(const opcode_entry_t *opce,
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
         /* increment means each parameter, one opcode */
-        assembler_emit_opcode(cl->ci, LA64_OPCODE_SUB);
+        assembler_emit_opcode(cl->inv, LA64_OPCODE_SUB);
 
         /* it must be a register */
         register_entry_t *reg = register_from_string(cl->token[i].str);
@@ -171,10 +171,10 @@ bool assembler_emit_instruction_dec(const opcode_entry_t *opce,
         }
 
         /* emit parameters */
-        assembler_emit_register(cl->ci, reg->reg);
-        assembler_emit_imm8(cl->ci, 1);
-        assembler_emit_end(cl->ci);
-        fdwalker_align_byte(cl->ci->fdwalker);
+        assembler_emit_register(cl->inv, reg->reg);
+        assembler_emit_imm8(cl->inv, 1);
+        assembler_emit_end(cl->inv);
+        fdwalker_align_byte(cl->inv->fdwalker);
     }
 
     return true;
@@ -200,7 +200,7 @@ bool assembler_emit_instruction_clr(const opcode_entry_t *opce,
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
         /* increment means each parameter, one opcode */
-        assembler_emit_opcode(cl->ci, LA64_OPCODE_MOV);
+        assembler_emit_opcode(cl->inv, LA64_OPCODE_MOV);
 
         /* it must be a register */
         register_entry_t *reg = register_from_string(cl->token[i].str);
@@ -212,9 +212,9 @@ bool assembler_emit_instruction_clr(const opcode_entry_t *opce,
         }
 
         /* emit parameters */
-        assembler_emit_register(cl->ci, reg->reg);
-        assembler_emit_imm8(cl->ci, 0);
-        fdwalker_align_byte(cl->ci->fdwalker);
+        assembler_emit_register(cl->inv, reg->reg);
+        assembler_emit_imm8(cl->inv, 0);
+        fdwalker_align_byte(cl->inv->fdwalker);
     }
 
     return true;
@@ -227,7 +227,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
      * every instruction starts with a
      * opcode. so we emit one.
      */
-    assembler_emit_opcode(cl->ci, opce->opcode);
+    assembler_emit_opcode(cl->inv, opce->opcode);
 
     for(uint64_t i = 1; i < cl->token_cnt; i++)
     {
@@ -235,7 +235,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
         if(reg != NULL)
         {
             /* registers are always allowed so far */
-            assembler_emit_register(cl->ci, reg->reg);
+            assembler_emit_register(cl->inv, reg->reg);
             continue;
         }
 
@@ -260,13 +260,13 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
 
         if(pr.type == emexParserValueTypeString)
         {
-            fdwalker_write(cl->ci->fdwalker, LA64_PARAMETER_CODING_IMM64, 3);
+            fdwalker_write(cl->inv->fdwalker, LA64_PARAMETER_CODING_IMM64, 3);
 
             /* the label is either local or global */
             char *label = NULL;
             if(cl->token[i].str[0] == '.')
             {
-                asprintf(&label, "%s%s", cl->ci->label_scope, cl->token[i].str);
+                asprintf(&label, "%s%s", cl->inv->label_scope, cl->token[i].str);
             }
             else
             {
@@ -278,15 +278,15 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
              * table.
              */
             reloc_table_entry_t *rtbe = malloc(sizeof(reloc_table_entry_t));
-            if(cl->ci->rtbe != NULL)
+            if(cl->inv->rtbe != NULL)
             {
-                rtbe->next = cl->ci->rtbe;
+                rtbe->next = cl->inv->rtbe;
             }
-            cl->ci->rtbe = rtbe;
+            cl->inv->rtbe = rtbe;
 
             rtbe->name = label;
-            rtbe->byte_pos = cl->ci->fdwalker->byte_pos;
-            rtbe->bit_idx = cl->ci->fdwalker->bit_idx;
+            rtbe->byte_pos = cl->inv->fdwalker->byte_pos;
+            rtbe->bit_idx = cl->inv->fdwalker->bit_idx;
             rtbe->ctlink = &(cl->token[i]);
 
             /*
@@ -295,21 +295,21 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
              * already. the relocation table later will
              * fill this space with the address.
              */
-            fdwalker_skip(cl->ci->fdwalker, 64);
+            fdwalker_skip(cl->inv->fdwalker, 64);
         }
         else
         {
             /* its a intermediate */
-            assembler_emit_imm(cl->ci, pr.value);
+            assembler_emit_imm(cl->inv, pr.value);
         }
     }
 
     if(opce->maxargs == 32 || opce->maxargs != (cl->token_cnt - 1))
     {
-        assembler_emit_end(cl->ci);
+        assembler_emit_end(cl->inv);
     }
 
-    fdwalker_align_byte(cl->ci->fdwalker);
+    fdwalker_align_byte(cl->inv->fdwalker);
 
     return true;
 }
@@ -337,7 +337,7 @@ bool assembler_emit_line(compiler_line_t *cl)
     }
 
     /* checking for deprecation */
-    if(opce->dnstr != NULL && cl->ci->options.warning_deprecated)
+    if(opce->dnstr != NULL && cl->inv->options.warning_deprecated)
     {
         diag_warn(&(cl->token[cl->token_cnt - 1]), "opcode \"%s\" is deprecated: %s\n", opce->name, opce->dnstr);
     }

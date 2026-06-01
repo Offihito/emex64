@@ -83,10 +83,10 @@ bool assembler_label_append(compiler_token_t *ct)
 {
     /* accessing compiler line and invocation */
     compiler_line_t *cl = ct->cl;
-    compiler_invocation_t *ci = cl->ci;
+    assembler_invocation_t *inv = cl->inv;
 
     /* assign address to label */
-    ci->label[ci->label_cnt].addr = fdwalker_bytes_used(ci->fdwalker);
+    inv->label[inv->label_cnt].addr = fdwalker_bytes_used(inv->fdwalker);
 
     char *name = NULL;
 
@@ -94,16 +94,16 @@ bool assembler_label_append(compiler_token_t *ct)
     if(ct->cl->type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL)
     {
         /* constructing scoped label */
-        size_t label_scope_len = strlen(ci->label_scope);
+        size_t label_scope_len = strlen(inv->label_scope);
         size_t ct_len = strlen(ct->str);
         size_t size = label_scope_len + ct_len;
         name = malloc(size);
-        memcpy(name, ci->label_scope, label_scope_len);
+        memcpy(name, inv->label_scope, label_scope_len);
         memcpy(name + label_scope_len, ct->str, ct_len - 1); /* minus 1 to ommit the ':' character */
         name[size - 1] = '\0';
 
         /* checking if we are in a scope */
-        if(ci->label_scope == NULL)
+        if(inv->label_scope == NULL)
         {
             diag_error(ct, "defining a local label out of any global label is illegal \"%s\"\n", name);
             return false;
@@ -118,11 +118,11 @@ bool assembler_label_append(compiler_token_t *ct)
         name[size - 1] = '\0';
 
         /* set it as scope */
-        ci->label_scope = name;
+        inv->label_scope = name;
     }
 
     /* checking for duplicated labels */
-    compiler_label_t *label = assembler_label_lookup(ci, name);
+    compiler_label_t *label = assembler_label_lookup(inv, name);
     if(label != NULL)
     {
         diag_note(label->ctlink, "label \"%s\" already defined here\n", name);
@@ -130,8 +130,8 @@ bool assembler_label_append(compiler_token_t *ct)
         return false;
     }
 
-    ci->label[ci->label_cnt].ctlink = ct;
-    ci->label[ci->label_cnt++].name = name;
+    inv->label[inv->label_cnt].ctlink = ct;
+    inv->label[inv->label_cnt++].name = name;
 
     return true;
 }

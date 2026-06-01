@@ -109,7 +109,7 @@ bool assembler_code_parse(assembler_invocation_t *inv,
                 /* store diagnostic info */
                 inv->line[inv->line_cnt].line_num = ++file_line_cnt;
                 inv->line[inv->line_cnt].file_idx = a;
-                inv->line[(inv->line_cnt)++].ci = inv;
+                inv->line[(inv->line_cnt)++].inv = inv;
                 start_off = i + 1;
             }
         }

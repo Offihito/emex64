@@ -40,7 +40,7 @@
 #define ASSEMBLER_LINE_TYPE_MACRODEF             0b0110
 
 typedef unsigned char compiler_line_type_t;
-typedef struct assembler_invocation compiler_invocation_t;
+typedef struct assembler_invocation assembler_invocation_t;
 typedef struct compiler_line compiler_line_t;
 
 typedef struct {
@@ -56,7 +56,7 @@ typedef struct compiler_line {
     uint64_t token_cnt;                     /* count of subtokens */
     size_t line_num;                        /* line number in file */   
     size_t file_idx;                        /* index of file in compiler invocation */
-    compiler_invocation_t *ci;              /* pointer back to compiler invocation */
+    assembler_invocation_t *inv;              /* pointer back to compiler invocation */
 } compiler_line_t;
 
 typedef struct {
