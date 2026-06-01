@@ -39,7 +39,7 @@ void assembler_macro_expand(assembler_invocation_t *inv)
     uint64_t c = 0;
     for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_MACRODEF)
+        if(inv->line[i].type == kAssemblerLineTypeMacroDef)
         {
             c++;
         }
@@ -52,7 +52,7 @@ void assembler_macro_expand(assembler_invocation_t *inv)
     c = 0;
     for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_MACRODEF)
+        if(inv->line[i].type == kAssemblerLineTypeMacroDef)
         {
             cm[c].name = inv->line[i].token[1].str;
             cm[c].value = inv->line[i].token[2].str;
@@ -63,7 +63,7 @@ void assembler_macro_expand(assembler_invocation_t *inv)
     /* now replacing */
     for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_ASM)
+        if(inv->line[i].type == kAssemblerLineTypeAssembly)
         {
             for(uint64_t a = 0; a < inv->line[i].token_cnt; a++)
             {

@@ -85,7 +85,7 @@ bool assembler_code_parse(assembler_invocation_t *inv,
     }
 
     /* copy each line */
-    inv->line = calloc(total_lines, sizeof(compiler_line_t));
+    inv->line = calloc(total_lines, sizeof(assembler_line_t));
     inv->line_cnt = 0;
     for(size_t a = 0; a < inv->file_cnt; a++)
     {
@@ -143,7 +143,7 @@ bool assembler_code_parse(assembler_invocation_t *inv,
         {
             inv->line[i].token[inv->line[i].token_cnt].str = strdup(token.token);
             inv->line[i].token[inv->line[i].token_cnt].column_num = token.pos + 1;
-            inv->line[i].token[inv->line[i].token_cnt++].cl = &(inv->line[i]);
+            inv->line[i].token[inv->line[i].token_cnt++].al = &(inv->line[i]);
             token = cmptok(NULL);
         }
     }
@@ -187,10 +187,10 @@ bool assembler_code_parse(assembler_invocation_t *inv,
                 switch(inv->line[i].token[0].str[0])
                 {
                     case '_':
-                        inv->line[i].type = ASSEMBLER_LINE_TYPE_GLOBAL_LABEL;
+                        inv->line[i].type = kAssemblerLineTypeGlobalLabel;
                         break;
                     case '.':
-                        inv->line[i].type = ASSEMBLER_LINE_TYPE_LOCAL_LABEL;
+                        inv->line[i].type = kAssemblerLineTypeLocalLabel;
                         break;
                     default:
                         diag_error(&(inv->line[i].token[0]), "illegal label definition \"%s\"\n", inv->line[i].token[0].str);
@@ -203,13 +203,13 @@ bool assembler_code_parse(assembler_invocation_t *inv,
         else if(inv->line[i].token_cnt < 3 && strcmp(inv->line[i].token[0].str, "section") == 0)
         {
             section_mode = true;
-            inv->line[i].type = ASSEMBLER_LINE_TYPE_SECTION;
+            inv->line[i].type = kAssemblerLineTypeSection;
             continue;
         }
         else if(strcmp(inv->line[i].token[0].str, "%define%") == 0)
         {
             section_mode = false;
-            inv->line[i].type = ASSEMBLER_LINE_TYPE_MACRODEF;
+            inv->line[i].type = kAssemblerLineTypeMacroDef;
             continue;
         }
 
@@ -218,7 +218,7 @@ bool assembler_code_parse(assembler_invocation_t *inv,
          * assembly, this is a very important
          * differentiation. 
          */
-        inv->line[i].type = section_mode ? ASSEMBLER_LINE_TYPE_SECTION_DATA : ASSEMBLER_LINE_TYPE_ASM;
+        inv->line[i].type = section_mode ? kAssemblerLineTypeSectionData : kAssemblerLineTypeAssembly;
     }
 
     /*

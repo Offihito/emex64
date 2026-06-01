@@ -44,13 +44,13 @@ bool assembler_section_parse(assembler_invocation_t *inv)
     /* iterating for section token type and creating data section */
     for(unsigned long i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_SECTION)
+        if(inv->line[i].type == kAssemblerLineTypeSection)
         {
             if(strcmp(inv->line[i].token[1].str, ".data") == 0)
             {
                 /* iterating till section data is over */
                 i++;
-                for(; i < inv->line_cnt && inv->line[i].type == ASSEMBLER_LINE_TYPE_SECTION_DATA; i++)
+                for(; i < inv->line_cnt && inv->line[i].type == kAssemblerLineTypeSectionData; i++)
                 {
                     /* checking count */
                     if(inv->line[i].token_cnt < 3)
@@ -150,13 +150,13 @@ bool assembler_section_parse(assembler_invocation_t *inv)
     /* iterating for section token type and creating bss section */
     for(unsigned long i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_SECTION)
+        if(inv->line[i].type == kAssemblerLineTypeSection)
         {
             if(strcmp(inv->line[i].token[1].str, ".bss") == 0)
             {
                 /* finding variable type */
                 i++;
-                for(; i < inv->line_cnt && inv->line[i].type == ASSEMBLER_LINE_TYPE_SECTION_DATA; i++)
+                for(; i < inv->line_cnt && inv->line[i].type == kAssemblerLineTypeSectionData; i++)
                 {
                     /* checking count */
                     if(inv->line[i].token_cnt != 3)

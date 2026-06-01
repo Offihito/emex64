@@ -45,9 +45,9 @@ bool assembler_label_prealloc(assembler_invocation_t *inv)
     inv->label_cnt = 1;
     for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_GLOBAL_LABEL ||
-           inv->line[i].type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL ||
-           inv->line[i].type == ASSEMBLER_LINE_TYPE_SECTION_DATA)
+        if(inv->line[i].type == kAssemblerLineTypeGlobalLabel ||
+           inv->line[i].type == kAssemblerLineTypeLocalLabel ||
+           inv->line[i].type == kAssemblerLineTypeSectionData)
         {
             (inv->label_cnt)++;
         }
@@ -82,8 +82,7 @@ compiler_label_t *assembler_label_lookup(assembler_invocation_t *inv,
 bool assembler_label_append(compiler_token_t *ct)
 {
     /* accessing compiler line and invocation */
-    compiler_line_t *cl = ct->cl;
-    assembler_invocation_t *inv = cl->inv;
+    assembler_invocation_t *inv = ct->al->inv;
 
     /* assign address to label */
     inv->label[inv->label_cnt].addr = fdwalker_bytes_used(inv->fdwalker);
@@ -91,13 +90,18 @@ bool assembler_label_append(compiler_token_t *ct)
     char *name = NULL;
 
     /* copying label name */
-    if(ct->cl->type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL)
+    if(ct->al->type == kAssemblerLineTypeLocalLabel)
     {
         /* constructing scoped label */
         size_t label_scope_len = strlen(inv->label_scope);
         size_t ct_len = strlen(ct->str);
         size_t size = label_scope_len + ct_len;
         name = malloc(size);
+        if(name == NULL)
+        {
+            diag_error(ct, "failed to allocate memory for this label\n");
+            return false;
+        }
         memcpy(name, inv->label_scope, label_scope_len);
         memcpy(name + label_scope_len, ct->str, ct_len - 1); /* minus 1 to ommit the ':' character */
         name[size - 1] = '\0';
@@ -114,6 +118,11 @@ bool assembler_label_append(compiler_token_t *ct)
         /* constructing global label */
         size_t size = strlen(ct->str);
         name = malloc(size);
+        if(name == NULL)
+        {
+            diag_error(ct, "failed to allocate memory for this label\n");
+            return false;
+        }
         memcpy(name, ct->str, size - 1);
         name[size - 1] = '\0';
 

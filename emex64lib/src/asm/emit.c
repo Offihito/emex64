@@ -109,7 +109,7 @@ void assembler_emit_end(assembler_invocation_t *inv)
 }
 
 bool assembler_emit_instruction_inc(const opcode_entry_t *opce,
-                                    compiler_line_t *cl)
+                                    assembler_line_t *cl)
 {
     /*
      * background is this was a native instruction, but
@@ -145,7 +145,7 @@ bool assembler_emit_instruction_inc(const opcode_entry_t *opce,
 }
 
 bool assembler_emit_instruction_dec(const opcode_entry_t *opce,
-                                    compiler_line_t *cl)
+                                    assembler_line_t *cl)
 {
     /*
      * background is this was a native instruction, but
@@ -181,7 +181,7 @@ bool assembler_emit_instruction_dec(const opcode_entry_t *opce,
 }
 
 bool assembler_emit_instruction_clr(const opcode_entry_t *opce,
-                                    compiler_line_t *cl)
+                                    assembler_line_t *cl)
 {
     /*
      * people would argue to emit XOR but XOR 
@@ -221,7 +221,7 @@ bool assembler_emit_instruction_clr(const opcode_entry_t *opce,
 }
 
 bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
-                                        compiler_line_t *cl)
+                                        assembler_line_t *cl)
 {
     /*
      * every instruction starts with a
@@ -314,7 +314,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
     return true;
 }
 
-bool assembler_emit_line(compiler_line_t *cl)
+bool assembler_emit_line(assembler_line_t *cl)
 {
     /* parameter count check */
     if(cl->token_cnt <= 0)
@@ -365,8 +365,8 @@ bool assembler_emit(assembler_invocation_t *inv)
     for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
         /* checking for label */
-        if(inv->line[i].type == ASSEMBLER_LINE_TYPE_GLOBAL_LABEL ||
-           inv->line[i].type == ASSEMBLER_LINE_TYPE_LOCAL_LABEL)
+        if(inv->line[i].type == kAssemblerLineTypeGlobalLabel ||
+           inv->line[i].type == kAssemblerLineTypeLocalLabel)
         {
             /* insert into labels */
             if(!assembler_label_append(&(inv->line[i].token[0])))
@@ -374,7 +374,7 @@ bool assembler_emit(assembler_invocation_t *inv)
                 return false;
             }
         }
-        else if(inv->line[i].type == ASSEMBLER_LINE_TYPE_ASM)
+        else if(inv->line[i].type == kAssemblerLineTypeAssembly)
         {
             if(!assembler_emit_line(&(inv->line[i])))
             {

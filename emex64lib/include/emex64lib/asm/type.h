@@ -31,33 +31,34 @@
 
 #include <emex64lib/support/fdwalker.h>
 
-#define ASSEMBLER_LINE_TYPE_NONE                 0b0000
-#define ASSEMBLER_LINE_TYPE_ASM                  0b0001
-#define ASSEMBLER_LINE_TYPE_GLOBAL_LABEL         0b0010
-#define ASSEMBLER_LINE_TYPE_LOCAL_LABEL          0b0011
-#define ASSEMBLER_LINE_TYPE_SECTION              0b0100
-#define ASSEMBLER_LINE_TYPE_SECTION_DATA         0b0101
-#define ASSEMBLER_LINE_TYPE_MACRODEF             0b0110
+typedef enum assemblerLineType {
+    kAssemblerLineTypeNone = 0b0000,
+    kAssemblerLineTypeAssembly,
+    kAssemblerLineTypeGlobalLabel,
+    kAssemblerLineTypeLocalLabel,
+    kAssemblerLineTypeSection,
+    kAssemblerLineTypeSectionData,
+    kAssemblerLineTypeMacroDef
+} assembler_line_type_t;
 
-typedef unsigned char compiler_line_type_t;
 typedef struct assembler_invocation assembler_invocation_t;
-typedef struct compiler_line compiler_line_t;
+typedef struct assembler_line assembler_line_t;
 
 typedef struct {
     char *str;
     size_t column_num;                      /* start offset of column */
-    compiler_line_t *cl;                    /* pointer back to compiler line */
+    assembler_line_t *al;                   /* pointer back to compiler line */
 } compiler_token_t;
 
-typedef struct compiler_line {
+typedef struct assembler_line {
     char *str;
-    compiler_line_type_t type;              /* type of line */
+    assembler_line_type_t type;             /* type of line */
     compiler_token_t *token;                /* subtokens */
     uint64_t token_cnt;                     /* count of subtokens */
     size_t line_num;                        /* line number in file */   
     size_t file_idx;                        /* index of file in compiler invocation */
-    assembler_invocation_t *inv;              /* pointer back to compiler invocation */
-} compiler_line_t;
+    assembler_invocation_t *inv;            /* pointer back to compiler invocation */
+} assembler_line_t;
 
 typedef struct {
     char *name;                             /* name of resolved label */

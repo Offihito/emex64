@@ -33,7 +33,7 @@
 typedef struct assembler_invocation {
     emex_file_t **file;                     /* code files */
     size_t file_cnt;                        /* count of files */
-    compiler_line_t *line;                  /* token array */
+    assembler_line_t *line;                  /* token array */
     uint64_t line_cnt;                      /* count of tokens */
     char *label_scope;                      /* current resolved label scope */
     compiler_label_t *label;                /* label array */
