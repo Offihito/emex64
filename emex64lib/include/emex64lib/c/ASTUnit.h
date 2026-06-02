@@ -102,20 +102,6 @@ struct ASTNode {
         } translationUnit;
 
         /*
-         * function definitions are...
-         * like..
-         * 
-         * int foo();
-         * 
-         */
-        struct {
-            char* name;
-            //struct DataType* type;
-            struct ASTNode** parameters; 
-            size_t parameter_count;
-        } functionDefinition;
-
-        /*
          * function declarations are the function it self,
          * like..
          * 
@@ -128,11 +114,25 @@ struct ASTNode {
         struct {
             char* name;
             //struct DataType* type;
+            struct ASTNode** parameters; 
+            size_t parameter_count;
+        } functionDeclaration;
+
+        /*
+         * function definitions are...
+         * like..
+         * 
+         * int foo();
+         * 
+         */
+        struct {
+            char* name;
+            //struct DataType* type;
             struct ASTNode** parameters;
             size_t parameter_count;
             struct ASTNode** body;       
             size_t body_count;
-        } functionDeclaration;
+        } functionDefinition;
 
         /* bruh, its a declaration of a structure */
         struct {
