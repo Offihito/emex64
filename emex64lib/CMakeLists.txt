@@ -71,6 +71,10 @@ add_library(emex64lib ${LIB_TYPE}
     src/asm/register.c
     src/asm/section.c
     src/asm/macro.c
+
+    # C Compiler
+
+    src/c/ASTUnit.c
 )
 
 target_compile_definitions(emex64lib PRIVATE
