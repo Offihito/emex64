@@ -84,6 +84,41 @@ assembler_invocation_t *assembler_invocation_alloc_with_options(const char *outp
     return inv;
 }
 
+bool assembler_invocation_emit(assembler_invocation_t *inv,
+                               int filec,
+                               char **filev)
+{
+    if(filec <= 0)
+    {
+        diag_error(NULL, "no input files provided\n");
+        return false;
+    }
+
+    /* generating tokens,labels,sections out of the code */
+    if(!assembler_code_parse(inv, (const char **)filev, filec) ||
+       !assembler_label_prealloc(inv) ||
+       !assembler_section_parse(inv))
+    {
+        return false;
+    }
+
+    assembler_macro_expand(inv);
+
+    /* finally compiling it to machine code */
+    if(!assembler_emit(inv))
+    {
+        return false;
+    }
+
+    /* insert entry */
+    if(!assembler_label_insert_start_entry(inv))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void assembler_invocation_dealloc(assembler_invocation_t *inv)
 {
     /* todo: this must be redone from scratch */
