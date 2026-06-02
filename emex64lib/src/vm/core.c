@@ -163,10 +163,10 @@ static void la64_core_decode_instruction_at_pc(la64_core_t *core)
         /* switch through modes */
         switch(mode)
         {
-            case LA64_PARAMETER_CODING_INSTR_END:
+            case kEmex64ParameterCodingEnd:
                 reached_end = true;
                 break;
-            case LA64_PARAMETER_CODING_REG:
+            case kEmex64ParameterCodingReg:
             {
                 uint8_t rcnt = (uint8_t)bitwalker_read(&bw, 5);
 
@@ -182,12 +182,12 @@ static void la64_core_decode_instruction_at_pc(la64_core_t *core)
 
                 break;
             }
-            case LA64_PARAMETER_CODING_IMM8:
-            case LA64_PARAMETER_CODING_IMM16:
-            case LA64_PARAMETER_CODING_IMM32:
-            case LA64_PARAMETER_CODING_IMM64:
+            case kEmex64ParameterCodingImm8:
+            case kEmex64ParameterCodingImm16:
+            case kEmex64ParameterCodingImm32:
+            case kEmex64ParameterCodingImm64:
             {
-                uint8_t bits = 1u << (((mode - LA64_PARAMETER_CODING_IMM8) + 1) + 2);
+                uint8_t bits = 1u << (((mode - kEmex64ParameterCodingImm8) + 1) + 2);
                 core->op.imm[core->op.param_cnt] = (uint64_t)bitwalker_read(&bw, bits);
                 core->op.param[core->op.param_cnt] = &(core->op.imm[core->op.param_cnt]);
                 core->op.param_cnt++;

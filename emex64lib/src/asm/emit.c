@@ -50,35 +50,35 @@ void assembler_emit_register(assembler_invocation_t *inv,
 {
     assert(reg < LA64_REGISTER_MAX);
 
-    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_REG, 3);
+    fdwalker_write(inv->fdwalker, kEmex64ParameterCodingReg, 3);
     fdwalker_write(inv->fdwalker, reg, 5);
 }
 
 void assembler_emit_imm8(assembler_invocation_t *inv,
                          uint8_t imm)
 {
-    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_IMM8, 3);
+    fdwalker_write(inv->fdwalker, kEmex64ParameterCodingImm8, 3);
     fdwalker_write(inv->fdwalker, imm, 8);
 }
 
 void assembler_emit_imm16(assembler_invocation_t *inv,
                           uint16_t imm)
 {
-    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_IMM16, 3);
+    fdwalker_write(inv->fdwalker, kEmex64ParameterCodingImm16, 3);
     fdwalker_write(inv->fdwalker, imm, 16);
 }
 
 void assembler_emit_imm32(assembler_invocation_t *inv,
                           uint32_t imm)
 {
-    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_IMM32, 3);
+    fdwalker_write(inv->fdwalker, kEmex64ParameterCodingImm32, 3);
     fdwalker_write(inv->fdwalker, imm, 32);
 }
 
 void assembler_emit_imm64(assembler_invocation_t *inv,
                           uint64_t imm)
 {
-    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_IMM64, 3);
+    fdwalker_write(inv->fdwalker, kEmex64ParameterCodingImm64, 3);
     fdwalker_write(inv->fdwalker, imm, 64);
 }
 
@@ -105,7 +105,7 @@ void assembler_emit_imm(assembler_invocation_t *inv,
 
 void assembler_emit_end(assembler_invocation_t *inv)
 {
-    fdwalker_write(inv->fdwalker, LA64_PARAMETER_CODING_INSTR_END, 3);
+    fdwalker_write(inv->fdwalker, kEmex64ParameterCodingEnd, 3);
 }
 
 bool assembler_emit_instruction_inc(const opcode_entry_t *opce,
@@ -260,7 +260,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
 
         if(pr.type == emexParserValueTypeString)
         {
-            fdwalker_write(al->inv->fdwalker, LA64_PARAMETER_CODING_IMM64, 3);
+            fdwalker_write(al->inv->fdwalker, kEmex64ParameterCodingImm64, 3);
 
             /* the label is either local or global */
             char *label = NULL;

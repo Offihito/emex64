@@ -90,15 +90,15 @@ enum kEmex64Opcode: uint8_t {
     kEmex64OpcodeMAX = kEmex64OpcodeIRET,
 };
 
-/* parameter modes */
-
-#define LA64_PARAMETER_CODING_INSTR_END 0b000   /* instruction end marker for instructions dynamic in lenght */
-#define LA64_PARAMETER_CODING_REG       0b001   /* register */
-#define LA64_PARAMETER_CODING_IMM8      0b010   /* 8bit intermediate */
-#define LA64_PARAMETER_CODING_IMM16     0b011   /* 16bit intermediate */
-#define LA64_PARAMETER_CODING_IMM32     0b100   /* 32bit intermediate */
-#define LA64_PARAMETER_CODING_IMM64     0b101   /* 64bit intermediate */
-/* leaving 0b110 and 0b111 open for later additions */
+enum kEmex64ParameterCoding: uint8_t {
+    kEmex64ParameterCodingEnd   = 0b000,
+    kEmex64ParameterCodingReg   = 0b001,
+    kEmex64ParameterCodingImm8  = 0b010,
+    kEmex64ParameterCodingImm16 = 0b011,
+    kEmex64ParameterCodingImm32 = 0b100,
+    kEmex64ParameterCodingImm64 = 0b101
+    /* leaving 0b110 and 0b111 open for later additions */
+};
 
 /* registers */
 
