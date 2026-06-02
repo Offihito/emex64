@@ -103,16 +103,27 @@ bool la64_memory_load_image(la64_memory_t *memory,
         return false;
     }
 
-    /* overmap the memory with the file in a dirty way tehe ^^ */
+    /*
+     * overmap the memory with the file in a dirty way tehe ^^
+     * meaning that when ever the vm writes to this memory
+     * it will become writable as the OS then copies the memory
+     * to a writable page, this is much faster as usually those
+     * pages aren't written to anyways, especially after the
+     * assembler will start to emit a _linker_start symbol for
+     * which does all the setup, like it will set the .bss pointers
+     * as they usually shouldn't be part of the image anyways.
+     * 
+     * and with ABI it will be handled by the OS dynamic linker.
+     * 
+     * wen eta object file format object.h being done.
+     */
     void *mapped = mmap(memory->memory, image_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED, fd, 0);
+    close(fd);
     if(mapped == MAP_FAILED)
     {
-        close(fd);
         diag_error(NULL, "mapping boot image failed\n");
         return false;
     }
-
-    close(fd);
 
     return true;
 }
