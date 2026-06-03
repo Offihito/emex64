@@ -194,10 +194,6 @@ static void la64_core_decode_instruction_at_pc(la64_core_t *core)
                 core->op.imm[i] = bitwalker_read(&bw, 64);
                 core->op.param[i] = &(core->op.imm[i]);
                 break;
-            default:
-                /* unknown mode */
-                core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadInstruction;
-                return;
         }
     }
 
