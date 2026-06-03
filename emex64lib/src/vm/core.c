@@ -151,19 +151,16 @@ static void la64_core_decode_instruction_at_pc(la64_core_t *core)
     core->op.op = opfunc_table[opcode];
 
     /* parsing loop */
-    bool reached_end = false;
     uint8_t maxarg = core->op.op.maxargs;
     uint8_t i;
-    for(i = 0; i < maxarg && !reached_end; i++)
+    for(i = 0; i < maxarg; i++)
     {
         /* switch through modes */
         uint8_t mode = (uint8_t)bitwalker_read(&bw, 3);
         switch(mode)
         {
             case kEmex64ParameterCodingEnd:
-                reached_end = true;
-                i--;
-                continue;
+                goto escape_from_la;
             case kEmex64ParameterCodingReg:
             {
                 uint8_t rcnt = (uint8_t)bitwalker_read(&bw, 5);
@@ -200,10 +197,11 @@ static void la64_core_decode_instruction_at_pc(la64_core_t *core)
             default:
                 /* unknown mode */
                 core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadInstruction;
-                reached_end = true;
                 return;
         }
     }
+
+escape_from_la:
 
     /*
      * now we know all about this instruction, the
