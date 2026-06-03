@@ -125,7 +125,7 @@ void la64_core_dealloc(la64_core_t *core)
     free(core);
 }
 
-static void la64_core_decode_instruction_at_pc(la64_core_t *core)
+static inline void la64_core_decode_instruction_at_pc(la64_core_t *core)
 {
     /* accessing memory */
     void *iptr = la64_memory_access(core, core->rl[kEmex64RegisterPC], 256);
