@@ -48,6 +48,9 @@ bool assembler_section_parse(assembler_invocation_t *inv)
         {
             if(strcmp(inv->line[i].token[1].str, ".data") == 0)
             {
+                /* so relocation never breaks */
+                fdwalker_align_byte(inv->fdwalker);
+
                 /* iterating till section data is over */
                 i++;
                 for(; i < inv->line_cnt && inv->line[i].type == kAssemblerLineTypeSectionData; i++)
@@ -126,7 +129,6 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                             rtbe->name = strdup(inv->line[i].token[a].str);
                             rtbe->at_link = &(inv->line[i].token[a]);
                             rtbe->byte_pos = inv->fdwalker->byte_pos;
-                            rtbe->bit_idx = inv->fdwalker->bit_idx;
                             fdwalker_skip(inv->fdwalker, 64);
                         }
                         else
@@ -154,6 +156,9 @@ bool assembler_section_parse(assembler_invocation_t *inv)
         {
             if(strcmp(inv->line[i].token[1].str, ".bss") == 0)
             {
+                /* so relocation never breaks */
+                fdwalker_align_byte(inv->fdwalker);
+                
                 /* finding variable type */
                 i++;
                 for(; i < inv->line_cnt && inv->line[i].type == kAssemblerLineTypeSectionData; i++)
