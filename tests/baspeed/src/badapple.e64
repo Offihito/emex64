@@ -36,6 +36,8 @@ _timer_handler:
 
 _main:
     stb FB_ENABLED, 1                   ; enables the framebuffer
+    ldb r0, FB_ENABLED
+    bz r0, .end
 .video_entry:
     add r1, FB_FRAMEBUFFER, 0x10000     ; calculating the framebuffer end
     mov r2, VIDEO_BASE

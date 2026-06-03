@@ -342,6 +342,8 @@ uint64_t la64_fb_read(la64_core_t *core,
     {
         return display->enabled;
     }
+    #else
+    return 0;
     #endif /* EMEX64VM_DEVICE_DISPLAY */
 }
 
