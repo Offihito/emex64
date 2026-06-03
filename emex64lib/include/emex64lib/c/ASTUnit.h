@@ -112,13 +112,10 @@ struct ASTNode {
         } translationUnit;
 
         /*
-         * function declarations are the function it self,
+         * function declarations are...
          * like..
          * 
-         * int foo()
-         * {
-         *     return 0;
-         * }
+         * int foo();
          * 
          */
         struct {
@@ -128,10 +125,13 @@ struct ASTNode {
         } functionDeclaration;
 
         /*
-         * function definitions are...
+         * function definitions are the function it self,
          * like..
          * 
-         * int foo();
+         * int foo()
+         * {
+         *     return 0;
+         * }
          * 
          */
         struct {
@@ -210,7 +210,7 @@ struct ASTNode {
 
         struct {
             char* callee;
-            struct ASTNode** arguments;
+            struct ASTNode* arguments;
             size_t argument_count;
         } functionCall;
 
@@ -234,6 +234,8 @@ struct ASTNode {
     struct ASTNode *prev;
     struct ASTNode *next;
 };
+
+void astnode_unlink(struct ASTNode *node);
 
 struct ASTNode *astnode_create_translation_unit(void);
 
