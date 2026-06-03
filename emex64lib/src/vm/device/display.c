@@ -323,30 +323,26 @@ uint64_t la64_fb_read(la64_core_t *core,
                       uint64_t offset,
                       int size)
 {
-    (void)core;
-
+    #if EMEX64VM_DEVICE_DISPLAY
     la64_display_t *display = (la64_display_t*)device;
 
     if(offset >= LA64_FB_FRAMEBUFFER)
     {
-        offset -= LA64_FB_FRAMEBUFFER;
-
-        bitwalker_t bw;
-        bitwalker_init_read(&bw, &(display->palette[offset]), size, BW_LITTLE_ENDIAN);
-        return bitwalker_read(&bw, size * 8);
+        uint64_t outvalue;
+        LA64_MEMORY_READ_HELPER(display->fb, offset - LA64_FB_FRAMEBUFFER, size, outvalue);
+        return outvalue;
     }
     else if(offset >= LA64_FB_PALLETE)
     {
-        offset -= LA64_FB_PALLETE;
-
-        bitwalker_t bw;
-        bitwalker_init_read(&bw, &(display->palette[offset]), size, BW_LITTLE_ENDIAN);
-        return bitwalker_read(&bw, size * 8);
+        uint64_t outvalue;
+        LA64_MEMORY_READ_HELPER(display->palette, offset - LA64_FB_PALLETE, size, outvalue);
+        return outvalue;
     }
     else
     {
         return display->enabled;
     }
+    #endif /* EMEX64VM_DEVICE_DISPLAY */
 }
 
 void la64_fb_write(la64_core_t *core,
@@ -355,31 +351,21 @@ void la64_fb_write(la64_core_t *core,
                    uint64_t value,
                    int size)
 {
-    (void)core;
-
+    #if EMEX64VM_DEVICE_DISPLAY
     la64_display_t *display = (la64_display_t*)device;
 
     if(offset >= LA64_FB_FRAMEBUFFER)
     {
-        offset -= LA64_FB_FRAMEBUFFER;
-
-        bitwalker_t bw;
-        bitwalker_init(&bw, &(display->fb[offset]), size, BW_LITTLE_ENDIAN);
-        bitwalker_write(&bw, value, size * 8);
+        LA64_MEMORY_WRITE_HELPER(display->fb, offset - LA64_FB_FRAMEBUFFER, size, value);
         return;
     }
     else if(offset >= LA64_FB_PALLETE)
     {
-        offset -= LA64_FB_PALLETE;
-
-        bitwalker_t bw;
-        bitwalker_init(&bw, &(display->palette[offset]), size, BW_LITTLE_ENDIAN);
-        bitwalker_write(&bw, value, size * 8);
+        LA64_MEMORY_WRITE_HELPER(display->palette, offset - LA64_FB_PALLETE, size, value);
         return;
     }
     else
     {
-        #if EMEX64VM_DEVICE_DISPLAY
         if((uint8_t)value)
         {
             pthread_create(&(display->pthread), NULL, display_start, device);
@@ -388,10 +374,10 @@ void la64_fb_write(la64_core_t *core,
         {
             pthread_cancel(display->pthread);
         }
-        #endif /* EMEX64VM_DEVICE_DISPLAY */
 
         display->enabled = (uint8_t)value;
     }
+    #endif /* EMEX64VM_DEVICE_DISPLAY */
 }
 
 #endif // __linux__ || __APPLE__

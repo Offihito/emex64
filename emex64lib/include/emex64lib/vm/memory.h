@@ -39,6 +39,36 @@
 #define LA64_BYTES_TO_PAGE_BOUNDARY(addr) (LA64_PAGE_SIZE - ((uintptr_t)(addr) & LA64_PAGE_MASK))
 #define LA64_CROSS_PAGE_OFFSET(addr, access_size) (((access_size) > LA64_BYTES_TO_PAGE_BOUNDARY(addr)) ? LA64_BYTES_TO_PAGE_BOUNDARY(addr) : 0)
 
+#define LA64_MEMORY_WRITE_HELPER(mapping, offset, size, value)  \
+    switch(size)                                                \
+    {                                                           \
+        case 1: /* 8 bit */                                     \
+            *(uint8_t*)(((uint8_t*)mapping) + offset) = value;  \
+        case 2: /* 16 bit */                                    \
+            *(uint16_t*)(((uint8_t*)mapping) + offset) = value; \
+        case 4: /* 32 bit */                                    \
+            *(uint32_t*)(((uint8_t*)mapping) + offset) = value; \
+        case 8: /* 64 bit */                                    \
+            *(uint64_t*)(((uint8_t*)mapping) + offset) = value; \
+    }
+
+#define LA64_MEMORY_READ_HELPER(mapping, offset, size, out_value)       \
+    switch(size)                                                        \
+    {                                                                   \
+        case 1:                                                         \
+            (out_value) = *(uint8_t*)(((uint8_t*)mapping) + offset);    \
+            break;                                                      \
+        case 2:                                                         \
+            (out_value) = *(uint16_t*)(((uint8_t*)mapping) + offset);   \
+            break;                                                      \
+        case 4:                                                         \
+            (out_value) = *(uint32_t*)(((uint8_t*)mapping) + offset);   \
+            break;                                                      \
+        case 8:                                                         \
+            (out_value) = *(uint64_t*)(((uint8_t*)mapping) + offset);   \
+            break;                                                      \
+    }
+
 typedef struct la64_memory {
     uint8_t *memory;
     uint64_t memory_size;
