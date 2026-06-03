@@ -368,9 +368,12 @@ void la64_fb_write(la64_core_t *core,
     }
     else
     {
-        if((uint8_t)value)
+        if(value)
         {
-            pthread_create(&(display->pthread), NULL, display_start, device);
+            if(!display->enabled)
+            {
+                pthread_create(&(display->pthread), NULL, display_start, device);
+            }
         }
         else
         {
