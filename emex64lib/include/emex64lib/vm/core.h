@@ -226,7 +226,6 @@ enum kEmex64ElevationLevel: uint8_t {
  *
  */
 enum kEmex64CompareFlag: uint8_t {
-
     kEmex64CompareFlagZ =   0x1,
     kEmex64CompareFlagL =   0x2,
     kEmex64CompareFlagG =   0x4
@@ -344,7 +343,6 @@ typedef struct la64_core {
 
     /* pointer back to machine */
     la64_machine_t *machine;
-
 } la64_core_t;
 
 la64_core_t *la64_core_alloc(void);

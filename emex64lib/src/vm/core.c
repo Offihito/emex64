@@ -116,8 +116,6 @@ la64_core_t *la64_core_alloc()
         return NULL;
     }
 
-    bzero(core, sizeof(la64_core_t));
-
     return core;
 }
 
