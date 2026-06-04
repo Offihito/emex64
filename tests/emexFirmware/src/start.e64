@@ -39,6 +39,8 @@
 section .data
     exception_msg db "[!] panic because of exception code: 0x\0"
     fw_font_test_msg db "[fw] firmware font test\n     ABCDEFGHIJKLMNOPQRSTUVWXYZ\n     abcdefghijklmnopqrstuvwxyz\n     01234567890\n     @#%^&*()!<>?:;\n\0"
+    fw_hello_msg db "[fw] hello, world!\n\0"
+    fw_generic_msg db "[fw] hex print test (expected: 0xf0f0): "
 
 _exception_handler:
     bl _puts, exception_msg
@@ -53,17 +55,17 @@ _fw_start:
 
     stw gui_line, 10
     
-    stb FB_ENABLED, 1
-    ldb r0, FB_ENABLED
-    bz r0, .end
     bl _puts, fw_font_test_msg
+    bl _puts, fw_hello_msg
+    bl _puts, fw_generic_msg
+    bl _putc, '0'
+    bl _putc, 'x'
+    bl _putbase, 0xf0f0, 16
+    bl _putc, '\n'
 
-.gui_loop:
+.hang:
     hlt
-    b .gui_loop
-
-.end:
-    ret
+    b .hang
 
 ; main setup routine
 _start:
