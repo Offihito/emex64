@@ -31,7 +31,7 @@
 %define% RTC_WEEKDAY    0x1FE00218
 
 section .data
-    time db "Date: \0"
+    time db "[fw] date: \0"
 
 _rtc_2putbase:
     cmp r0, 10

@@ -56,6 +56,7 @@ _fw_start:
     stw gui_line, 10
     
     bl _puts, fw_font_test_msg
+    bl _print_time
     bl _puts, fw_memory_msg
     bl _mc_get_mem_size
     bl _putbase, rr, 10
