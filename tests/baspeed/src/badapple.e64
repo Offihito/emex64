@@ -25,7 +25,7 @@
 %define% FB_ENABLED 0x1FE00700
 %define% FB_PALLETE 0x1FE00701
 %define% FB_FRAMEBUFFER 0x1FE00A01
-%define% FRAMEBUFFER_SIZE 0x10000
+%define% FRAMEBUFFER_SIZE 0x40000
 
 %define% PLATFORM_PWR 0x1FE00500
 
@@ -100,7 +100,7 @@ _main:
     ldb r0, FB_ENABLED
     bz r0, .end
 .video_entry:
-    add r1, FB_FRAMEBUFFER, 0x10000         ; calculating the framebuffer end
+    add r1, FB_FRAMEBUFFER, FRAMEBUFFER_SIZE; calculating the framebuffer end
     mov r2, VIDEO_BASE
 .video_rereloop:
     mov r2, VIDEO_BASE
