@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include <emex64lib/vm/core.h>
 #include <emex64lib/vm/memory.h>
@@ -125,14 +126,14 @@ void la64_core_dealloc(la64_core_t *core)
     free(core);
 }
 
-static inline void la64_core_decode_instruction_at_pc(la64_core_t *core)
+static inline bool la64_core_decode_instruction_at_pc(la64_core_t *core)
 {
     /* accessing memory */
     void *iptr = la64_memory_access(core, core->rl[kEmex64RegisterPC], 256);
     if(iptr == NULL)
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
+        return false;
     }
 
     /* preparing bitwalker */
@@ -140,11 +141,11 @@ static inline void la64_core_decode_instruction_at_pc(la64_core_t *core)
     bitwalker_init_read(&bw, iptr, 256, BW_LITTLE_ENDIAN);
 
     /* getting opcode */
-    uint8_t opcode = (uint8_t)bitwalker_read(&bw, 8);
+    enum kEmex64Opcode opcode = (uint8_t)bitwalker_read(&bw, 8);
     if(opcode > kEmex64OpcodeMAX)
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadInstruction;
-        return;
+        return false;
     }
 
     core->op.opcode = opcode;
@@ -156,8 +157,8 @@ static inline void la64_core_decode_instruction_at_pc(la64_core_t *core)
     for(i = 0; i < maxarg; i++)
     {
         /* switch through modes */
-        uint8_t mode = (uint8_t)bitwalker_read(&bw, 3);
-        switch(mode)
+        enum kEmex64ParameterCoding coding = (uint8_t)bitwalker_read(&bw, 3);
+        switch(coding)
         {
             case kEmex64ParameterCodingEnd:
                 goto escape_from_la;
@@ -167,7 +168,7 @@ static inline void la64_core_decode_instruction_at_pc(la64_core_t *core)
                 if(rcnt > kEmex64RegisterRR && core->rl[kEmex64RegisterCR0] < kEmex64ElevationLevelKernel)
                 {
                     core->rl[kEmex64RegisterCR2] = kEmex64ExceptionPermission;
-                    return;
+                    return false;
                 }
 
                 core->op.param[i] = &(core->rl[rcnt]);
@@ -184,7 +185,7 @@ static inline void la64_core_decode_instruction_at_pc(la64_core_t *core)
             case kEmex64ParameterCodingImm32:
             case kEmex64ParameterCodingImm64:
             {
-                uint8_t bits = 1u << (((mode - kEmex64ParameterCodingImm8) + 1) + 2);
+                uint8_t bits = 1u << (((coding - kEmex64ParameterCodingImm8) + 1) + 2);
                 core->op.imm[i] = bitwalker_read(&bw, bits);
                 core->op.param[i] = &(core->op.imm[i]);
                 break;
@@ -198,7 +199,6 @@ static inline void la64_core_decode_instruction_at_pc(la64_core_t *core)
     }
 
 escape_from_la:
-
     /*
      * now we know all about this instruction, the
      * lenght and the amount of parameters, this is
@@ -207,49 +207,42 @@ escape_from_la:
     core->op.param_cnt = i;
     core->op.ilen = bitwalker_bytes_used(&bw);
 
-    return;
+    return true;
 }
 
 static void *la64_core_execute_thread(void *arg)
 {
-    /* null pointer check */
-    if(arg == NULL)
-    {
-        return NULL;
-    }
+    assert(arg != NULL);
 
-    /* cast argument to core */
+    /* execution loop */
     la64_core_t *core = arg;
-
-    /* going into da execution loop */
     while(1)
     {
+        /*
+         * if it is not in interrupt we can check for exceptions
+         * and more.
+         */
         if(!core->in_interrupt)
         {
-            /* checking if exception is non-NONE */
+            /* checking for exception */
             if(core->rl[kEmex64RegisterCR2] != kEmex64ExceptionNone)
             {
                 core->halted = true;
                 la64_raise_interrupt(core->machine, LA64_IRQ_EXCEPTION);
             }
             
-             /* checking if core is halted */
+            /* checking if core is halted */
             if(core->halted)
             {
                 /* yield cpu to not burn it */
-                usleep(100);
+                sched_yield();
                 goto skip_execution;
             }
         }
 
-        /* decoding instruction */
-        la64_core_decode_instruction_at_pc(core);
-
-        /* sanity check */
-        if((core->rl[kEmex64RegisterCR2] != kEmex64ExceptionNone) &&
-           !core->in_interrupt)
+        /* decoding instruction and check if it was successful */
+        if(!la64_core_decode_instruction_at_pc(core) && !core->in_interrupt)
         {
-            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadInstruction;
             continue;
         }
 
@@ -268,8 +261,7 @@ static void *la64_core_execute_thread(void *arg)
          * because we would just immediately interrupt into another
          * interrupt handler in the interrupt vector table.
          */
-        if(core->in_interrupt ||
-           core->op.opcode == kEmex64OpcodeIRET)
+        if(core->in_interrupt || core->op.opcode == kEmex64OpcodeIRET)
         {
             goto tick_timer;
         }
@@ -282,9 +274,7 @@ skip_execution:
 
         /* tick the timer always */
     tick_timer:
-        {
-            la64_timer_tick(core->machine->timer, la64_get_host_cycles());
-        }
+        la64_timer_tick(core->machine->timer, la64_get_host_cycles());
     }
 
     return NULL;
@@ -293,12 +283,7 @@ skip_execution:
 
 void la64_core_execute(la64_core_t *core)
 {
-    /* sanity check */
-    if(core == NULL ||
-       core->pthread != 0)
-    {
-        return;
-    }
+    assert(core != NULL || core->pthread != 0);
 
     /* invoking execution */
     pthread_create(&(core->pthread), NULL, la64_core_execute_thread, (void*)core);
@@ -314,12 +299,7 @@ void la64_core_execute(la64_core_t *core)
 
 void la64_core_terminate(la64_core_t *core)
 {
-    /* sanity check */
-    if(core == NULL ||
-       core->pthread == 0)
-    {
-        return;
-    }
+    assert(core != NULL || core->pthread != 0);
 
     #if EMEX64VM_DEVICE_DISPLAY
     #if defined(__APPLE__)
