@@ -41,7 +41,7 @@
 #define LA64_FB_PALLETE     0x01
 #define LA64_FB_FRAMEBUFFER 0x301
 
-#define LA64_FB_BASE        0x1FE00700
+#define LA64_FB_BASE        0x1FF00000
 #define LA64_FB_SIZE        LA64_FB_FRAMEBUFFER + (LA64_FB_WIDTH * LA64_FB_HEIGHT)
 
 #include <stdint.h>
