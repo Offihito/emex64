@@ -26,6 +26,9 @@
 
 %define% FB_FRAMEBUFFER 0x1FE00A01
 
+%define% FB_HEIGHT 512
+%define% FB_WIDTH 512
+
 _draw_char:
 
     cmp r0, 0
@@ -59,18 +62,18 @@ _draw_char:
 
     blt .skip_pixel
 
-    cmp r11, 256
+    cmp r11, FB_HEIGHT
     bge .skip_pixel
 
     add r12, r1, r8
     cmp r12, 0
 
     blt .skip_pixel
-    cmp r12, 256
+    cmp r12, FB_WIDTH
     bge .skip_pixel
 
 
-    shl r11, 8
+    shl r11, 9
     add r11, r12
     add r11, FB_FRAMEBUFFER
     stb r11, r3
@@ -86,14 +89,28 @@ _draw_char:
 
 .end:
     ret
-
 _draw_string:
+    mov r5, r1
+
 .loop:
     ldb r4, r0
     bz r4, .end
+
+    cmp r4, '\n'
+    be .newline
+
     bl _draw_char, r4, r1, r2, r3
+
     add r1, 8
     inc r0
     b .loop
+
+.newline:
+    mov r1, r5
+    add r2, 10
+    inc r0
+    b .loop
+
 .end:
     ret
+

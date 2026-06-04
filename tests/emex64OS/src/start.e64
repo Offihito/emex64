@@ -39,7 +39,7 @@
 section .data
     exception_msg db "[!] panic because of exception code: 0x\0"
     hello_msg db "hello world!\r\n\0"
-    gui_hello_msg db "hello from emexOS on emex64\r\n\0 ABCDEFGHIJKLMNOPQRSTUVWXYZ \r\n\0 abcdefghijklmnopqrstuvwxyz \r\n\0 01234567890 \r\n\0 @#%^&*()!<>?:;\r\n\0"
+    gui_hello_msg db "[fw] firmware font test\n     ABCDEFGHIJKLMNOPQRSTUVWXYZ\n     abcdefghijklmnopqrstuvwxyz\n     01234567890\n     @#%^&*()!<>?:;\r\n[fw] done\n\0"
     ; ik that it runs out of line lol
 
 ; exception handler
@@ -251,7 +251,7 @@ _main:
     stb FB_ENABLED, 1
     ldb r0, FB_ENABLED
     bz r0, .end
-    bl _draw_string, gui_hello_msg, 20, 20, 255
+    bl _draw_string, gui_hello_msg, 8, 100, 255
 
 .gui_loop:
     hlt

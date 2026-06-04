@@ -227,7 +227,7 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LA64_FB_WIDTH, LA64_FB_HEIGHT, GL_RED, GL_UNSIGNED_BYTE, _display->fb);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, _texPal);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 1, GL_RGB, GL_UNSIGNED_BYTE, _display->palette);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 512, 1, GL_RGB, GL_UNSIGNED_BYTE, _display->palette);
 
     NSRect px = [self convertRectToBacking:[self bounds]];
     GLint winW = (GLint)px.size.width;
@@ -294,7 +294,7 @@ void *display_start(void *arg)
             [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
             [NSApp activateIgnoringOtherApps:YES];
 
-            NSRect r = NSMakeRect(100, 100, 500, 500);
+            NSRect r = NSMakeRect(100, 100, 512, 512);
             NSWindow *win = [[NSWindow alloc] initWithContentRect:r styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |  NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable) backing:NSBackingStoreBuffered defer:NO];
             [win setTitle:@"EMEX64LCD @ 60Hz"];
 

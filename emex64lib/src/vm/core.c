@@ -26,7 +26,6 @@
 #include <pthread.h>
 #include <string.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <assert.h>
 
 #include <emex64lib/vm/core.h>
@@ -213,10 +212,6 @@ escape_from_la:
 static void *la64_core_execute_thread(void *arg)
 {
     assert(arg != NULL);
-
-    #if EMEX64VM_DEVICE_DISPLAY
-    sleep(2);
-    #endif /* EMEX64VM_DEVICE_DISPLAY */
 
     /* execution loop */
     la64_core_t *core = arg;

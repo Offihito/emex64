@@ -38,7 +38,7 @@
 int main(int argc, char *argv[])
 {
     int opt;
-    const char *bios_image = NULL;
+    const char *firmware_image_path = NULL;
     uint64_t memsize = 100 * 1024 * 1024;   /* standard is 100MB */
 
     /* parse arguments */
@@ -48,14 +48,14 @@ int main(int argc, char *argv[])
         {
         usage:
             fprintf(stderr, "%s [options]\n", argv[0]);
-            fprintf(stderr, "\t--help                 : showing help menu\n");
-            fprintf(stderr, "\t--bios <image path>    : providing bios image\n");
-            fprintf(stderr, "\t--memory <memory size> : providing memory size in megabyte\n");
+            fprintf(stderr, "\t--help                   : showing help menu\n");
+            fprintf(stderr, "\t--firmware <image path>  : providing firmware image\n");
+            fprintf(stderr, "\t--memory <memory size>   : providing memory size in megabyte\n");
             return 1;
         }
-        else if(strcmp(argv[i], "--bios") == 0 && i + 1 < argc)
+        else if(strcmp(argv[i], "--firmware") == 0 && i + 1 < argc || strcmp(argv[i], "--bios") == 0 && i + 1 < argc)
         {
-            bios_image = argv[++i];
+            firmware_image_path = argv[++i];
         }
         else if(strcmp(argv[i], "--memory") == 0 && i + 1 < argc)
         {
@@ -77,12 +77,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    if(bios_image == NULL)
-    {
-        diag_error(NULL, "no bios image provided\n");
-        return 1;
-    }
-
     /* creating new la64 virtual machine */
     la64_machine_t *machine = la64_machine_alloc(memsize);
     if(machine == NULL)
@@ -96,9 +90,9 @@ int main(int argc, char *argv[])
      * mapping and open the image it self as memory,
      * just size it.
      */
-    if(!la64_memory_load_image(machine->memory, bios_image))
+    if(firmware_image_path != NULL && !la64_memory_load_image(machine->memory, firmware_image_path))
     {
-        diag_error(NULL, "failed to load bios image\n");
+        diag_error(NULL, "failed to load firmware image\n");
         return 1;
     }
 

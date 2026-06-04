@@ -29,8 +29,8 @@
 #if defined(__linux__) || defined(__APPLE__)
 
 /* the size of the screen/framebuffer */
-#define LA64_FB_WIDTH   256
-#define LA64_FB_HEIGHT  256
+#define LA64_FB_WIDTH   512
+#define LA64_FB_HEIGHT  512
 
 /* the freequency of the framebuffer */
 #define LA64_FB_TICK_HZ 60.0
