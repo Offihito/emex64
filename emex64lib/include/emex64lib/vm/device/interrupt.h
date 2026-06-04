@@ -31,13 +31,17 @@
 #define LA64_INTC_BASE      0x1FE00000
 #define LA64_INTC_SIZE      0x30
 
+/* internal devices */
 #define LA64_IRQ_EXCEPTION  0
 #define LA64_IRQ_TIMER      1
 #define LA64_IRQ_UART       2
 #define LA64_IRQ_DISK       3
 #define LA64_IRQ_NETWORK    4
 #define LA64_IRQ_SOFTWARE   5
-/* IRQ 6-63 available for user devices */
+
+/* user devices */
+#define LA64_IRQ_8042       6   /* emex8042 MMIO chip fires interrupt when device gets plugged in for example */
+/* IRQ 7-63 available for user devices */
 
 #define LA64_IRQ_MAX        63
 

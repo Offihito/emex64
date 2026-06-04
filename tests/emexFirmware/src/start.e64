@@ -25,17 +25,6 @@
 %define% PLATFORM_PWR   0x1FE00500
 %define% FB_ENABLED     0x1FE00700
 
-%define% PT_PAGE_SIZE   0x2000
-
-%define% PT_PRESENT     0b00000001
-%define% PT_USER        0b00000010
-%define% PT_DIRTY       0b00000100
-%define% PT_READ        0b00001000
-%define% PT_WRITE       0b00010000
-%define% PT_EXEC        0b00100000
-
-%define% PT_KRWX        0b00111001
-
 section .data
     exception_msg db "[!] panic because of exception code: 0x\0"
     fw_font_test_msg db "[fw] firmware font test\n     ABCDEFGHIJKLMNOPQRSTUVWXYZ\n     abcdefghijklmnopqrstuvwxyz\n     01234567890\n     @#%^&*()!<>?:;\n\0"
