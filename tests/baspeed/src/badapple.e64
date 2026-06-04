@@ -31,10 +31,72 @@
 
 %define% VIDEO_BASE __la64_exec_img_end
 
-_timer_handler:
-    iret
+%define% UART_DATA            0x1FE00300
+%define% UART_STATUS          0x1FE00304
+%define% UART_STATUS_RX_READY 0x01
+%define% UART_STATUS_TX_EMPTY 0x02
+
+%define% TIMER_CTRL    0x1FE00100
+%define% TIMER_COUNT   0x1FE00108
+%define% TIMER_COMPARE 0x1FE00110
+%define% TIMER_STATUS  0x1FE00118
+%define% TIMER_FREQ    0x1FE00120
+
+_uart_putc:
+.start:
+    ldd r1, UART_STATUS
+    and r1, UART_STATUS_TX_EMPTY
+    bz r1, .start
+    std UART_DATA, r0
+    ret
+
+_uart_getc:
+.start:
+    ldd r1, UART_STATUS
+    and r1, UART_STATUS_RX_READY
+    bz r1, .start
+    ldd rr, UART_DATA
+    ret
+
+_puts:
+.start:
+    ldb r1, r0
+    inc r0
+    bl _uart_putc, r1
+    bnz r1, .start
+    ret
+
+_putbase:
+    clr rr
+    bnz r0, .start
+    bl _uart_putc, '0'
+    ret
+.start:
+    push 0
+.loop:
+    div r2, r0, r1
+    mul r4, r2, r1
+    sub r0, r4
+    cmp r0, 10
+    blt .digit
+    add r0, 39
+.digit:
+    add r0, 48
+.push:
+    inc rr
+    push r0
+    mov r0, r2
+    bnz r0, .loop
+.print:
+    pop r0
+    bl _uart_putc
+    bnz r0, .print
+    ret
 
 _main:
+    stq TIMER_COMPARE, 0xFFFFFFFFFFFFFFFF ; we need ticks
+    stq TIMER_CTRL, 0x7
+
     stb FB_ENABLED, 1                   ; enables the framebuffer
     ldb r0, FB_ENABLED
     bz r0, .end
@@ -51,7 +113,7 @@ _main:
 .video_loop:
     ldb r3, r2
     pdep r4, r3, 0x0101010101010101     ; spread bits to byte
-    mul  r4, r4, 0xFF                   ; expand to bytes
+    mul r4, r4, 0xFF                    ; expand to bytes
     bswapq r4
     stq r0, r4
     add r0, 8
@@ -61,6 +123,10 @@ _main:
     inc r5
     b .video_reloop
 .end:
+    ; print ticks
+    ldq r0, TIMER_COUNT
+    bl _putbase, r0, 10
+    bl _uart_putc, '\n'
     ret
 
 _start:

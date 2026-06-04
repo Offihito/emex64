@@ -144,20 +144,17 @@ uint64_t bitwalker_read(bitwalker_t *bw,
         return 0;
     }
 
-    __uint128_t chunk = 0;
-
     /* copy up to 8 bytes */
     size_t remain = bw->capacity - bw->byte_pos;
     size_t n = remain < 9 ? remain : 9;
 
+    __uint128_t chunk = 0;
     memcpy(&chunk, bw->buffer + bw->byte_pos, n);
 
     /* shift away preceding bits */
-    chunk >>= bw->bit_idx;
-
+    uint64_t schunk = (uint64_t)(chunk >> bw->bit_idx);
     uint64_t mask = (num_bits == 64) ? UINT64_MAX : ((1ULL << num_bits) - 1);
-
-    uint64_t value = chunk & mask;
+    uint64_t value = schunk & mask;
 
     bw->bit_idx += num_bits;
     bw->byte_pos += bw->bit_idx >> 3;
