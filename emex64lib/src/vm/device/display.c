@@ -50,6 +50,14 @@ static void display_close_callback(GLFWwindow* window)
     exit(0);
 }
 
+static void maximize_callback(GLFWwindow* window, int maximized)
+{
+    if(maximized)
+    {
+        glfwRestoreWindow(window);
+    }
+}
+
 static void die(const char* msg)
 {
     fprintf(stderr, "Error: %s\n", msg);
@@ -118,6 +126,7 @@ void *display_start(void *arg)
     GLFWwindow* win = glfwCreateWindow(LA64_FB_WIDTH, LA64_FB_HEIGHT, "EMEX64LCD @ 60Hz", NULL, NULL);
     if(!win) die("glfwCreateWindow failed");
     glfwSetWindowCloseCallback(win, display_close_callback);
+    glfwSetWindowMaximizeCallback(win, maximize_callback);
     glfwSetWindowAspectRatio(win, LA64_FB_WIDTH, LA64_FB_HEIGHT);
     glfwSetWindowSizeLimits(win, LA64_FB_WIDTH, LA64_FB_HEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwMakeContextCurrent(win);
