@@ -33,34 +33,45 @@
 
 %define% VIDEO_BASE __la64_exec_img_end
 
-_main:
+_start:
+    ; checking if display device is available
     ldb r0, FB_ENABLED
     bz r0, .end
+
+    ; this is the main start of the video
 .video_entry:
-    add r1, FB_FRAMEBUFFER, FRAMEBUFFER_SIZE; calculating the framebuffer end
-    mov r2, VIDEO_BASE
-.video_rereloop:
+    add r1, FB_FRAMEBUFFER, FRAMEBUFFER_SIZE    ; calculating the end of the framebuffer, r1 is for the lifetime of this stack frame the marker of the framebuffer end
+
+    ; starts the video it self
+.video_playback:
     mov r2, VIDEO_BASE
     mov r5, 0
-.video_reloop:
+
+    ; advances to the next frame
+.video_frame_next:
     cmp r5, 6520
-    bgt .end
+    bgt .video_playback
     mov r0, FB_FRAMEBUFFER
-.video_loop:
-    ldb r3, r2
-    pdep r4, r3, 0x0101010101010101         ; spread bits to byte
-    mul r4, r4, 0xFF                        ; expand to bytes
-    bswapq r4
-    stq r0, r4
+
+    ; draws the entire frame in 8 byte steps
+.video_frame_draw:
+    ; drawing logic (8 byte per draw)
+    ldb r3, r2                                  ; loading the bitmap byte of the next 8 pixels of the current frame on the video
+    pdep r4, r3, 0x0101010101010101             ; expanding the bitmap byte to a 64bit unsigned integer so we can draw it on the frame buffer
+    mul r4, 0xFF                                ; applying color, 0xFF usually is white
+    bswapq r4                                   ; reversing byte order
+    stq r0, r4                                  ; and drawing the 8byte segment to the framebuffer
+
+    ; pointer advancement logic
     add r0, 8
     inc r2
-    cmp r0, r1
-    blt .video_loop
-    inc r5
-    b .video_reloop
-.end:
-    ret
 
-_start:
-    bl _main
+    ; frame drawing management logic
+    cmp r0, r1
+    blt .video_frame_draw
+    inc r5
+    b .video_frame_next
+
+    ; shuts down the platform
+.end:
     stb PLATFORM_PWR, 0
