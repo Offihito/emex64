@@ -250,18 +250,17 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
                     if(coding == kEmex64ParameterCodingImm5  || coding == kEmex64ParameterCodingImm8 ||
                        coding == kEmex64ParameterCodingImm16 || coding == kEmex64ParameterCodingImm32)
                     {
-                        uint64_t encoded_diff = (uint64_t)diff;
                         switch(coding)
                         {
                             case kEmex64ParameterCodingImm5:
                             case kEmex64ParameterCodingImm8:
-                                assembler_emit_imm8(al->inv, encoded_diff);
+                                assembler_emit_imm8(al->inv, (uint8_t)diff);
                                 break;
                             case kEmex64ParameterCodingImm16:
-                                assembler_emit_imm16(al->inv, encoded_diff);
+                                assembler_emit_imm16(al->inv, (uint16_t)diff);
                                 break;
                             case kEmex64ParameterCodingImm32:
-                                assembler_emit_imm32(al->inv, encoded_diff);
+                                assembler_emit_imm32(al->inv, (uint32_t)diff);
                                 break;
                             default:
                                 break;

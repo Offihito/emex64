@@ -54,8 +54,6 @@ void assembler_emit_imm(assembler_invocation_t *inv, uint64_t imm);
 void assembler_emit_end(assembler_invocation_t *inv);
 
 /* instruction emitter */
-bool assembler_emit_instruction_inc(const opcode_entry_t *opce, assembler_line_t *al);
-bool assembler_emit_instruction_dec(const opcode_entry_t *opce, assembler_line_t *al);
 bool assembler_emit_instruction_clr(const opcode_entry_t *opce, assembler_line_t *al);
 bool assembler_emit_instruction_generic(const opcode_entry_t *opce, assembler_line_t *al);
 
