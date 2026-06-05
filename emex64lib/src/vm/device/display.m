@@ -297,6 +297,7 @@ void *display_start(void *arg)
             NSRect r = NSMakeRect(100, 100, LA64_FB_WIDTH, LA64_FB_HEIGHT);
             NSWindow *win = [[NSWindow alloc] initWithContentRect:r styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |  NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable) backing:NSBackingStoreBuffered defer:NO];
             [win setTitle:@"EMEX64LCD @ 60Hz"];
+            [[win standardWindowButton:NSWindowZoomButton] setEnabled:NO];
 
             LA64GLView *glView = [[LA64GLView alloc] initWithFrame:r display:display];
             [win setContentView:glView];
