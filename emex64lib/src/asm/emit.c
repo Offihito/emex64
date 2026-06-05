@@ -253,6 +253,8 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
                         switch(coding)
                         {
                             case kEmex64ParameterCodingImm5:
+                                assembler_emit_imm5(al->inv, (uint8_t)(diff & 0x1F));
+                                break;
                             case kEmex64ParameterCodingImm8:
                                 assembler_emit_imm8(al->inv, (uint8_t)diff);
                                 break;

@@ -32,6 +32,7 @@ static inline uint64_t emex64_branch_pc(uint64_t pc, uint64_t v, enum kEmex64Par
     switch(coding)
     {
         case kEmex64ParameterCodingImm5:
+            return pc + ((int8_t)(v << 3) >> 3);
         case kEmex64ParameterCodingImm8:
             return pc + (int8_t)v;
         case kEmex64ParameterCodingImm16:
