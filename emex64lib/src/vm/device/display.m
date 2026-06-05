@@ -294,13 +294,16 @@ void *display_start(void *arg)
             [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
             [NSApp activateIgnoringOtherApps:YES];
 
-            NSRect r = NSMakeRect(100, 100, 512, 512);
+            NSRect r = NSMakeRect(100, 100, LA64_FB_WIDTH, LA64_FB_HEIGHT);
             NSWindow *win = [[NSWindow alloc] initWithContentRect:r styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |  NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable) backing:NSBackingStoreBuffered defer:NO];
             [win setTitle:@"EMEX64LCD @ 60Hz"];
 
             LA64GLView *glView = [[LA64GLView alloc] initWithFrame:r display:display];
             [win setContentView:glView];
             [win setDelegate:glView];
+
+            [win setContentAspectRatio:NSMakeSize(LA64_FB_WIDTH, LA64_FB_HEIGHT)];
+            [win setContentMinSize:NSMakeSize(LA64_FB_WIDTH, LA64_FB_HEIGHT)];
 
             [win makeKeyAndOrderFront:nil];
             [NSApp run];

@@ -22,12 +22,11 @@
 ; SOFTWARE.
 ;
 
-%define% FB_ENABLED 0x1FF00000
-
-%define% FB_FRAMEBUFFER 0x1FF00301
-
-%define% FB_HEIGHT 512
-%define% FB_WIDTH 512
+%define% FB_ENABLED     0x1FF00000
+%define% FB_HEIGHT      0x1FF00001
+%define% FB_WIDTH       0x1FF00003
+%define% FB_FRAMEBUFFER 0x1FF00305
+%define% FB_TEXT_COLOR  0xFF
 
 section .data
     gui_line dw 0
@@ -59,8 +58,6 @@ _putc:
     stw gui_column, r4
     stw gui_line, r5
 
-    mov r3, 511
-    
     cmp r0, 127
     bgt .end
 
@@ -88,22 +85,23 @@ _putc:
 
     blt .skip_pixel
 
-    cmp r11, FB_HEIGHT
+    ldw r15, FB_HEIGHT
+    ldw r16, FB_WIDTH
+    
+    cmp r11, r15
     bge .skip_pixel
 
     add r12, r1, r8
     cmp r12, 0
 
     blt .skip_pixel
-    cmp r12, FB_WIDTH
+    cmp r12, r16
     bge .skip_pixel
 
-
-    shl r11, 9
-    add r11, r12
-    add r11, FB_FRAMEBUFFER
-    stb r11, r3
-
+    mul r13, r11, r16
+    add r13, r12
+    add r13, FB_FRAMEBUFFER
+    stb r13, FB_TEXT_COLOR
 .skip_pixel:
     inc r8
     cmp r8, 8

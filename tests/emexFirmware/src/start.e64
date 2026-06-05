@@ -28,6 +28,8 @@
 section .data
     exception_msg db "[!] panic because of exception code: 0x\0"
     fw_font_test_msg db "[fw] firmware font test\n     ABCDEFGHIJKLMNOPQRSTUVWXYZ\n     abcdefghijklmnopqrstuvwxyz\n     01234567890\n     @#%^&*()!<>?:;\n\0"
+    fw_display_msg db "[fw] display resolution: \0"
+    fw_display_x_msg db " x \0"
     fw_memory_msg db "[fw] memory available: \0"
     fw_bytes_msg db " Bytes\n\0"
 
@@ -45,12 +47,21 @@ _fw_start:
     stw gui_line, 10
     
     bl _puts, fw_font_test_msg
+
+    ldw r0, FB_HEIGHT
+    ldw r1, FB_WIDTH
+    bl _puts, fw_display_msg
+    bl _putbase, r0, 10
+    bl _puts, fw_display_x_msg
+    bl _putbase, r1, 10
+    bl _putc, '\n'
+    
     bl _print_time
     bl _puts, fw_memory_msg
     bl _mc_get_mem_size
     bl _putbase, rr, 10
     bl _puts, fw_bytes_msg
-
+    
 .hang:
     hlt
     b .hang

@@ -29,17 +29,19 @@
 #if defined(__linux__) || defined(__APPLE__)
 
 /* the size of the screen/framebuffer */
-#define LA64_FB_WIDTH   512
-#define LA64_FB_HEIGHT  512
+#define LA64_FB_WIDTH   640
+#define LA64_FB_HEIGHT  480
 
 /* the freequency of the framebuffer */
 #define LA64_FB_TICK_HZ 60.0
 #define LA64_FB_TICK_DT (1.0 / LA64_FB_TICK_HZ)
 
 /* registers of the framebuffer MMIO device */
-#define LA64_FB_REG_ENABLED 0x00
-#define LA64_FB_PALLETE     0x01
-#define LA64_FB_FRAMEBUFFER 0x301
+#define LA64_FB_REG_ENABLED 0x00    /* readonly: from now on only serving the purpose to know if screens are available */
+#define LA64_FB_REG_HEIGHT  0x01    /* readonly word: telling screen height */
+#define LA64_FB_REG_WIDTH   0x03    /* readonly word: telling screen width */
+#define LA64_FB_PALLETE     0x05
+#define LA64_FB_FRAMEBUFFER 0x305
 
 #define LA64_FB_BASE        0x1FF00000
 #define LA64_FB_SIZE        LA64_FB_FRAMEBUFFER + (LA64_FB_WIDTH * LA64_FB_HEIGHT)

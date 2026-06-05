@@ -408,9 +408,13 @@ uint64_t la64_fb_read(la64_core_t *core,
         LA64_MEMORY_READ_HELPER(display->palette, offset - LA64_FB_PALLETE, size, outvalue);
         return outvalue;
     }
+    else if(offset == LA64_FB_REG_HEIGHT)
+    {
+        return LA64_FB_HEIGHT;
+    }
     else
     {
-        return display->enabled;
+        return LA64_FB_WIDTH;
     }
     #else
     return 0;
