@@ -32,15 +32,15 @@
 #include <CoreFoundation/CFRunLoop.h>
 #endif /* __APPLE__ */
 
-uint64_t la64_platform_read(la64_core_t *core, void *device, uint64_t offset, int size)
+uint64_t emex64_platform_read(emex64_core_t *core, void *device, uint64_t offset, int size)
 {
     return 1;
 }
 
-void la64_platform_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size)
+void emex64_platform_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size)
 {
     if(value == 0)
     {
-        la64_core_terminate(core->machine->core);
+        emex64_core_terminate(core->machine->core);
     }
 }

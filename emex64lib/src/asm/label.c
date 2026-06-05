@@ -39,7 +39,7 @@ bool assembler_label_prealloc(assembler_invocation_t *inv)
      * counting labels caught at token parsing
      * the reason it starts at 1 is because of
      * a inbuilt relocation value called
-     * __la64_exec_img_end which is appended in
+     * __emex64_exec_img_end which is appended in
      * the end of code emitting.
      */
     inv->label_cnt = 1;

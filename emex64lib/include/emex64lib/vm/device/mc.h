@@ -27,11 +27,11 @@
 
 #include <stdint.h>
 
-#define LA64_MC_BASE        0x1FE00400
-#define LA64_MC_SIZE        0x08
+#define EMEX64_MC_BASE        0x1FE00400
+#define EMEX64_MC_SIZE        0x08
 
-typedef struct la64_core la64_core_t;
+typedef struct emex64_core emex64_core_t;
 
-uint64_t la64_mc_read(la64_core_t *core, void *device, uint64_t offset, int size);
+uint64_t emex64_mc_read(emex64_core_t *core, void *device, uint64_t offset, int size);
 
 #endif /* EMEX64VM_DEVICE_MC_H */

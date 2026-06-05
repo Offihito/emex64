@@ -28,10 +28,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct la64_core la64_core_t;
+typedef struct emex64_core emex64_core_t;
 
-typedef uint64_t (*mmio_read_fn)(la64_core_t *core, void *device, uint64_t offset, int size);
-typedef void (*mmio_write_fn)(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
+typedef uint64_t (*mmio_read_fn)(emex64_core_t *core, void *device, uint64_t offset, int size);
+typedef void (*mmio_write_fn)(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
 typedef struct {
     uint64_t base_addr;
@@ -39,22 +39,22 @@ typedef struct {
     void *device;
     mmio_read_fn read;
     mmio_write_fn write;
-} la64_mmio_region_t;
+} emex64_mmio_region_t;
 
 #define MAX_MMIO_REGIONS 32
 
 typedef struct {
-    la64_mmio_region_t *last_region;
-    la64_mmio_region_t regions[MAX_MMIO_REGIONS];
+    emex64_mmio_region_t *last_region;
+    emex64_mmio_region_t regions[MAX_MMIO_REGIONS];
     int region_count;
     uint64_t start_addr;
     uint64_t end_addr;
-} la64_mmio_bus_t;
+} emex64_mmio_bus_t;
 
-la64_mmio_bus_t *la64_mmio_alloc(void);
-void la64_mmio_dealloc(la64_mmio_bus_t *bus);
+emex64_mmio_bus_t *emex64_mmio_alloc(void);
+void emex64_mmio_dealloc(emex64_mmio_bus_t *bus);
 
-bool la64_mmio_register(la64_mmio_bus_t *bus, uint64_t base, uint64_t size, void *device, mmio_read_fn read, mmio_write_fn write);
-la64_mmio_region_t *la64_mmio_find(la64_mmio_bus_t *bus, uint64_t addr);
+bool emex64_mmio_register(emex64_mmio_bus_t *bus, uint64_t base, uint64_t size, void *device, mmio_read_fn read, mmio_write_fn write);
+emex64_mmio_region_t *emex64_mmio_find(emex64_mmio_bus_t *bus, uint64_t addr);
 
 #endif /* EMEX64VM_MMIO_H */

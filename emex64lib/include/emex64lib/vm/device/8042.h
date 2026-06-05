@@ -25,11 +25,11 @@
 #ifndef EMEX64VM_DEVICE_8042_H
 #define EMEX64VM_DEVICE_8042_H
 
-#define LA64_8042_BASE          0x1FE00600
+#define EMEX64_8042_BASE          0x1FE00600
 
-#define LA64_8042_REG_DATA      0x00
-#define LA64_8042_REG_STATUS    0x08
-#define LA64_8042_REG_COMMAND   0x08    /* same address as status, because read is from status and write writes to command, without being the same memory */
+#define EMEX64_8042_REG_DATA      0x00
+#define EMEX64_8042_REG_STATUS    0x08
+#define EMEX64_8042_REG_COMMAND   0x08    /* same address as status, because read is from status and write writes to command, without being the same memory */
 
 
 

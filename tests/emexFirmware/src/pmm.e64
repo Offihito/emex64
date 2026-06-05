@@ -125,7 +125,7 @@ _pmm_init:
     stq pmm_max_pages, r0                           ; store count of maximum pages
 
     ; getting the count of pages in use by the kernel image
-    mov r1, __la64_exec_img_end
+    mov r1, __emex64_exec_img_end
     add r1, 0x1FFF                                  ; add constants math (PAGE_SIZE - 1) to the assembler FRIDAAA!!! ahhh
     div r1, PAGE_SIZE                               ; get the number of pages the image is sized
 

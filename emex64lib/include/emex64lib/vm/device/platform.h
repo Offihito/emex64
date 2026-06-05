@@ -27,14 +27,14 @@
 
 #include <stdint.h>
 
-#define LA64_PLATFORM_BASE  0x1FE00500
-#define LA64_PLATFORM_SIZE  0x01
+#define EMEX64_PLATFORM_BASE  0x1FE00500
+#define EMEX64_PLATFORM_SIZE  0x01
 
 #define PLATFORM_REG_PWR    0x00
 
-typedef struct la64_core la64_core_t;
+typedef struct emex64_core emex64_core_t;
 
-uint64_t la64_platform_read(la64_core_t *core, void *device, uint64_t offset, int size);
-void la64_platform_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
+uint64_t emex64_platform_read(emex64_core_t *core, void *device, uint64_t offset, int size);
+void emex64_platform_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
 #endif /* EMEX64VM_DEVICE_PLATFORM_H */

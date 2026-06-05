@@ -109,7 +109,7 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
 
 void *display_start(void *arg)
 {
-    la64_display_t *display = (la64_display_t*)arg;
+    emex64_display_t *display = (emex64_display_t*)arg;
 
     if(display == NULL)
     {
@@ -123,12 +123,12 @@ void *display_start(void *arg)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
 
-    GLFWwindow* win = glfwCreateWindow(LA64_FB_WIDTH, LA64_FB_HEIGHT, "EMEX64LCD @ 60Hz", NULL, NULL);
+    GLFWwindow* win = glfwCreateWindow(EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT, "EMEX64LCD @ 60Hz", NULL, NULL);
     if(!win) die("glfwCreateWindow failed");
     glfwSetWindowCloseCallback(win, display_close_callback);
     glfwSetWindowMaximizeCallback(win, maximize_callback);
-    glfwSetWindowAspectRatio(win, LA64_FB_WIDTH, LA64_FB_HEIGHT);
-    glfwSetWindowSizeLimits(win, LA64_FB_WIDTH, LA64_FB_HEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetWindowAspectRatio(win, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT);
+    glfwSetWindowSizeLimits(win, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwMakeContextCurrent(win);
     glfwSwapInterval(1);
 
@@ -198,7 +198,7 @@ void *display_start(void *arg)
     GLuint texIndex, texPal;
     glGenTextures(1,&texIndex);
     glBindTexture(GL_TEXTURE_2D,texIndex);
-    glTexStorage2D(GL_TEXTURE_2D,1,GL_R8,LA64_FB_WIDTH,LA64_FB_HEIGHT);
+    glTexStorage2D(GL_TEXTURE_2D,1,GL_R8,EMEX64_FB_WIDTH,EMEX64_FB_HEIGHT);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
@@ -214,7 +214,7 @@ void *display_start(void *arg)
     for(int i=0;i<2;i++)
     {
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER,pbo[i]);
-        glBufferData(GL_PIXEL_UNPACK_BUFFER,LA64_FB_SIZE,NULL,GL_STREAM_DRAW);
+        glBufferData(GL_PIXEL_UNPACK_BUFFER,EMEX64_FB_SIZE,NULL,GL_STREAM_DRAW);
     }
 
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
@@ -230,13 +230,13 @@ void *display_start(void *arg)
         glfwPollEvents();
 
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER,pbo[pboIdx]);
-        uint8_t* ptr = (uint8_t*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER,0,LA64_FB_SIZE, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-        memcpy(ptr, display->fb, LA64_FB_SIZE);
+        uint8_t* ptr = (uint8_t*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER,0,EMEX64_FB_SIZE, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        memcpy(ptr, display->fb, EMEX64_FB_SIZE);
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 
         glBindTexture(GL_TEXTURE_2D,texIndex);
         glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,LA64_FB_WIDTH,LA64_FB_HEIGHT,GL_RED,GL_UNSIGNED_BYTE,NULL);
+        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,EMEX64_FB_WIDTH,EMEX64_FB_HEIGHT,GL_RED,GL_UNSIGNED_BYTE,NULL);
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
         pboIdx ^= 1;
 
@@ -289,7 +289,7 @@ bool logo[20][22] = {
     { 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1 }
 };
 
-void la64_display_draw_logo(la64_display_t *display)
+void emex64_display_draw_logo(emex64_display_t *display)
 {
     if(!display || !display->fb)
     {
@@ -317,10 +317,10 @@ void la64_display_draw_logo(la64_display_t *display)
                         int px = start_x + x * scale + sx;
                         int py = start_y + y * scale + sy;
 
-                        if(px >= 0 && px < LA64_FB_WIDTH && 
-                           py >= 0 && py < LA64_FB_HEIGHT)
+                        if(px >= 0 && px < EMEX64_FB_WIDTH && 
+                           py >= 0 && py < EMEX64_FB_HEIGHT)
                         {
-                            display->fb[py * LA64_FB_WIDTH + px] = color;
+                            display->fb[py * EMEX64_FB_WIDTH + px] = color;
                         }
                     }
                 }
@@ -329,9 +329,9 @@ void la64_display_draw_logo(la64_display_t *display)
     }
 }
 
-la64_display_t *la64_display_alloc(la64_machine_t *machine)
+emex64_display_t *emex64_display_alloc(emex64_machine_t *machine)
 {
-    la64_display_t *display = malloc(sizeof(la64_display_t));
+    emex64_display_t *display = malloc(sizeof(emex64_display_t));
 
     /* null pointer check */
     if(display == NULL)
@@ -339,7 +339,7 @@ la64_display_t *la64_display_alloc(la64_machine_t *machine)
         return NULL;
     }
 
-    if(!la64_mmio_register(machine->mmio_bus, LA64_FB_BASE, LA64_FB_SIZE, display, la64_fb_read, la64_fb_write))
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_FB_BASE, EMEX64_FB_SIZE, display, emex64_fb_read, emex64_fb_write))
     {
         free(display);
         return NULL;
@@ -365,7 +365,7 @@ la64_display_t *la64_display_alloc(la64_machine_t *machine)
         display->palette[i*3 + 2] = gray;
     }
 
-    display->fb = calloc(1, LA64_FB_SIZE);
+    display->fb = calloc(1, EMEX64_FB_SIZE);
 
     /* null pointer check */
     if(display->fb == NULL)
@@ -376,7 +376,7 @@ la64_display_t *la64_display_alloc(la64_machine_t *machine)
     }
 
     #if EMEX64VM_DEVICE_DISPLAY
-    la64_display_draw_logo(display);
+    emex64_display_draw_logo(display);
     display->enabled = true;
     pthread_create(&(display->pthread), NULL, display_start, display);
     #endif /* EMEX64VM_DEVICE_DISPLAY */
@@ -384,7 +384,7 @@ la64_display_t *la64_display_alloc(la64_machine_t *machine)
     return display;
 }
 
-void la64_display_dealloc(la64_display_t *display)
+void emex64_display_dealloc(emex64_display_t *display)
 {
     /* null pointer check */
     if(display == NULL)
@@ -410,56 +410,56 @@ void la64_display_dealloc(la64_display_t *display)
     }
 }
 
-uint64_t la64_fb_read(la64_core_t *core,
+uint64_t emex64_fb_read(emex64_core_t *core,
                       void *device,
                       uint64_t offset,
                       int size)
 {
     #if EMEX64VM_DEVICE_DISPLAY
-    la64_display_t *display = (la64_display_t*)device;
+    emex64_display_t *display = (emex64_display_t*)device;
 
-    if(offset >= LA64_FB_FRAMEBUFFER)
+    if(offset >= EMEX64_FB_FRAMEBUFFER)
     {
         uint64_t outvalue;
-        LA64_MEMORY_READ_HELPER(display->fb, offset - LA64_FB_FRAMEBUFFER, size, outvalue);
+        EMEX64_MEMORY_READ_HELPER(display->fb, offset - EMEX64_FB_FRAMEBUFFER, size, outvalue);
         return outvalue;
     }
-    else if(offset >= LA64_FB_PALLETE)
+    else if(offset >= EMEX64_FB_PALLETE)
     {
         uint64_t outvalue;
-        LA64_MEMORY_READ_HELPER(display->palette, offset - LA64_FB_PALLETE, size, outvalue);
+        EMEX64_MEMORY_READ_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, outvalue);
         return outvalue;
     }
-    else if(offset == LA64_FB_REG_HEIGHT)
+    else if(offset == EMEX64_FB_REG_HEIGHT)
     {
-        return LA64_FB_HEIGHT;
+        return EMEX64_FB_HEIGHT;
     }
     else
     {
-        return LA64_FB_WIDTH;
+        return EMEX64_FB_WIDTH;
     }
     #else
     return 0;
     #endif /* EMEX64VM_DEVICE_DISPLAY */
 }
 
-void la64_fb_write(la64_core_t *core,
+void emex64_fb_write(emex64_core_t *core,
                    void *device,
                    uint64_t offset,
                    uint64_t value,
                    int size)
 {
     #if EMEX64VM_DEVICE_DISPLAY
-    la64_display_t *display = (la64_display_t*)device;
+    emex64_display_t *display = (emex64_display_t*)device;
 
-    if(offset >= LA64_FB_FRAMEBUFFER)
+    if(offset >= EMEX64_FB_FRAMEBUFFER)
     {
-        LA64_MEMORY_WRITE_HELPER(display->fb, offset - LA64_FB_FRAMEBUFFER, size, value);
+        EMEX64_MEMORY_WRITE_HELPER(display->fb, offset - EMEX64_FB_FRAMEBUFFER, size, value);
         return;
     }
-    else if(offset >= LA64_FB_PALLETE)
+    else if(offset >= EMEX64_FB_PALLETE)
     {
-        LA64_MEMORY_WRITE_HELPER(display->palette, offset - LA64_FB_PALLETE, size, value);
+        EMEX64_MEMORY_WRITE_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, value);
         return;
     }
     else

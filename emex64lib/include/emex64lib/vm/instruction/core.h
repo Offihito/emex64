@@ -27,7 +27,7 @@
 
 #include <emex64lib/vm/core.h>
 
-void la64_op_hlt(la64_core_t *core);
-void la64_op_nop(la64_core_t *core);
+void emex64_op_hlt(emex64_core_t *core);
+void emex64_op_nop(emex64_core_t *core);
 
 #endif /* EMEX64VM_INSTRUCTION_CORE_H */

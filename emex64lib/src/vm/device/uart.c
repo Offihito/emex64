@@ -51,22 +51,22 @@ void uart_restore_mode(void)
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &uart_orig_termios);
 }
 
-static void uart_update_irq(la64_uart_t *u)
+static void uart_update_irq(emex64_uart_t *u)
 {    
     int level = ((u->control & UART_CTRL_RX_IRQ_EN) && (u->status & UART_STATUS_RX_READY)) || ((u->control & UART_CTRL_TX_IRQ_EN) && (u->status & UART_STATUS_TX_EMPTY));
     if(level)
     {
-        la64_raise_interrupt(u->machine, LA64_IRQ_UART);
+        emex64_raise_interrupt(u->machine, EMEX64_IRQ_UART);
     }
     else
     {
-        la64_clear_interrupt(u->machine, LA64_IRQ_UART);
+        emex64_clear_interrupt(u->machine, EMEX64_IRQ_UART);
     }
 }
 
 static void *uart_input_thread(void *arg)
 {
-    la64_uart_t *u = (la64_uart_t *)arg;
+    emex64_uart_t *u = (emex64_uart_t *)arg;
 
     uint8_t ch;
     
@@ -128,7 +128,7 @@ static void *uart_input_thread(void *arg)
     return NULL;
 }
 
-static inline void la64_uart_start(la64_uart_t *u)
+static inline void emex64_uart_start(emex64_uart_t *u)
 {
     if(u->running)
     {
@@ -140,7 +140,7 @@ static inline void la64_uart_start(la64_uart_t *u)
     pthread_create(&u->thread, NULL, uart_input_thread, u);
 }
 
-static inline void la64_uart_stop(la64_uart_t *u)
+static inline void emex64_uart_stop(emex64_uart_t *u)
 {
     if(!u->running)
     {
@@ -152,17 +152,17 @@ static inline void la64_uart_stop(la64_uart_t *u)
     uart_restore_mode();
 }
 
-la64_uart_t *la64_uart_alloc(la64_machine_t *machine)
+emex64_uart_t *emex64_uart_alloc(emex64_machine_t *machine)
 {
     /* allocate uart */
-    la64_uart_t *u = malloc(sizeof(la64_uart_t));
+    emex64_uart_t *u = malloc(sizeof(emex64_uart_t));
     if(u == NULL)
     {
         return NULL;
     }
 
     /* registering uart on machine */
-    if(!la64_mmio_register(machine->mmio_bus, LA64_UART_BASE, LA64_UART_SIZE, u, la64_uart_read, la64_uart_write))
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_UART_BASE, EMEX64_UART_SIZE, u, emex64_uart_read, emex64_uart_write))
     {
         free(u);
         return NULL;
@@ -175,22 +175,22 @@ la64_uart_t *la64_uart_alloc(la64_machine_t *machine)
     pthread_mutex_init(&u->mutex, NULL);
     atomic_store(&u->running, false);
 
-    la64_uart_start(u);
+    emex64_uart_start(u);
 
     return u;
 }
 
-void la64_uart_dealloc(la64_uart_t *u)
+void emex64_uart_dealloc(emex64_uart_t *u)
 {
-    la64_uart_stop(u);
+    emex64_uart_stop(u);
     pthread_mutex_destroy(&u->mutex);
     free(u);
 }
 
-uint64_t la64_uart_read(la64_core_t *core, void *device, uint64_t offset, int size)
+uint64_t emex64_uart_read(emex64_core_t *core, void *device, uint64_t offset, int size)
 {
     /* getting uart */
-    la64_uart_t *u = (la64_uart_t *)device;
+    emex64_uart_t *u = (emex64_uart_t *)device;
 
     pthread_mutex_lock(&u->mutex);
     uint64_t result = 0;
@@ -225,10 +225,10 @@ uint64_t la64_uart_read(la64_core_t *core, void *device, uint64_t offset, int si
     return result;
 }
 
-void la64_uart_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size)
+void emex64_uart_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size)
 {
     /* getting uart */
-    la64_uart_t *u = (la64_uart_t *)device;
+    emex64_uart_t *u = (emex64_uart_t *)device;
 
     pthread_mutex_lock(&u->mutex);
 

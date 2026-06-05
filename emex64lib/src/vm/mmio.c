@@ -27,17 +27,17 @@
 #include <assert.h>
 #include <emex64lib/vm/mmio.h>
 
-la64_mmio_bus_t *la64_mmio_alloc(void)
+emex64_mmio_bus_t *emex64_mmio_alloc(void)
 {
-    return calloc(1, sizeof(la64_mmio_bus_t));
+    return calloc(1, sizeof(emex64_mmio_bus_t));
 }
 
-void la64_mmio_dealloc(la64_mmio_bus_t *bus)
+void emex64_mmio_dealloc(emex64_mmio_bus_t *bus)
 {
     free(bus);
 }
 
-bool la64_mmio_register(la64_mmio_bus_t *bus,
+bool emex64_mmio_register(emex64_mmio_bus_t *bus,
                         uint64_t base,
                         uint64_t size,
                         void *device,
@@ -49,7 +49,7 @@ bool la64_mmio_register(la64_mmio_bus_t *bus,
     /* overlap check */
     for(int i = 0; i < bus->region_count; i++)
     {
-        la64_mmio_region_t *r = &bus->regions[i];
+        emex64_mmio_region_t *r = &bus->regions[i];
         if(base < r->base_addr + r->size &&
            base + size > r->base_addr)
         {
@@ -58,7 +58,7 @@ bool la64_mmio_register(la64_mmio_bus_t *bus,
     }
 
     /* setup mmio region */
-    la64_mmio_region_t *region = &bus->regions[bus->region_count++];
+    emex64_mmio_region_t *region = &bus->regions[bus->region_count++];
     region->base_addr = base;
     region->size = size;
     region->device = device;
@@ -80,7 +80,7 @@ bool la64_mmio_register(la64_mmio_bus_t *bus,
     return true;
 }
 
-la64_mmio_region_t *la64_mmio_find(la64_mmio_bus_t *bus,
+emex64_mmio_region_t *emex64_mmio_find(emex64_mmio_bus_t *bus,
                                    uint64_t addr)
 {
     /* sanity check */
@@ -101,7 +101,7 @@ la64_mmio_region_t *la64_mmio_find(la64_mmio_bus_t *bus,
     /* finding mmio region, hopefully x3 */
     for(int i = 0; i < bus->region_count; i++)
     {
-        la64_mmio_region_t *r = &bus->regions[i];
+        emex64_mmio_region_t *r = &bus->regions[i];
         if(addr >= r->base_addr &&
            addr < r->base_addr + r->size)
         {

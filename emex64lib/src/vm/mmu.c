@@ -27,12 +27,12 @@
 #include <emex64lib/vm/machine.h>
 #include <stdio.h>
 
-typedef struct la64_mmu_entry_lookup {
+typedef struct emex64_mmu_entry_lookup {
     bool fail;
     uint64_t pte;
-} la64_mmu_entry_lookup_t;
+} emex64_mmu_entry_lookup_t;
 
-static inline la64_mmu_entry_lookup_t la64_mmu_lookup_pte(la64_core_t *core,
+static inline emex64_mmu_entry_lookup_t emex64_mmu_lookup_pte(emex64_core_t *core,
                                                           uint64_t pt_addr,
                                                           uint16_t idx)
 {
@@ -40,37 +40,37 @@ static inline la64_mmu_entry_lookup_t la64_mmu_lookup_pte(la64_core_t *core,
      * bounds check pt_addr and check if it
      * can be even a table.
      */
-    pt_addr = LA64_PAGE_ROUND_DOWN(pt_addr);
-    if(!LA64_IN_PHYS_MEMORY(pt_addr, LA64_PAGE_SIZE, core->machine->memory->memory, core->machine->memory->memory_size))
+    pt_addr = EMEX64_PAGE_ROUND_DOWN(pt_addr);
+    if(!EMEX64_IN_PHYS_MEMORY(pt_addr, EMEX64_PAGE_SIZE, core->machine->memory->memory, core->machine->memory->memory_size))
     {
-        return (la64_mmu_entry_lookup_t){ .fail = true, .pte = 0x0 };
+        return (emex64_mmu_entry_lookup_t){ .fail = true, .pte = 0x0 };
     }
 
     /* now access the table and check its entry too */
     uint64_t *pt = (uint64_t*)&core->machine->memory->memory[pt_addr];
     uint64_t pte = pt[idx];
 
-    if(!((pte & LA64_MMU_MASK_FLAGS) & LA64_MMU_PT_PRESENT))
+    if(!((pte & EMEX64_MMU_MASK_FLAGS) & EMEX64_MMU_PT_PRESENT))
     {
-        return (la64_mmu_entry_lookup_t){ .fail = true, .pte = 0x0 };
+        return (emex64_mmu_entry_lookup_t){ .fail = true, .pte = 0x0 };
     }
 
-    return (la64_mmu_entry_lookup_t){ .fail = false, .pte = pte };
+    return (emex64_mmu_entry_lookup_t){ .fail = false, .pte = pte };
 }
 
-static inline bool la64_mmu_access_pxd(la64_core_t *core,
+static inline bool emex64_mmu_access_pxd(emex64_core_t *core,
                                        uint64_t pt_addr,
                                        uint16_t pxd_idx,
                                        uint8_t acc,
                                        uint64_t *oaddr)
 {
-    la64_mmu_entry_lookup_t lookup = la64_mmu_lookup_pte(core, pt_addr, pxd_idx);
+    emex64_mmu_entry_lookup_t lookup = emex64_mmu_lookup_pte(core, pt_addr, pxd_idx);
     if(lookup.fail)
     {
         return false;
     }
 
-    if(acc != LA64_MMU_ACC_PXD)
+    if(acc != EMEX64_MMU_ACC_PXD)
     {
         uint8_t checkflg = acc;
 
@@ -81,20 +81,20 @@ static inline bool la64_mmu_access_pxd(la64_core_t *core,
          */
         if(core->rl[kEmex64RegisterCR0] < kEmex64ElevationLevelKernel)
         {
-            checkflg |= LA64_MMU_PT_USER;
+            checkflg |= EMEX64_MMU_PT_USER;
         }
 
         /* initial flag check */
-        if(((lookup.pte & LA64_MMU_MASK_FLAGS) & checkflg) != checkflg)
+        if(((lookup.pte & EMEX64_MMU_MASK_FLAGS) & checkflg) != checkflg)
         {
             /* TODO: cause page fault */
             return false;
         }
     }
 
-    uint64_t pfn = (lookup.pte & LA64_MMU_MASK_PFN) >> 8;
-    uint64_t physaddr = LA64_PAGE_ROUND_DOWN(pfn << 13);
-    if(!LA64_IN_PHYS_MEMORY(physaddr, LA64_PAGE_SIZE, core->machine->memory->memory, core->machine->memory->memory_size))
+    uint64_t pfn = (lookup.pte & EMEX64_MMU_MASK_PFN) >> 8;
+    uint64_t physaddr = EMEX64_PAGE_ROUND_DOWN(pfn << 13);
+    if(!EMEX64_IN_PHYS_MEMORY(physaddr, EMEX64_PAGE_SIZE, core->machine->memory->memory, core->machine->memory->memory_size))
     {
         return false;
     }
@@ -104,7 +104,7 @@ static inline bool la64_mmu_access_pxd(la64_core_t *core,
     return true;
 }
 
-bool la64_mmu_access(la64_core_t *core,
+bool emex64_mmu_access(emex64_core_t *core,
                      uint64_t vaddr,
                      uint8_t acc,
                      uint64_t *paddr)
@@ -124,7 +124,7 @@ bool la64_mmu_access(la64_core_t *core,
      * control register.. for simplicity we do that hahaha.
      */
     uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
-    if(!((cr_pte & LA64_MMU_MASK_FLAGS) & LA64_MMU_PT_PRESENT) || core->in_interrupt)
+    if(!((cr_pte & EMEX64_MMU_MASK_FLAGS) & EMEX64_MMU_PT_PRESENT) || core->in_interrupt)
     {
         /* incase paging is disabled virtual addresses are physical ones */
         *paddr = vaddr;
@@ -132,7 +132,7 @@ bool la64_mmu_access(la64_core_t *core,
     }
 
     /* get pfn of control register */
-    uint64_t cr_pfn = (cr_pte & LA64_MMU_MASK_PFN) >> 8;
+    uint64_t cr_pfn = (cr_pte & EMEX64_MMU_MASK_PFN) >> 8;
 
     /* precalculating all indexes */
     uint16_t pgd_index = (vaddr >> 43) & 0x3FF;     /* 10 bits for each level index  */
@@ -146,10 +146,10 @@ bool la64_mmu_access(la64_core_t *core,
     uint64_t pud_addr, pmd_addr, pte_addr, physaddr;
 
     /* now access each table */
-    if(!la64_mmu_access_pxd(core, pgd_addr, pgd_index, LA64_MMU_ACC_PXD, &pud_addr) ||
-       !la64_mmu_access_pxd(core, pud_addr, pud_index, LA64_MMU_ACC_PXD, &pmd_addr) ||
-       !la64_mmu_access_pxd(core, pmd_addr, pmd_index, LA64_MMU_ACC_PXD, &pte_addr) ||
-       !la64_mmu_access_pxd(core, pte_addr, pte_index, acc, &physaddr))
+    if(!emex64_mmu_access_pxd(core, pgd_addr, pgd_index, EMEX64_MMU_ACC_PXD, &pud_addr) ||
+       !emex64_mmu_access_pxd(core, pud_addr, pud_index, EMEX64_MMU_ACC_PXD, &pmd_addr) ||
+       !emex64_mmu_access_pxd(core, pmd_addr, pmd_index, EMEX64_MMU_ACC_PXD, &pte_addr) ||
+       !emex64_mmu_access_pxd(core, pte_addr, pte_index, acc, &physaddr))
     {
         return false;
     }

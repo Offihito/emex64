@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* creating new la64 virtual machine */
-    la64_machine_t *machine = la64_machine_alloc(memsize);
+    /* creating new emex64 virtual machine */
+    emex64_machine_t *machine = emex64_machine_alloc(memsize);
     if(machine == NULL)
     {
         diag_error(NULL, "failed to allocated machine\n");
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
      * mapping and open the image it self as memory,
      * just size it.
      */
-    if(firmware_image_path != NULL && !la64_memory_load_image(machine->memory, firmware_image_path))
+    if(firmware_image_path != NULL && !emex64_memory_load_image(machine->memory, firmware_image_path))
     {
         diag_error(NULL, "failed to load firmware image\n");
         return 1;
@@ -107,10 +107,10 @@ int main(int argc, char *argv[])
     machine->core->rl[kEmex64RegisterCR0] = kEmex64ElevationLevelSecureMonitor;
 
     /* executing virtual machines 1st core TODO: Implement threading */
-    la64_core_execute(machine->core);
+    emex64_core_execute(machine->core);
 
     /* deallocating machine */
-    la64_machine_dealloc(machine);
+    emex64_machine_dealloc(machine);
 
     return 0;
 }

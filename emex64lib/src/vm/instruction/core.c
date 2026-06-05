@@ -25,9 +25,9 @@
 #include <emex64lib/vm/instruction/instruction.h>
 #include <emex64lib/vm/instruction/core.h>
 
-void la64_op_hlt(la64_core_t *core)
+void emex64_op_hlt(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 0);
+    emex64_instr_termcond(core->op.param_cnt != 0);
 
     if(!core->unhalted_interrupt)
     {
@@ -39,8 +39,8 @@ void la64_op_hlt(la64_core_t *core)
     }
 }
 
-void la64_op_nop(la64_core_t *core)
+void emex64_op_nop(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 0);
+    emex64_instr_termcond(core->op.param_cnt != 0);
     /* doing nothing */
 }

@@ -28,8 +28,8 @@
 #include <stdint.h>
 #include <emex64lib/vm/core.h>
 
-#define LA64_TIMER_BASE     0x1FE00100
-#define LA64_TIMER_SIZE     0x28
+#define EMEX64_TIMER_BASE     0x1FE00100
+#define EMEX64_TIMER_SIZE     0x28
 
 #define TIMER_REG_CTRL      0x00
 #define TIMER_REG_COUNT     0x08
@@ -42,9 +42,9 @@
 #define TIMER_CTRL_PERIODIC (1 << 2)
 #define TIMER_STATUS_IRQ    (1 << 0)
 
-typedef struct la64_machine la64_machine_t;
+typedef struct emex64_machine emex64_machine_t;
 
-typedef struct la64_timer {
+typedef struct emex64_timer {
     uint64_t ctrl;
     uint64_t count;
     uint64_t compare;
@@ -53,15 +53,15 @@ typedef struct la64_timer {
     uint64_t host_freq;
     uint64_t last_host_cycles;
     
-    la64_machine_t *machine;
-} la64_timer_t;
+    emex64_machine_t *machine;
+} emex64_timer_t;
 
-la64_timer_t *la64_timer_alloc(la64_machine_t *core);
-void la64_timer_dealloc(la64_timer_t *timer);
-void la64_timer_tick(la64_timer_t *timer, uint64_t host_cycles);
-uint64_t la64_get_host_cycles(void);
+emex64_timer_t *emex64_timer_alloc(emex64_machine_t *core);
+void emex64_timer_dealloc(emex64_timer_t *timer);
+void emex64_timer_tick(emex64_timer_t *timer, uint64_t host_cycles);
+uint64_t emex64_get_host_cycles(void);
 
-uint64_t la64_timer_read(la64_core_t *core, void *device, uint64_t offset, int size);
-void la64_timer_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
+uint64_t emex64_timer_read(emex64_core_t *core, void *device, uint64_t offset, int size);
+void emex64_timer_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
 #endif /* EMEX64VM_DEVICE_TIMER_H */

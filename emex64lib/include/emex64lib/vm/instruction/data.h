@@ -27,18 +27,18 @@
 
 #include <emex64lib/vm/core.h>
 
-void la64_op_mov(la64_core_t *core);
-void la64_op_swp(la64_core_t *core);
-void la64_op_swpz(la64_core_t *core);
-void la64_op_push(la64_core_t *core);
-void la64_op_pop(la64_core_t *core);
-void la64_op_ldb(la64_core_t *core);
-void la64_op_ldw(la64_core_t *core);
-void la64_op_ldd(la64_core_t *core);
-void la64_op_ldq(la64_core_t *core);
-void la64_op_stb(la64_core_t *core);
-void la64_op_stw(la64_core_t *core);
-void la64_op_std(la64_core_t *core);
-void la64_op_stq(la64_core_t *core);
+void emex64_op_mov(emex64_core_t *core);
+void emex64_op_swp(emex64_core_t *core);
+void emex64_op_swpz(emex64_core_t *core);
+void emex64_op_push(emex64_core_t *core);
+void emex64_op_pop(emex64_core_t *core);
+void emex64_op_ldb(emex64_core_t *core);
+void emex64_op_ldw(emex64_core_t *core);
+void emex64_op_ldd(emex64_core_t *core);
+void emex64_op_ldq(emex64_core_t *core);
+void emex64_op_stb(emex64_core_t *core);
+void emex64_op_stw(emex64_core_t *core);
+void emex64_op_std(emex64_core_t *core);
+void emex64_op_stq(emex64_core_t *core);
 
 #endif /* EMEX64VM_INSTRUCTION_DATA_H */

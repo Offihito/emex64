@@ -333,7 +333,7 @@ bool assembler_emit(assembler_invocation_t *inv)
     }
 
     inv->label[inv->label_cnt].addr = st.st_size;
-    inv->label[inv->label_cnt++].name = strdup("__la64_exec_img_end");
+    inv->label[inv->label_cnt++].name = strdup("__emex64_exec_img_end");
 
     /*
      * the main code emitter appended labels the code

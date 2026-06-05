@@ -27,8 +27,8 @@
 
 #include <stdint.h>
 
-#define LA64_RTC_BASE       0x1FE00200
-#define LA64_RTC_SIZE       0x20
+#define EMEX64_RTC_BASE       0x1FE00200
+#define EMEX64_RTC_SIZE       0x20
 
 #define RTC_REG_SECONDS     0x00
 #define RTC_REG_MINUTES     0x04
@@ -38,8 +38,8 @@
 #define RTC_REG_YEAR        0x14
 #define RTC_REG_WEEKDAY     0x18
 
-typedef struct la64_core la64_core_t;
+typedef struct emex64_core emex64_core_t;
 
-uint64_t la64_rtc_read(la64_core_t *core, void *device, uint64_t offset, int size);
+uint64_t emex64_rtc_read(emex64_core_t *core, void *device, uint64_t offset, int size);
 
 #endif /* EMEX64VM_DEVICE_RTC_H */

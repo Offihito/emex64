@@ -32,10 +32,10 @@
 #include <emex64lib/vm/memory.h>
 #include <emex64lib/vm/instruction/ctrl.h>
 
-la64_intc_t *la64_intc_alloc(la64_machine_t *machine)
+emex64_intc_t *emex64_intc_alloc(emex64_machine_t *machine)
 {
     /* allocate interrupt controller */
-    la64_intc_t *intc = malloc(sizeof(la64_intc_t));
+    emex64_intc_t *intc = malloc(sizeof(emex64_intc_t));
 
     /* null pointer check */
     if(intc == NULL)
@@ -44,7 +44,7 @@ la64_intc_t *la64_intc_alloc(la64_machine_t *machine)
     }
 
     /* register interrupt controller MMIO */
-    if(!la64_mmio_register(machine->mmio_bus, LA64_INTC_BASE, LA64_INTC_SIZE, intc, la64_intc_read, la64_intc_write))
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_INTC_BASE, EMEX64_INTC_SIZE, intc, emex64_intc_read, emex64_intc_write))
     {
         free(intc);
         return NULL;
@@ -59,17 +59,17 @@ la64_intc_t *la64_intc_alloc(la64_machine_t *machine)
     return intc;
 }
 
-void la64_intc_dealloc(la64_intc_t *intc)
+void emex64_intc_dealloc(emex64_intc_t *intc)
 {
     free(intc);
 }
 
-void la64_raise_interrupt(la64_machine_t *machine,
+void emex64_raise_interrupt(emex64_machine_t *machine,
                           int irq_line)
 {
     /* sanity checks */
     if(irq_line < 0 ||
-       irq_line > LA64_IRQ_MAX)
+       irq_line > EMEX64_IRQ_MAX)
     {
         return;
     }
@@ -78,12 +78,12 @@ void la64_raise_interrupt(la64_machine_t *machine,
     machine->intc->pending |= (1ULL << irq_line);
 }
 
-void la64_clear_interrupt(la64_machine_t *machine,
+void emex64_clear_interrupt(emex64_machine_t *machine,
                           int irq_line)
 {
     /* sanity checks */
     if(irq_line < 0 ||
-       irq_line > LA64_IRQ_MAX)
+       irq_line > EMEX64_IRQ_MAX)
     {
         return;
     }
@@ -92,7 +92,7 @@ void la64_clear_interrupt(la64_machine_t *machine,
     machine->intc->pending &= ~(1ULL << irq_line);
 }
 
-static int find_pending_irq(la64_intc_t *intc)
+static int find_pending_irq(emex64_intc_t *intc)
 {
     /* get pending and enabled interrupts */
     uint64_t active = intc->pending & intc->enabled;
@@ -104,7 +104,7 @@ static int find_pending_irq(la64_intc_t *intc)
     }
     
     /* iterating for lowest set bit */
-    for(int i = 0; i <= LA64_IRQ_MAX; i++)
+    for(int i = 0; i <= EMEX64_IRQ_MAX; i++)
     {
         if(active & (1ULL << i))
         {
@@ -115,17 +115,17 @@ static int find_pending_irq(la64_intc_t *intc)
     return -1;
 }
 
-bool la64_serve_interrupt_if_needed(la64_core_t *core)
+bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
 {    
     /* check if interrupts are globally enabled */
-    if(!(core->machine->intc->ctrl & LA64_INTC_CTRL_ENABLE))
+    if(!(core->machine->intc->ctrl & EMEX64_INTC_CTRL_ENABLE))
     {
         return false;
     }
     
     /* check if were already servicing an interrupt (unless nesting allowed) */
     if(core->machine->intc->current_irq >= 0 &&
-       !(core->machine->intc->ctrl & LA64_INTC_CTRL_NESTING))
+       !(core->machine->intc->ctrl & EMEX64_INTC_CTRL_NESTING))
     {
         return false;
     }
@@ -146,7 +146,7 @@ bool la64_serve_interrupt_if_needed(la64_core_t *core)
     uint64_t vector_addr = core->machine->intc->vector_base + (irq * 8);
     
     /* read handler address from vector table */
-    void *vector_ptr = la64_memory_access(core, vector_addr, 8);
+    void *vector_ptr = emex64_memory_access(core, vector_addr, 8);
     if(vector_ptr == NULL)
     {
         core->machine->intc->current_irq = -1;
@@ -163,28 +163,28 @@ bool la64_serve_interrupt_if_needed(la64_core_t *core)
     core->rl[kEmex64RegisterSP] = core->rl[kEmex64RegisterCR1];
 
     /* creating interrupt stack frame */
-    la64_push(core, oldel);
-    la64_push(core, core->rl[kEmex64RegisterPC]);
-    la64_push(core, oldsp);
-    la64_push(core, core->rl[kEmex64RegisterFP]);
-    la64_push(core, core->rl[kEmex64RegisterCF]);
-    la64_push(core, core->rl[kEmex64RegisterR0]);
-    la64_push(core, core->rl[kEmex64RegisterR1]);
-    la64_push(core, core->rl[kEmex64RegisterR2]);
-    la64_push(core, core->rl[kEmex64RegisterR3]);
-    la64_push(core, core->rl[kEmex64RegisterR4]);
-    la64_push(core, core->rl[kEmex64RegisterR5]);
-    la64_push(core, core->rl[kEmex64RegisterR6]);
-    la64_push(core, core->rl[kEmex64RegisterR7]);
-    la64_push(core, core->rl[kEmex64RegisterR8]);
-    la64_push(core, core->rl[kEmex64RegisterR9]);
-    la64_push(core, core->rl[kEmex64RegisterR10]);
-    la64_push(core, core->rl[kEmex64RegisterR11]);
-    la64_push(core, core->rl[kEmex64RegisterR12]);
-    la64_push(core, core->rl[kEmex64RegisterR13]);
-    la64_push(core, core->rl[kEmex64RegisterR14]);
-    la64_push(core, core->rl[kEmex64RegisterR15]);
-    la64_push(core, core->rl[kEmex64RegisterR16]);
+    emex64_push(core, oldel);
+    emex64_push(core, core->rl[kEmex64RegisterPC]);
+    emex64_push(core, oldsp);
+    emex64_push(core, core->rl[kEmex64RegisterFP]);
+    emex64_push(core, core->rl[kEmex64RegisterCF]);
+    emex64_push(core, core->rl[kEmex64RegisterR0]);
+    emex64_push(core, core->rl[kEmex64RegisterR1]);
+    emex64_push(core, core->rl[kEmex64RegisterR2]);
+    emex64_push(core, core->rl[kEmex64RegisterR3]);
+    emex64_push(core, core->rl[kEmex64RegisterR4]);
+    emex64_push(core, core->rl[kEmex64RegisterR5]);
+    emex64_push(core, core->rl[kEmex64RegisterR6]);
+    emex64_push(core, core->rl[kEmex64RegisterR7]);
+    emex64_push(core, core->rl[kEmex64RegisterR8]);
+    emex64_push(core, core->rl[kEmex64RegisterR9]);
+    emex64_push(core, core->rl[kEmex64RegisterR10]);
+    emex64_push(core, core->rl[kEmex64RegisterR11]);
+    emex64_push(core, core->rl[kEmex64RegisterR12]);
+    emex64_push(core, core->rl[kEmex64RegisterR13]);
+    emex64_push(core, core->rl[kEmex64RegisterR14]);
+    emex64_push(core, core->rl[kEmex64RegisterR15]);
+    emex64_push(core, core->rl[kEmex64RegisterR16]);
 
     /* storing it as frame pointer  */
     core->rl[kEmex64RegisterFP] = core->rl[kEmex64RegisterSP];
@@ -203,45 +203,45 @@ bool la64_serve_interrupt_if_needed(la64_core_t *core)
     return true;
 }
 
-uint64_t la64_intc_read(la64_core_t *core, void *device, uint64_t offset, int size)
+uint64_t emex64_intc_read(emex64_core_t *core, void *device, uint64_t offset, int size)
 {
-    la64_intc_t *intc = (la64_intc_t *)device;
+    emex64_intc_t *intc = (emex64_intc_t *)device;
 
     switch(offset)
     {
-        case LA64_INTC_REG_PENDING:
+        case EMEX64_INTC_REG_PENDING:
             return intc->pending; 
-        case LA64_INTC_REG_ENABLED:
+        case EMEX64_INTC_REG_ENABLED:
             return intc->enabled;
-        case LA64_INTC_REG_CTRL:
+        case EMEX64_INTC_REG_CTRL:
             return intc->ctrl;
-        case LA64_INTC_REG_VECTOR:
+        case EMEX64_INTC_REG_VECTOR:
             return intc->vector_base;
-        case LA64_INTC_REG_CURRENT:
+        case EMEX64_INTC_REG_CURRENT:
             return (uint64_t)intc->current_irq;
         default:
             return 0;
     }
 }
 
-void la64_intc_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size)
+void emex64_intc_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size)
 {
-    la64_intc_t *intc = (la64_intc_t *)device;
+    emex64_intc_t *intc = (emex64_intc_t *)device;
     
     switch (offset) {
-        case LA64_INTC_REG_PENDING:
+        case EMEX64_INTC_REG_PENDING:
             intc->pending &= ~value;
             break;
-        case LA64_INTC_REG_ENABLED:
+        case EMEX64_INTC_REG_ENABLED:
             intc->enabled = value;
             break;
-        case LA64_INTC_REG_CTRL:
+        case EMEX64_INTC_REG_CTRL:
             intc->ctrl = value;
             break;
-        case LA64_INTC_REG_VECTOR:
+        case EMEX64_INTC_REG_VECTOR:
             intc->vector_base = value;
             break;
-        case LA64_INTC_REG_ACK:
+        case EMEX64_INTC_REG_ACK:
             if((int64_t)value == intc->current_irq)
             {
                 intc->current_irq = -1;

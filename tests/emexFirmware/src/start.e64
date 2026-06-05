@@ -58,7 +58,7 @@ _fw_start:
     bl _putc, '\n'
 
     bl _mc_get_mem_size
-    sub r0, rr, __la64_exec_img_end
+    sub r0, rr, __emex64_exec_img_end
     
     bl _puts, fw_memory_msg
     bl _putbase, rr, 10

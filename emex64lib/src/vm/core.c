@@ -48,69 +48,69 @@
 
 emex64_opfunc_entry_t opfunc_table[] = {
     /* core operations */
-    [kEmex64OpcodeHLT] = { .func = la64_op_hlt, .maxargs = 0 },
-    [kEmex64OpcodeNOP] = { .func = la64_op_nop, .maxargs = 0 },
+    [kEmex64OpcodeHLT] = { .func = emex64_op_hlt, .maxargs = 0 },
+    [kEmex64OpcodeNOP] = { .func = emex64_op_nop, .maxargs = 0 },
 
     /* data operations */
-    [kEmex64OpcodeMOV] = { .func = la64_op_mov, .maxargs = 2 },
-    [kEmex64OpcodeSWP] = { .func = la64_op_swp, .maxargs = 2 },
-    [kEmex64OpcodeSWPZ] = { .func = la64_op_swpz, .maxargs = 2 },
-    [kEmex64OpcodePUSH] = { .func = la64_op_push, .maxargs = 32 },
-    [kEmex64OpcodePOP] = { .func = la64_op_pop, .maxargs = 32 },
-    [kEmex64OpcodeLDB] = { .func = la64_op_ldb, .maxargs = 2 },
-    [kEmex64OpcodeLDW] = { .func = la64_op_ldw, .maxargs = 2 },
-    [kEmex64OpcodeLDD] = { .func = la64_op_ldd, .maxargs = 2 },
-    [kEmex64OpcodeLDQ] = { .func = la64_op_ldq, .maxargs = 2 },
-    [kEmex64OpcodeSTB] = { .func = la64_op_stb, .maxargs = 2 },
-    [kEmex64OpcodeSTW] = { .func = la64_op_stw, .maxargs = 2 },
-    [kEmex64OpcodeSTD] = { .func = la64_op_std, .maxargs = 2 },
-    [kEmex64OpcodeSTQ] = { .func = la64_op_stq, .maxargs = 2 },
+    [kEmex64OpcodeMOV] = { .func = emex64_op_mov, .maxargs = 2 },
+    [kEmex64OpcodeSWP] = { .func = emex64_op_swp, .maxargs = 2 },
+    [kEmex64OpcodeSWPZ] = { .func = emex64_op_swpz, .maxargs = 2 },
+    [kEmex64OpcodePUSH] = { .func = emex64_op_push, .maxargs = 32 },
+    [kEmex64OpcodePOP] = { .func = emex64_op_pop, .maxargs = 32 },
+    [kEmex64OpcodeLDB] = { .func = emex64_op_ldb, .maxargs = 2 },
+    [kEmex64OpcodeLDW] = { .func = emex64_op_ldw, .maxargs = 2 },
+    [kEmex64OpcodeLDD] = { .func = emex64_op_ldd, .maxargs = 2 },
+    [kEmex64OpcodeLDQ] = { .func = emex64_op_ldq, .maxargs = 2 },
+    [kEmex64OpcodeSTB] = { .func = emex64_op_stb, .maxargs = 2 },
+    [kEmex64OpcodeSTW] = { .func = emex64_op_stw, .maxargs = 2 },
+    [kEmex64OpcodeSTD] = { .func = emex64_op_std, .maxargs = 2 },
+    [kEmex64OpcodeSTQ] = { .func = emex64_op_stq, .maxargs = 2 },
 
     /* arithmetic operations */
-    [kEmex64OpcodeADD] = { .func = la64_op_add, .maxargs = 3 },
-    [kEmex64OpcodeSUB] = { .func = la64_op_sub, .maxargs = 3 },
-    [kEmex64OpcodeMUL] = { .func = la64_op_mul, .maxargs = 3 },
-    [kEmex64OpcodeDIV] = { .func = la64_op_div, .maxargs = 3 },
-    [kEmex64OpcodeIDIV] = { .func = la64_op_idiv, .maxargs = 3 },
-    [kEmex64OpcodeMOD] = { .func = la64_op_mod, .maxargs = 3 },
-    [kEmex64OpcodeNOT] = { .func = la64_op_not, .maxargs = 32 },
-    [kEmex64OpcodeNEG] = { .func = la64_op_neg, .maxargs = 32 },
-    [kEmex64OpcodeAND] = { .func = la64_op_and, .maxargs = 3 },
-    [kEmex64OpcodeOR] = { .func = la64_op_or, .maxargs = 3 },
-    [kEmex64OpcodeXOR] = { .func = la64_op_xor, .maxargs = 3 },
-    [kEmex64OpcodeSHR] = { .func = la64_op_shr, .maxargs = 3 },
-    [kEmex64OpcodeSHL] = { .func = la64_op_shl, .maxargs = 3 },
-    [kEmex64OpcodeSAR] = { .func = la64_op_sar, .maxargs = 3 },
-    [kEmex64OpcodeROR] = { .func = la64_op_ror, .maxargs = 3 },
-    [kEmex64OpcodeROL] = { .func = la64_op_rol, .maxargs = 3 },
-    [kEmex64OpcodePDEP] = { .func = la64_op_pdep, .maxargs = 3 },
-    [kEmex64OpcodePEXT] = { .func = la64_op_pext, .maxargs = 3 },
-    [kEmex64OpcodeBSWAPW] = { .func = la64_op_bswapw, .maxargs = 1 },
-    [kEmex64OpcodeBSWAPD] = { .func = la64_op_bswapd, .maxargs = 1 },
-    [kEmex64OpcodeBSWAPQ] = { .func = la64_op_bswapq, .maxargs = 1 },
-    [kEmex64OpcodeINC] = { .func = la64_op_inc, .maxargs = 32 },
-    [kEmex64OpcodeDEC] = { .func = la64_op_dec, .maxargs = 32 },
+    [kEmex64OpcodeADD] = { .func = emex64_op_add, .maxargs = 3 },
+    [kEmex64OpcodeSUB] = { .func = emex64_op_sub, .maxargs = 3 },
+    [kEmex64OpcodeMUL] = { .func = emex64_op_mul, .maxargs = 3 },
+    [kEmex64OpcodeDIV] = { .func = emex64_op_div, .maxargs = 3 },
+    [kEmex64OpcodeIDIV] = { .func = emex64_op_idiv, .maxargs = 3 },
+    [kEmex64OpcodeMOD] = { .func = emex64_op_mod, .maxargs = 3 },
+    [kEmex64OpcodeNOT] = { .func = emex64_op_not, .maxargs = 32 },
+    [kEmex64OpcodeNEG] = { .func = emex64_op_neg, .maxargs = 32 },
+    [kEmex64OpcodeAND] = { .func = emex64_op_and, .maxargs = 3 },
+    [kEmex64OpcodeOR] = { .func = emex64_op_or, .maxargs = 3 },
+    [kEmex64OpcodeXOR] = { .func = emex64_op_xor, .maxargs = 3 },
+    [kEmex64OpcodeSHR] = { .func = emex64_op_shr, .maxargs = 3 },
+    [kEmex64OpcodeSHL] = { .func = emex64_op_shl, .maxargs = 3 },
+    [kEmex64OpcodeSAR] = { .func = emex64_op_sar, .maxargs = 3 },
+    [kEmex64OpcodeROR] = { .func = emex64_op_ror, .maxargs = 3 },
+    [kEmex64OpcodeROL] = { .func = emex64_op_rol, .maxargs = 3 },
+    [kEmex64OpcodePDEP] = { .func = emex64_op_pdep, .maxargs = 3 },
+    [kEmex64OpcodePEXT] = { .func = emex64_op_pext, .maxargs = 3 },
+    [kEmex64OpcodeBSWAPW] = { .func = emex64_op_bswapw, .maxargs = 1 },
+    [kEmex64OpcodeBSWAPD] = { .func = emex64_op_bswapd, .maxargs = 1 },
+    [kEmex64OpcodeBSWAPQ] = { .func = emex64_op_bswapq, .maxargs = 1 },
+    [kEmex64OpcodeINC] = { .func = emex64_op_inc, .maxargs = 32 },
+    [kEmex64OpcodeDEC] = { .func = emex64_op_dec, .maxargs = 32 },
 
     /* control flow operations */
-    [kEmex64OpcodeB] = { .func = la64_op_b, .maxargs = 1 },
-    [kEmex64OpcodeCMP] = { .func = la64_op_cmp, .maxargs = 2 },
-    [kEmex64OpcodeBE] = { .func = la64_op_be, .maxargs = 1 },
-    [kEmex64OpcodeBNE] = { .func = la64_op_bne, .maxargs = 1 },
-    [kEmex64OpcodeBLT] = { .func = la64_op_blt, .maxargs = 1 },
-    [kEmex64OpcodeBGT] = { .func = la64_op_bgt, .maxargs = 1 },
-    [kEmex64OpcodeBLE] = { .func = la64_op_ble, .maxargs = 1 },
-    [kEmex64OpcodeBGE] = { .func = la64_op_bge, .maxargs = 1 },
-    [kEmex64OpcodeBZ] = { .func = la64_op_bz, .maxargs = 2 },
-    [kEmex64OpcodeBNZ] = { .func = la64_op_bnz, .maxargs = 2 },
-    [kEmex64OpcodeBL] = { .func = la64_op_bl, .maxargs = 32 },
-    [kEmex64OpcodeRET] = { .func = la64_op_ret, .maxargs = 0 },
-    [kEmex64OpcodeIRET] = { .func = la64_op_iret, .maxargs = 0 },
+    [kEmex64OpcodeB] = { .func = emex64_op_b, .maxargs = 1 },
+    [kEmex64OpcodeCMP] = { .func = emex64_op_cmp, .maxargs = 2 },
+    [kEmex64OpcodeBE] = { .func = emex64_op_be, .maxargs = 1 },
+    [kEmex64OpcodeBNE] = { .func = emex64_op_bne, .maxargs = 1 },
+    [kEmex64OpcodeBLT] = { .func = emex64_op_blt, .maxargs = 1 },
+    [kEmex64OpcodeBGT] = { .func = emex64_op_bgt, .maxargs = 1 },
+    [kEmex64OpcodeBLE] = { .func = emex64_op_ble, .maxargs = 1 },
+    [kEmex64OpcodeBGE] = { .func = emex64_op_bge, .maxargs = 1 },
+    [kEmex64OpcodeBZ] = { .func = emex64_op_bz, .maxargs = 2 },
+    [kEmex64OpcodeBNZ] = { .func = emex64_op_bnz, .maxargs = 2 },
+    [kEmex64OpcodeBL] = { .func = emex64_op_bl, .maxargs = 32 },
+    [kEmex64OpcodeRET] = { .func = emex64_op_ret, .maxargs = 0 },
+    [kEmex64OpcodeIRET] = { .func = emex64_op_iret, .maxargs = 0 },
 };
 
-la64_core_t *la64_core_alloc()
+emex64_core_t *emex64_core_alloc()
 {
     /* allocate a brand new core */
-    la64_core_t *core = calloc(1, sizeof(la64_core_t));
+    emex64_core_t *core = calloc(1, sizeof(emex64_core_t));
     if(core == NULL)
     {
         return NULL;
@@ -119,16 +119,16 @@ la64_core_t *la64_core_alloc()
     return core;
 }
 
-void la64_core_dealloc(la64_core_t *core)
+void emex64_core_dealloc(emex64_core_t *core)
 {
     /* release core */
     free(core);
 }
 
-static inline bool la64_core_decode_instruction_at_pc(la64_core_t *core)
+static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
 {
     /* accessing memory */
-    void *iptr = la64_memory_access(core, core->rl[kEmex64RegisterPC], 256);
+    void *iptr = emex64_memory_access(core, core->rl[kEmex64RegisterPC], 256);
     if(iptr == NULL)
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
@@ -210,12 +210,12 @@ escape_from_la:
     return true;
 }
 
-static void *la64_core_execute_thread(void *arg)
+static void *emex64_core_execute_thread(void *arg)
 {
     assert(arg != NULL);
 
     /* execution loop */
-    la64_core_t *core = arg;
+    emex64_core_t *core = arg;
     while(1)
     {
         /*
@@ -228,7 +228,7 @@ static void *la64_core_execute_thread(void *arg)
             if(core->rl[kEmex64RegisterCR2] != kEmex64ExceptionNone)
             {
                 core->halted = true;
-                la64_raise_interrupt(core->machine, LA64_IRQ_EXCEPTION);
+                emex64_raise_interrupt(core->machine, EMEX64_IRQ_EXCEPTION);
             }
             
             /* checking if core is halted */
@@ -241,7 +241,7 @@ static void *la64_core_execute_thread(void *arg)
         }
 
         /* decoding instruction and check if it was successful */
-        if(!la64_core_decode_instruction_at_pc(core) && !core->in_interrupt)
+        if(!emex64_core_decode_instruction_at_pc(core) && !core->in_interrupt)
         {
             continue;
         }
@@ -270,23 +270,23 @@ static void *la64_core_execute_thread(void *arg)
 skip_execution:
 
         /* serve interrupt for the interrupt controller */
-        la64_serve_interrupt_if_needed(core);
+        emex64_serve_interrupt_if_needed(core);
 
         /* tick the timer always */
     tick_timer:
-        la64_timer_tick(core->machine->timer, la64_get_host_cycles());
+        emex64_timer_tick(core->machine->timer, emex64_get_host_cycles());
     }
 
     return NULL;
 }
 
 
-void la64_core_execute(la64_core_t *core)
+void emex64_core_execute(emex64_core_t *core)
 {
     assert(core != NULL || core->pthread != 0);
 
     /* invoking execution */
-    pthread_create(&(core->pthread), NULL, la64_core_execute_thread, (void*)core);
+    pthread_create(&(core->pthread), NULL, emex64_core_execute_thread, (void*)core);
 
     #if EMEX64VM_DEVICE_DISPLAY
     #if defined(__APPLE__)
@@ -297,7 +297,7 @@ void la64_core_execute(la64_core_t *core)
     pthread_join(core->pthread, NULL);
 }
 
-void la64_core_terminate(la64_core_t *core)
+void emex64_core_terminate(emex64_core_t *core)
 {
     assert(core != NULL || core->pthread != 0);
 

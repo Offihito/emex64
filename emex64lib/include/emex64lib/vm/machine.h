@@ -39,19 +39,19 @@
 
 #include <stdint.h>
 
-typedef struct la64_machine {
-    la64_core_t *core;
-    la64_memory_t *memory;
-    la64_mmio_bus_t *mmio_bus;
-    la64_intc_t *intc;
-    la64_timer_t *timer;
-    la64_uart_t *uart;
+typedef struct emex64_machine {
+    emex64_core_t *core;
+    emex64_memory_t *memory;
+    emex64_mmio_bus_t *mmio_bus;
+    emex64_intc_t *intc;
+    emex64_timer_t *timer;
+    emex64_uart_t *uart;
 #if defined(__linux__)  || defined(__APPLE__)
-    la64_display_t *display;
+    emex64_display_t *display;
 #endif /* __linux__ */
-} la64_machine_t;
+} emex64_machine_t;
 
-la64_machine_t *la64_machine_alloc(uint64_t memory_size);
-void la64_machine_dealloc(la64_machine_t *machine);
+emex64_machine_t *emex64_machine_alloc(uint64_t memory_size);
+void emex64_machine_dealloc(emex64_machine_t *machine);
 
 #endif /* EMEX64VM_MACHINE_H */

@@ -39,21 +39,21 @@
 #include <emex64lib/vm/mmio.h>
 #include <emex64lib/vm/mmu.h>
 
-la64_memory_t *la64_memory_alloc(uint64_t size)
+emex64_memory_t *emex64_memory_alloc(uint64_t size)
 {
     /*
      * allocating random access memory, which
      * must be aligned to page size for the
      * sake of god.
      */
-    la64_memory_t *memory = malloc(sizeof(la64_memory_t));
+    emex64_memory_t *memory = malloc(sizeof(emex64_memory_t));
     if(memory == NULL)
     {
         return NULL;
     }
 
     /* allocate raw memory (using mmap for larger sizes, better than heap in this case) */
-    memory->memory_size = LA64_PAGE_ROUND_UP(size);
+    memory->memory_size = EMEX64_PAGE_ROUND_UP(size);
     memory->memory = mmap(NULL, memory->memory_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if(memory->memory == MAP_FAILED)
     {
@@ -64,13 +64,13 @@ la64_memory_t *la64_memory_alloc(uint64_t size)
     return memory;
 }
 
-void la64_memory_dealloc(la64_memory_t *memory)
+void emex64_memory_dealloc(emex64_memory_t *memory)
 {
     munmap(memory->memory, memory->memory_size);
     free(memory);
 }
 
-bool la64_memory_load_image(la64_memory_t *memory,
+bool emex64_memory_load_image(emex64_memory_t *memory,
                             const char *image_path)
 {
     /*
@@ -128,7 +128,7 @@ bool la64_memory_load_image(la64_memory_t *memory,
     return true;
 }
 
-void *la64_memory_access(la64_core_t *core,
+void *emex64_memory_access(emex64_core_t *core,
                          uint64_t addr,
                          size_t size)
 {
@@ -146,18 +146,18 @@ void *la64_memory_access(la64_core_t *core,
     return &(core->machine->memory->memory[addr]);
 }
 
-bool la64_memory_read(la64_core_t *core,
+bool emex64_memory_read(emex64_core_t *core,
                       uint64_t addr,
                       size_t size,
                       uint64_t *value)
 {
-    if(!la64_mmu_access(core, addr, LA64_MMU_ACC_READ, &addr))
+    if(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_READ, &addr))
     {
         return false;
     }
 
     /* MMIO devices exist ^^ */
-    la64_mmio_region_t *mmio = la64_mmio_find(core->machine->mmio_bus, addr);
+    emex64_mmio_region_t *mmio = emex64_mmio_find(core->machine->mmio_bus, addr);
     if(mmio != NULL)
     {
         if(mmio->read != NULL)
@@ -168,7 +168,7 @@ bool la64_memory_read(la64_core_t *core,
         return false;
     }
 
-    void *ptr = la64_memory_access(core, addr, size);
+    void *ptr = emex64_memory_access(core, addr, size);
     if(ptr == NULL)
     {
         return false;
@@ -193,18 +193,18 @@ bool la64_memory_read(la64_core_t *core,
     }
 }
 
-bool la64_memory_write(la64_core_t *core,
+bool emex64_memory_write(emex64_core_t *core,
                        uint64_t addr,
                        uint64_t value,
                        size_t size)
 {
-    if(!la64_mmu_access(core, addr, LA64_MMU_ACC_WRITE, &addr))
+    if(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_WRITE, &addr))
     {
         return false;
     }
 
     /* MMIO devices exist ^^ */
-    la64_mmio_region_t *mmio = la64_mmio_find(core->machine->mmio_bus, addr);
+    emex64_mmio_region_t *mmio = emex64_mmio_find(core->machine->mmio_bus, addr);
     if(mmio != NULL)
     {
         if(mmio->write != NULL)
@@ -215,7 +215,7 @@ bool la64_memory_write(la64_core_t *core,
         return false;
     }
 
-    void *ptr = la64_memory_access(core, addr, size);
+    void *ptr = emex64_memory_access(core, addr, size);
     if(ptr == NULL)
     {
         return false;

@@ -29,31 +29,31 @@
 #include <emex64lib/vm/device/platform.h>
 #include <emex64lib/vm/device/mc.h>
 
-la64_machine_t *la64_machine_alloc(uint64_t memory_size)
+emex64_machine_t *emex64_machine_alloc(uint64_t memory_size)
 {
     /* allocating brand new machine */
-    la64_machine_t *machine = calloc(1, sizeof(la64_machine_t));
+    emex64_machine_t *machine = calloc(1, sizeof(emex64_machine_t));
     if(machine == NULL)
     {
         return NULL;
     }
 
     /* allocate random access memory */
-    machine->memory = la64_memory_alloc(memory_size);
+    machine->memory = emex64_memory_alloc(memory_size);
     if(machine->memory == NULL)
     {
         goto out_release_machine;
     }
 
     /* allocating mmio controller */
-    machine->mmio_bus = la64_mmio_alloc();
+    machine->mmio_bus = emex64_mmio_alloc();
     if(machine->mmio_bus == NULL)
     {
         goto out_release_memory;
     }
 
     /* allocating main core */
-    machine->core = la64_core_alloc();
+    machine->core = emex64_core_alloc();
     if(machine->core == NULL)
     {
         goto out_release_mmio;
@@ -61,43 +61,43 @@ la64_machine_t *la64_machine_alloc(uint64_t memory_size)
     machine->core->machine = machine;
 
     /* allocating devices*/
-    machine->intc = la64_intc_alloc(machine);
+    machine->intc = emex64_intc_alloc(machine);
     if(machine->intc == NULL)
     {
         goto out_release_core;
     }
 
-    machine->timer = la64_timer_alloc(machine);
+    machine->timer = emex64_timer_alloc(machine);
     if(machine->timer == NULL)
     {
         goto out_release_intc;
     }
 
-    machine->uart = la64_uart_alloc(machine);
+    machine->uart = emex64_uart_alloc(machine);
     if(machine->uart == NULL)
     {
         goto out_release_timer;
     }
 
     /* register device less(means without allocation) devices */
-    if(!la64_mmio_register(machine->mmio_bus, LA64_RTC_BASE, LA64_RTC_SIZE, NULL, la64_rtc_read, NULL))
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_RTC_BASE, EMEX64_RTC_SIZE, NULL, emex64_rtc_read, NULL))
     {
         goto out_release_uart;
     }
 
-    if(!la64_mmio_register(machine->mmio_bus, LA64_MC_BASE, LA64_MC_SIZE, NULL, la64_mc_read, NULL))
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_MC_BASE, EMEX64_MC_SIZE, NULL, emex64_mc_read, NULL))
     {
         goto out_release_uart;
     }
 
-    if(!la64_mmio_register(machine->mmio_bus, LA64_PLATFORM_BASE, LA64_PLATFORM_SIZE, NULL, la64_platform_read, la64_platform_write))
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_PLATFORM_BASE, EMEX64_PLATFORM_SIZE, NULL, emex64_platform_read, emex64_platform_write))
     {
         goto out_release_uart;
     }
 
-    /* apple and linux have support for the LA64 LCD display */
+    /* apple and linux have support for the EMEX64 LCD display */
 #if defined(__linux__) || defined(__APPLE__)
-    machine->display = la64_display_alloc(machine);
+    machine->display = emex64_display_alloc(machine);
 
     if(machine->display == NULL)
     {
@@ -109,59 +109,59 @@ la64_machine_t *la64_machine_alloc(uint64_t memory_size)
 
     /* much more compact error handling */
 #if defined(__linux__)  || defined(__APPLE__)
-    la64_display_dealloc(machine->display);
+    emex64_display_dealloc(machine->display);
 #endif /* __linux__ */
 out_release_uart:
-    la64_uart_dealloc(machine->uart);
+    emex64_uart_dealloc(machine->uart);
 out_release_timer:
-    la64_timer_dealloc(machine->timer);
+    emex64_timer_dealloc(machine->timer);
 out_release_intc:
-    la64_intc_dealloc(machine->intc);
+    emex64_intc_dealloc(machine->intc);
 out_release_core:
-    la64_core_dealloc(machine->core);
+    emex64_core_dealloc(machine->core);
 out_release_mmio:
-    la64_mmio_dealloc(machine->mmio_bus);
+    emex64_mmio_dealloc(machine->mmio_bus);
 out_release_memory:
-    la64_memory_dealloc(machine->memory);
+    emex64_memory_dealloc(machine->memory);
 out_release_machine:
     free(machine);
     return NULL;
 }
 
-void la64_machine_dealloc(la64_machine_t *machine)
+void emex64_machine_dealloc(emex64_machine_t *machine)
 {
     /* release devices */
 #if defined(__linux__)  || defined(__APPLE__)
     if(machine->display)
     {
-        la64_display_dealloc(machine->display);
+        emex64_display_dealloc(machine->display);
     }
 #endif /* __linux__ */
 
     if(machine->uart)
     {
-        la64_uart_dealloc(machine->uart);
+        emex64_uart_dealloc(machine->uart);
     }
 
     if(machine->timer)
     {
-        la64_timer_dealloc(machine->timer);
+        emex64_timer_dealloc(machine->timer);
     }
 
     if(machine->intc)
     {
-        la64_intc_dealloc(machine->intc);
+        emex64_intc_dealloc(machine->intc);
     }
 
     /* releasing machine internals */
-    la64_core_dealloc(machine->core);
+    emex64_core_dealloc(machine->core);
 
     if(machine->mmio_bus)
     {
-        la64_mmio_dealloc(machine->mmio_bus);
+        emex64_mmio_dealloc(machine->mmio_bus);
     }
 
-    la64_memory_dealloc(machine->memory);
+    emex64_memory_dealloc(machine->memory);
 
     /* release machine it self */
     free(machine);

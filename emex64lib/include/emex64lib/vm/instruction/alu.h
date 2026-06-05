@@ -27,29 +27,29 @@
 
 #include <emex64lib/vm/core.h>
 
-void la64_op_add(la64_core_t *core);
-void la64_op_sub(la64_core_t *core);
-void la64_op_mul(la64_core_t *core);
-void la64_op_div(la64_core_t *core);
-void la64_op_idiv(la64_core_t *core);
-void la64_op_mod(la64_core_t *core);
-void la64_op_not(la64_core_t *core);
-void la64_op_neg(la64_core_t *core);
-void la64_op_and(la64_core_t *core);
-void la64_op_or(la64_core_t *core);
-void la64_op_xor(la64_core_t *core);
-void la64_op_shr(la64_core_t *core);
-void la64_op_shl(la64_core_t *core);
-void la64_op_sar(la64_core_t *core);
-void la64_op_ror(la64_core_t *core);
-void la64_op_rol(la64_core_t *core);
+void emex64_op_add(emex64_core_t *core);
+void emex64_op_sub(emex64_core_t *core);
+void emex64_op_mul(emex64_core_t *core);
+void emex64_op_div(emex64_core_t *core);
+void emex64_op_idiv(emex64_core_t *core);
+void emex64_op_mod(emex64_core_t *core);
+void emex64_op_not(emex64_core_t *core);
+void emex64_op_neg(emex64_core_t *core);
+void emex64_op_and(emex64_core_t *core);
+void emex64_op_or(emex64_core_t *core);
+void emex64_op_xor(emex64_core_t *core);
+void emex64_op_shr(emex64_core_t *core);
+void emex64_op_shl(emex64_core_t *core);
+void emex64_op_sar(emex64_core_t *core);
+void emex64_op_ror(emex64_core_t *core);
+void emex64_op_rol(emex64_core_t *core);
 
-void la64_op_pdep(la64_core_t *core);
-void la64_op_pext(la64_core_t *core);
-void la64_op_bswapw(la64_core_t *core);
-void la64_op_bswapd(la64_core_t *core);
-void la64_op_bswapq(la64_core_t *core);
-void la64_op_inc(la64_core_t *core);
-void la64_op_dec(la64_core_t *core);
+void emex64_op_pdep(emex64_core_t *core);
+void emex64_op_pext(emex64_core_t *core);
+void emex64_op_bswapw(emex64_core_t *core);
+void emex64_op_bswapd(emex64_core_t *core);
+void emex64_op_bswapq(emex64_core_t *core);
+void emex64_op_inc(emex64_core_t *core);
+void emex64_op_dec(emex64_core_t *core);
 
 #endif /* EMEX64VM_INSTRUCTION_ALU_H */

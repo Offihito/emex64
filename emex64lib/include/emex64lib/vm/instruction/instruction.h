@@ -25,7 +25,7 @@
 #ifndef EMEX64VM_INSTRUCTION_H
 #define EMEX64VM_INSTRUCTION_H
 
-#define la64_instr_termcond(case)                                               \
+#define emex64_instr_termcond(case)                                               \
     if(case)                                                                    \
     {                                                                           \
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;               \

@@ -29,7 +29,7 @@
 
 %define% PLATFORM_PWR 0x1FE00500
 
-%define% VIDEO_BASE __la64_exec_img_end
+%define% VIDEO_BASE __emex64_exec_img_end
 
 %define% TIMER_CTRL    0x1FE00100
 %define% TIMER_COUNT   0x1FE00108

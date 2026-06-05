@@ -32,7 +32,7 @@
 #include <emex64lib/vm/device/timer.h>
 #include <emex64lib/vm/device/interrupt.h>
 
-uint64_t la64_get_host_cycles(void)
+uint64_t emex64_get_host_cycles(void)
 {
 #if defined(__x86_64__) || defined(_M_X64)
     uint32_t lo, hi;
@@ -96,10 +96,10 @@ static uint64_t detect_host_freq(void)
 #endif
 }
 
-la64_timer_t *la64_timer_alloc(la64_machine_t *machine)
+emex64_timer_t *emex64_timer_alloc(emex64_machine_t *machine)
 {
     /* allocate timer */
-    la64_timer_t *timer = malloc(sizeof(la64_timer_t));
+    emex64_timer_t *timer = malloc(sizeof(emex64_timer_t));
 
     if(timer == NULL)
     {
@@ -107,7 +107,7 @@ la64_timer_t *la64_timer_alloc(la64_machine_t *machine)
     }
 
     /* register timer MMIO */
-    if(!la64_mmio_register(machine->mmio_bus, LA64_TIMER_BASE, LA64_TIMER_SIZE, timer, la64_timer_read, la64_timer_write))
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_TIMER_BASE, EMEX64_TIMER_SIZE, timer, emex64_timer_read, emex64_timer_write))
     {
         free(timer);
         return NULL;
@@ -118,17 +118,17 @@ la64_timer_t *la64_timer_alloc(la64_machine_t *machine)
     timer->compare = UINT64_MAX;
     
     timer->host_freq = detect_host_freq();
-    timer->last_host_cycles = la64_get_host_cycles();
+    timer->last_host_cycles = emex64_get_host_cycles();
     
     return timer;
 }
 
-void la64_timer_dealloc(la64_timer_t *timer)
+void emex64_timer_dealloc(emex64_timer_t *timer)
 {
     free(timer);
 }
 
-void la64_timer_tick(la64_timer_t *timer,
+void emex64_timer_tick(emex64_timer_t *timer,
                      uint64_t host_cycles)
 {
     /* checking if timer is not enabled */
@@ -177,18 +177,18 @@ void la64_timer_tick(la64_timer_t *timer,
         
         if(timer->ctrl & TIMER_CTRL_IRQ_EN)
         {
-            la64_raise_interrupt(timer->machine, LA64_IRQ_TIMER);
+            emex64_raise_interrupt(timer->machine, EMEX64_IRQ_TIMER);
         }
     }
 }
 
-uint64_t la64_timer_read(la64_core_t *core,
+uint64_t emex64_timer_read(emex64_core_t *core,
                          void *device,
                          uint64_t offset,
                          int size)
 {
     /* getting timer */
-    la64_timer_t *timer = (la64_timer_t *)device;
+    emex64_timer_t *timer = (emex64_timer_t *)device;
 
     /* perform read */
     switch(offset)
@@ -208,14 +208,14 @@ uint64_t la64_timer_read(la64_core_t *core,
     }
 }
 
-void la64_timer_write(la64_core_t *core,
+void emex64_timer_write(emex64_core_t *core,
                       void *device,
                       uint64_t offset,
                       uint64_t value,
                       int size)
 {
     /* getting timer */
-    la64_timer_t *timer = (la64_timer_t *)device;
+    emex64_timer_t *timer = (emex64_timer_t *)device;
 
     /* perform write */
     switch(offset)
@@ -224,7 +224,7 @@ void la64_timer_write(la64_core_t *core,
             timer->ctrl = value;
             if(value & TIMER_CTRL_ENABLE)
             {
-                timer->last_host_cycles = la64_get_host_cycles();
+                timer->last_host_cycles = emex64_get_host_cycles();
             }
             break;
         case TIMER_REG_COUNT:

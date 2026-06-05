@@ -27,37 +27,37 @@
 #include <emex64lib/vm/machine.h>
 #include <emex64lib/vm/memory.h>
 
-void la64_op_mov(la64_core_t *core)
+void emex64_op_mov(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
     *(core->op.param[0]) = *(core->op.param[1]);
 }
 
-void la64_op_swp(la64_core_t *core)
+void emex64_op_swp(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
     uint64_t param_backup = *(core->op.param[0]);
     *(core->op.param[0]) = *(core->op.param[1]);
     *(core->op.param[1]) = param_backup;
 }
 
-void la64_op_swpz(la64_core_t *core)
+void emex64_op_swpz(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
     *(core->op.param[0]) = *(core->op.param[1]);
     *(core->op.param[1]) = 0;
 }
 
-void la64_op_push(la64_core_t *core)
+void emex64_op_push(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt == 0);
+    emex64_instr_termcond(core->op.param_cnt == 0);
 
     for(uint8_t i = 0; i < core->op.param_cnt; i++)
     {
-        if(!la64_memory_write(core, core->rl[kEmex64RegisterSP], *(core->op.param[i]), sizeof(uint64_t)))
+        if(!emex64_memory_write(core, core->rl[kEmex64RegisterSP], *(core->op.param[i]), sizeof(uint64_t)))
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
             return;
@@ -67,15 +67,15 @@ void la64_op_push(la64_core_t *core)
     }
 }
 
-void la64_op_pop(la64_core_t *core)
+void emex64_op_pop(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt == 0);
+    emex64_instr_termcond(core->op.param_cnt == 0);
 
     for(uint8_t i = 0; i < core->op.param_cnt; i++)
     {
         core->rl[kEmex64RegisterSP] += 8;
 
-        if(!la64_memory_read(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), core->op.param[i]))
+        if(!emex64_memory_read(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), core->op.param[i]))
         {
             core->rl[kEmex64RegisterSP] = kEmex64ExceptionBadAccess;
             return;
@@ -83,88 +83,88 @@ void la64_op_pop(la64_core_t *core)
     }
 }
 
-void la64_op_ldb(la64_core_t *core)
+void emex64_op_ldb(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!la64_memory_read(core, *(core->op.param[1]), sizeof(uint8_t), core->op.param[0]))
+    if(!emex64_memory_read(core, *(core->op.param[1]), sizeof(uint8_t), core->op.param[0]))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;
     }
 }
 
-void la64_op_ldw(la64_core_t *core)
+void emex64_op_ldw(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!la64_memory_read(core, *(core->op.param[1]), sizeof(uint16_t), core->op.param[0]))
+    if(!emex64_memory_read(core, *(core->op.param[1]), sizeof(uint16_t), core->op.param[0]))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;
     }
 }
 
-void la64_op_ldd(la64_core_t *core)
+void emex64_op_ldd(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!la64_memory_read(core, *(core->op.param[1]), sizeof(uint32_t), core->op.param[0]))
+    if(!emex64_memory_read(core, *(core->op.param[1]), sizeof(uint32_t), core->op.param[0]))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;
     }
 }
 
-void la64_op_ldq(la64_core_t *core)
+void emex64_op_ldq(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!la64_memory_read(core, *(core->op.param[1]), sizeof(uint64_t), core->op.param[0]))
+    if(!emex64_memory_read(core, *(core->op.param[1]), sizeof(uint64_t), core->op.param[0]))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;
     }
 }
 
-void la64_op_stb(la64_core_t *core)
+void emex64_op_stb(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!la64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint8_t)))
+    if(!emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint8_t)))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;
     }
 }
 
-void la64_op_stw(la64_core_t *core)
+void emex64_op_stw(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!la64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint16_t)))
+    if(!emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint16_t)))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;
     }
 }
 
-void la64_op_std(la64_core_t *core)
+void emex64_op_std(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!la64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint32_t)))
+    if(!emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint32_t)))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;
     }
 }
 
-void la64_op_stq(la64_core_t *core)
+void emex64_op_stq(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 2);
+    emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!la64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint64_t)))
+    if(!emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint64_t)))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;

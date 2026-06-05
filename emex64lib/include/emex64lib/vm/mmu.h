@@ -30,23 +30,23 @@
 #include <emex64lib/vm/core.h>
 
 /* page table entry flags */
-#define LA64_MMU_PT_PRESENT         0b00000001  /* marks a PTE or PXD as present */
-#define LA64_MMU_PT_USER            0b00000010  /* marks a PTE as user accessible, meaning user mode can access that page */
-#define LA64_MMU_PT_DIRTY           0b00000100  /* marks a PTE as dirty, writes on it cause a page fault TODO: to be implemented */
-#define LA64_MMU_PT_READ            0b00001000  /* marks a PTE as readable */
-#define LA64_MMU_PT_WRITE           0b00010000  /* marks a PTE as writable (most MMU's don't have that, but this one does) */
-#define LA64_MMU_PT_EXEC            0b00100000  /* marks a PTE as executable (means the CPU core can fetch instructions from it and execute them) */
+#define EMEX64_MMU_PT_PRESENT         0b00000001  /* marks a PTE or PXD as present */
+#define EMEX64_MMU_PT_USER            0b00000010  /* marks a PTE as user accessible, meaning user mode can access that page */
+#define EMEX64_MMU_PT_DIRTY           0b00000100  /* marks a PTE as dirty, writes on it cause a page fault TODO: to be implemented */
+#define EMEX64_MMU_PT_READ            0b00001000  /* marks a PTE as readable */
+#define EMEX64_MMU_PT_WRITE           0b00010000  /* marks a PTE as writable (most MMU's don't have that, but this one does) */
+#define EMEX64_MMU_PT_EXEC            0b00100000  /* marks a PTE as executable (means the CPU core can fetch instructions from it and execute them) */
 
 /* page table enry masks */
-#define LA64_MMU_MASK_FLAGS         0b0000000000000000000000000000000000000000000000000000000011111111
-#define LA64_MMU_MASK_PFN           0b1111111111111111111111111111111111111111111111111111111100000000
+#define EMEX64_MMU_MASK_FLAGS         0b0000000000000000000000000000000000000000000000000000000011111111
+#define EMEX64_MMU_MASK_PFN           0b1111111111111111111111111111111111111111111111111111111100000000
 
 /* access types */
-#define LA64_MMU_ACC_PXD            0   /* MARK: this is a internal private type, don't use it outside of mmu.c */
-#define LA64_MMU_ACC_READ           LA64_MMU_PT_READ
-#define LA64_MMU_ACC_WRITE          LA64_MMU_PT_WRITE
-#define LA64_MMU_ACC_EXEC           LA64_MMU_PT_EXEC
+#define EMEX64_MMU_ACC_PXD            0   /* MARK: this is a internal private type, don't use it outside of mmu.c */
+#define EMEX64_MMU_ACC_READ           EMEX64_MMU_PT_READ
+#define EMEX64_MMU_ACC_WRITE          EMEX64_MMU_PT_WRITE
+#define EMEX64_MMU_ACC_EXEC           EMEX64_MMU_PT_EXEC
 
-bool la64_mmu_access(la64_core_t *core, uint64_t vaddr, uint8_t acc, uint64_t *paddr);
+bool emex64_mmu_access(emex64_core_t *core, uint64_t vaddr, uint8_t acc, uint64_t *paddr);
 
 #endif /* EMEX64VM_MMU_H */

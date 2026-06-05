@@ -144,7 +144,7 @@ enum kEmex64Register: uint8_t {
      * return back without destroying values stored
      * in registers previously.
      *
-     * a stack frame on the LA64 architecture is a full
+     * a stack frame on the EMEX64 architecture is a full
      * backup of all registers stored onto stack memory
      * that is expensive(256 bytes per frame) but its also
      * simplistic, for now that will be the soulution,
@@ -267,19 +267,19 @@ enum kEmex64Exception {
     kEmex64ExceptionBadArithmetic =     0b100,
 };
 
-typedef struct la64_core la64_core_t;
+typedef struct emex64_core emex64_core_t;
 
 /* definition of the handler of each operation */
-typedef void (*la64_opfunc_t)(la64_core_t *core);
+typedef void (*emex64_opfunc_t)(emex64_core_t *core);
 
-typedef struct la64_machine la64_machine_t;
+typedef struct emex64_machine emex64_machine_t;
 
 typedef struct emex64_opfunc_entry {
-    la64_opfunc_t func;
+    emex64_opfunc_t func;
     uint8_t maxargs;
 } emex64_opfunc_entry_t;
 
-typedef struct la64_core {
+typedef struct emex64_core {
 
     /* the pthread this core is running on on the host */
     pthread_t pthread;
@@ -288,7 +288,7 @@ typedef struct la64_core {
     uint64_t rl[kEmex64RegisterMAX + 1];
 
     /* data of currently decoding or decoded operation */
-    struct la64_operation {
+    struct emex64_operation {
 
         /*
          * lenght of decoded instruction so that the cpu
@@ -341,12 +341,12 @@ typedef struct la64_core {
     bool in_interrupt;
 
     /* pointer back to machine */
-    la64_machine_t *machine;
-} la64_core_t;
+    emex64_machine_t *machine;
+} emex64_core_t;
 
-la64_core_t *la64_core_alloc(void);
-void la64_core_dealloc(la64_core_t *core);
-void la64_core_execute(la64_core_t *core);
-void la64_core_terminate(la64_core_t *core);
+emex64_core_t *emex64_core_alloc(void);
+void emex64_core_dealloc(emex64_core_t *core);
+void emex64_core_execute(emex64_core_t *core);
+void emex64_core_terminate(emex64_core_t *core);
 
 #endif /* EMEX64VM_CORE_H */

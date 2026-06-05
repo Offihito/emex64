@@ -28,53 +28,53 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define LA64_INTC_BASE      0x1FE00000
-#define LA64_INTC_SIZE      0x30
+#define EMEX64_INTC_BASE      0x1FE00000
+#define EMEX64_INTC_SIZE      0x30
 
 /* internal devices */
-#define LA64_IRQ_EXCEPTION  0
-#define LA64_IRQ_TIMER      1
-#define LA64_IRQ_UART       2
-#define LA64_IRQ_DISK       3
-#define LA64_IRQ_NETWORK    4
-#define LA64_IRQ_SOFTWARE   5
+#define EMEX64_IRQ_EXCEPTION  0
+#define EMEX64_IRQ_TIMER      1
+#define EMEX64_IRQ_UART       2
+#define EMEX64_IRQ_DISK       3
+#define EMEX64_IRQ_NETWORK    4
+#define EMEX64_IRQ_SOFTWARE   5
 
 /* user devices */
-#define LA64_IRQ_8042       6   /* emex8042 MMIO chip fires interrupt when device gets plugged in for example */
+#define EMEX64_IRQ_8042       6   /* emex8042 MMIO chip fires interrupt when device gets plugged in for example */
 /* IRQ 7-63 available for user devices */
 
-#define LA64_IRQ_MAX        63
+#define EMEX64_IRQ_MAX        63
 
-#define LA64_INTC_REG_PENDING   0x00
-#define LA64_INTC_REG_ENABLED   0x08
-#define LA64_INTC_REG_CTRL      0x10
-#define LA64_INTC_REG_VECTOR    0x18
-#define LA64_INTC_REG_ACK       0x20
-#define LA64_INTC_REG_CURRENT   0x28
+#define EMEX64_INTC_REG_PENDING   0x00
+#define EMEX64_INTC_REG_ENABLED   0x08
+#define EMEX64_INTC_REG_CTRL      0x10
+#define EMEX64_INTC_REG_VECTOR    0x18
+#define EMEX64_INTC_REG_ACK       0x20
+#define EMEX64_INTC_REG_CURRENT   0x28
 
 /* control register bits */
-#define LA64_INTC_CTRL_ENABLE   (1 << 0)
-#define LA64_INTC_CTRL_NESTING  (1 << 1)
+#define EMEX64_INTC_CTRL_ENABLE   (1 << 0)
+#define EMEX64_INTC_CTRL_NESTING  (1 << 1)
 
-typedef struct la64_core la64_core_t;
-typedef struct la64_machine la64_machine_t;
+typedef struct emex64_core emex64_core_t;
+typedef struct emex64_machine emex64_machine_t;
 
-typedef struct la64_intc {
+typedef struct emex64_intc {
     uint64_t pending;
     uint64_t enabled;
     uint64_t ctrl;
     uint64_t vector_base;
     int64_t  current_irq;
-} la64_intc_t;
+} emex64_intc_t;
 
-la64_intc_t *la64_intc_alloc(la64_machine_t *machine);
-void la64_intc_dealloc(la64_intc_t *intc);
+emex64_intc_t *emex64_intc_alloc(emex64_machine_t *machine);
+void emex64_intc_dealloc(emex64_intc_t *intc);
 
-void la64_raise_interrupt(la64_machine_t *machine, int irq_line);
-void la64_clear_interrupt(la64_machine_t *machine, int irq_line);
-bool la64_serve_interrupt_if_needed(la64_core_t *core);
+void emex64_raise_interrupt(emex64_machine_t *machine, int irq_line);
+void emex64_clear_interrupt(emex64_machine_t *machine, int irq_line);
+bool emex64_serve_interrupt_if_needed(emex64_core_t *core);
 
-uint64_t la64_intc_read(la64_core_t *core, void *device, uint64_t offset, int size);
-void la64_intc_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
+uint64_t emex64_intc_read(emex64_core_t *core, void *device, uint64_t offset, int size);
+void emex64_intc_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
 #endif /* EMEX64VM_DEVICE_INTERRUPT_H */

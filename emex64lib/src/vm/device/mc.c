@@ -27,7 +27,7 @@
 
 #include <stdlib.h>
 
-uint64_t la64_mc_read(la64_core_t *core,
+uint64_t emex64_mc_read(emex64_core_t *core,
                       void *device,
                       uint64_t offset,
                       int size)

@@ -27,22 +27,22 @@
 
 #include <emex64lib/vm/core.h>
 
-void la64_op_b(la64_core_t *core);
-void la64_op_cmp(la64_core_t *core);
-void la64_op_be(la64_core_t *core);
-void la64_op_bne(la64_core_t *core);
-void la64_op_blt(la64_core_t *core);
-void la64_op_bgt(la64_core_t *core);
-void la64_op_ble(la64_core_t *core);
-void la64_op_bge(la64_core_t *core);
-void la64_op_bz(la64_core_t *core);
-void la64_op_bnz(la64_core_t *core);
+void emex64_op_b(emex64_core_t *core);
+void emex64_op_cmp(emex64_core_t *core);
+void emex64_op_be(emex64_core_t *core);
+void emex64_op_bne(emex64_core_t *core);
+void emex64_op_blt(emex64_core_t *core);
+void emex64_op_bgt(emex64_core_t *core);
+void emex64_op_ble(emex64_core_t *core);
+void emex64_op_bge(emex64_core_t *core);
+void emex64_op_bz(emex64_core_t *core);
+void emex64_op_bnz(emex64_core_t *core);
 
-void la64_push(la64_core_t *core, uint64_t value);
-uint64_t la64_pop(la64_core_t *core);
+void emex64_push(emex64_core_t *core, uint64_t value);
+uint64_t emex64_pop(emex64_core_t *core);
 
-void la64_op_bl(la64_core_t *core);
-void la64_op_ret(la64_core_t *core);
-void la64_op_iret(la64_core_t *core);
+void emex64_op_bl(emex64_core_t *core);
+void emex64_op_ret(emex64_core_t *core);
+void emex64_op_iret(emex64_core_t *core);
 
 #endif /* EMEX64VM_INSTRUCTION_CTRL_H */

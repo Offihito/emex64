@@ -29,43 +29,43 @@
 #if defined(__linux__) || defined(__APPLE__)
 
 /* the size of the screen/framebuffer */
-#define LA64_FB_WIDTH   640
-#define LA64_FB_HEIGHT  480
+#define EMEX64_FB_WIDTH   640
+#define EMEX64_FB_HEIGHT  480
 
 /* the freequency of the framebuffer */
-#define LA64_FB_TICK_HZ 60.0
-#define LA64_FB_TICK_DT (1.0 / LA64_FB_TICK_HZ)
+#define EMEX64_FB_TICK_HZ 60.0
+#define EMEX64_FB_TICK_DT (1.0 / EMEX64_FB_TICK_HZ)
 
 /* registers of the framebuffer MMIO device */
-#define LA64_FB_REG_ENABLED 0x00    /* readonly: from now on only serving the purpose to know if screens are available */
-#define LA64_FB_REG_HEIGHT  0x01    /* readonly word: telling screen height */
-#define LA64_FB_REG_WIDTH   0x03    /* readonly word: telling screen width */
-#define LA64_FB_PALLETE     0x05
-#define LA64_FB_FRAMEBUFFER 0x305
+#define EMEX64_FB_REG_ENABLED 0x00    /* readonly: from now on only serving the purpose to know if screens are available */
+#define EMEX64_FB_REG_HEIGHT  0x01    /* readonly word: telling screen height */
+#define EMEX64_FB_REG_WIDTH   0x03    /* readonly word: telling screen width */
+#define EMEX64_FB_PALLETE     0x05
+#define EMEX64_FB_FRAMEBUFFER 0x305
 
-#define LA64_FB_BASE        0x1FF00000
-#define LA64_FB_SIZE        LA64_FB_FRAMEBUFFER + (LA64_FB_WIDTH * LA64_FB_HEIGHT)
+#define EMEX64_FB_BASE        0x1FF00000
+#define EMEX64_FB_SIZE        EMEX64_FB_FRAMEBUFFER + (EMEX64_FB_WIDTH * EMEX64_FB_HEIGHT)
 
 #include <stdint.h>
 #include <pthread.h>
 
-typedef struct la64_core la64_core_t;
-typedef struct la64_machine la64_machine_t;
+typedef struct emex64_core emex64_core_t;
+typedef struct emex64_machine emex64_machine_t;
 
 typedef struct {
     uint8_t enabled;
     uint8_t *palette;
     uint8_t *fb;
     pthread_t pthread;
-} la64_display_t;
+} emex64_display_t;
 
-la64_display_t *la64_display_alloc(la64_machine_t *machine);
-void la64_display_dealloc(la64_display_t *display);
+emex64_display_t *emex64_display_alloc(emex64_machine_t *machine);
+void emex64_display_dealloc(emex64_display_t *display);
 
 void *display_start(void *arg);
 
-uint64_t la64_fb_read(la64_core_t *core, void *device, uint64_t offset, int size);
-void la64_fb_write(la64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
+uint64_t emex64_fb_read(emex64_core_t *core, void *device, uint64_t offset, int size);
+void emex64_fb_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
 #endif /* __linux__ | __APPLE__ */
 
@@ -76,9 +76,9 @@ void la64_fb_write(la64_core_t *core, void *device, uint64_t offset, uint64_t va
 #import <OpenGL/gl3.h>
 #import <OpenGL/OpenGL.h>
 
-@interface LA64GLView : NSOpenGLView <NSWindowDelegate>
+@interface EMEX64GLView : NSOpenGLView <NSWindowDelegate>
 {
-    la64_display_t *_display;
+    emex64_display_t *_display;
 
     GLuint _prog;
     GLuint _vao, _vbo, _ebo;
@@ -87,7 +87,7 @@ void la64_fb_write(la64_core_t *core, void *device, uint64_t offset, uint64_t va
     NSTimer *_timer;
 }
 
-- (instancetype)initWithFrame:(NSRect)frame display:(la64_display_t *)display;
+- (instancetype)initWithFrame:(NSRect)frame display:(emex64_display_t *)display;
 
 @end
 

@@ -29,13 +29,13 @@
 #include <immintrin.h>
 #endif /* __x86_64__ */
 
-#define DEFINE_LA64_ARITHMETIC_OP(act)                                                                                                  \
+#define DEFINE_EMEX64_ARITHMETIC_OP(act)                                                                                                  \
     *(core->op.param[0]) = *(core->op.param[core->op.param_cnt - 2]) act *(core->op.param[core->op.param_cnt - 1]);                     \
 
-#define DEFINE_LA64_SIGNED_ARITHMETIC_OP(act)                                                                                           \
+#define DEFINE_EMEX64_SIGNED_ARITHMETIC_OP(act)                                                                                           \
     *(core->op.param[0]) = (int64_t)*(core->op.param[core->op.param_cnt - 2]) act (int64_t)*(core->op.param[core->op.param_cnt - 1]);   \
 
-#define DEFINE_LA64_ARITHMETIC_OP_ZERO_BAD(act)                                                                                         \
+#define DEFINE_EMEX64_ARITHMETIC_OP_ZERO_BAD(act)                                                                                         \
     uint64_t *operand[2] = { core->op.param[core->op.param_cnt - 2], core->op.param[core->op.param_cnt - 1] };                          \
     if(*operand[1] == 0)                                                                                                                \
     {                                                                                                                                   \
@@ -44,7 +44,7 @@
     }                                                                                                                                   \
     *(core->op.param[0]) = *operand[0] act *operand[1];
 
-#define DEFINE_LA64_SIGNED_ARITHMETIC_OP_ZERO_BAD(act)                                                                                  \
+#define DEFINE_EMEX64_SIGNED_ARITHMETIC_OP_ZERO_BAD(act)                                                                                  \
     uint64_t *operand[2] = { core->op.param[core->op.param_cnt - 2], core->op.param[core->op.param_cnt - 1] };                          \
     if(*operand[1] == 0)                                                                                                                \
     {                                                                                                                                   \
@@ -53,51 +53,51 @@
     }                                                                                                                                   \
     *(core->op.param[0]) = (int64_t)*operand[0] act (int64_t)*operand[1];
 
-void la64_op_add(la64_core_t *core)
+void emex64_op_add(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP(+);
+    DEFINE_EMEX64_ARITHMETIC_OP(+);
 }
 
-void la64_op_sub(la64_core_t *core)
+void emex64_op_sub(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP(-);
+    DEFINE_EMEX64_ARITHMETIC_OP(-);
 }
 
-void la64_op_mul(la64_core_t *core)
+void emex64_op_mul(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP(*);
+    DEFINE_EMEX64_ARITHMETIC_OP(*);
 }
 
-void la64_op_div(la64_core_t *core)
+void emex64_op_div(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP_ZERO_BAD(/);
+    DEFINE_EMEX64_ARITHMETIC_OP_ZERO_BAD(/);
 }
 
-void la64_op_idiv(la64_core_t *core)
+void emex64_op_idiv(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_SIGNED_ARITHMETIC_OP_ZERO_BAD(/);
+    DEFINE_EMEX64_SIGNED_ARITHMETIC_OP_ZERO_BAD(/);
 }
 
-void la64_op_mod(la64_core_t *core)
+void emex64_op_mod(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP_ZERO_BAD(%);
+    DEFINE_EMEX64_ARITHMETIC_OP_ZERO_BAD(%);
 }
 
-void la64_op_not(la64_core_t *core)
+void emex64_op_not(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt == 0);
+    emex64_instr_termcond(core->op.param_cnt == 0);
 
     for(uint8_t i = 0; i < core->op.param_cnt; i++)
     {
@@ -105,9 +105,9 @@ void la64_op_not(la64_core_t *core)
     }
 }
 
-void la64_op_neg(la64_core_t *core)
+void emex64_op_neg(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt == 0);
+    emex64_instr_termcond(core->op.param_cnt == 0);
 
     for(uint8_t i = 0; i < core->op.param_cnt; i++)
     {
@@ -115,60 +115,60 @@ void la64_op_neg(la64_core_t *core)
     }
 }
 
-void la64_op_and(la64_core_t *core)
+void emex64_op_and(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP(&);
+    DEFINE_EMEX64_ARITHMETIC_OP(&);
 }
 
-void la64_op_or(la64_core_t *core)
+void emex64_op_or(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP(|);
+    DEFINE_EMEX64_ARITHMETIC_OP(|);
 }
 
-void la64_op_xor(la64_core_t *core)
+void emex64_op_xor(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP(^);
+    DEFINE_EMEX64_ARITHMETIC_OP(^);
 }
 
-void la64_op_shr(la64_core_t *core)
+void emex64_op_shr(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP(>>);
+    DEFINE_EMEX64_ARITHMETIC_OP(>>);
 }
 
-void la64_op_shl(la64_core_t *core)
+void emex64_op_shl(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_ARITHMETIC_OP(<<);
+    DEFINE_EMEX64_ARITHMETIC_OP(<<);
 }
 
-void la64_op_sar(la64_core_t *core)
+void emex64_op_sar(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
-    DEFINE_LA64_SIGNED_ARITHMETIC_OP(>>);
+    DEFINE_EMEX64_SIGNED_ARITHMETIC_OP(>>);
 }
 
-void la64_op_ror(la64_core_t *core)
+void emex64_op_ror(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 1);
+    emex64_instr_termcond(core->op.param_cnt != 1);
 
     uint64_t v = *core->op.param[0];
     uint64_t n = (core->op.param_cnt == 2) ? (*core->op.param[1] & 63) : 1;
     *core->op.param[0] = (v >> n) | (v << (64 - n));
 }
 
-void la64_op_rol(la64_core_t *core)
+void emex64_op_rol(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 1);
+    emex64_instr_termcond(core->op.param_cnt != 1);
 
     int64_t v = *core->op.param[0];
     uint64_t n = (core->op.param_cnt == 2) ? (*core->op.param[1] & 63) : 1;
@@ -178,9 +178,9 @@ void la64_op_rol(la64_core_t *core)
 #if defined(__x86_64__)
 __attribute__((target("bmi2")))
 #endif /*__x86_64__  */
-void la64_op_pdep(la64_core_t *core)
+void emex64_op_pdep(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
     uint64_t *dest = core->op.param[0];
     uint64_t src = *core->op.param[core->op.param_cnt - 2];
@@ -219,9 +219,9 @@ void la64_op_pdep(la64_core_t *core)
 #if defined(__x86_64__)
 __attribute__((target("bmi2")))
 #endif /*__x86_64__  */
-void la64_op_pext(la64_core_t *core)
+void emex64_op_pext(emex64_core_t *core)
 {
-    la64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
+    emex64_instr_termcond((unsigned)(core->op.param_cnt - 2) > 1);
 
     uint64_t *dest = core->op.param[0];
     uint64_t src = *core->op.param[core->op.param_cnt - 2];
@@ -257,30 +257,30 @@ void la64_op_pext(la64_core_t *core)
 #endif /*__x86_64__  */
 }
 
-void la64_op_bswapw(la64_core_t *core)
+void emex64_op_bswapw(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 1);
+    emex64_instr_termcond(core->op.param_cnt != 1);
     *core->op.param[0] = __builtin_bswap16((uint16_t)*core->op.param[0]);
 }
 
-void la64_op_bswapd(la64_core_t *core)
+void emex64_op_bswapd(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 1);
+    emex64_instr_termcond(core->op.param_cnt != 1);
     *core->op.param[0] = __builtin_bswap32((uint32_t)*core->op.param[0]);
 }
 
-void la64_op_bswapq(la64_core_t *core)
+void emex64_op_bswapq(emex64_core_t *core)
 {
-    la64_instr_termcond(core->op.param_cnt != 1);
+    emex64_instr_termcond(core->op.param_cnt != 1);
     *core->op.param[0] = __builtin_bswap64(*core->op.param[0]);
 }
 
-void la64_op_inc(la64_core_t *core)
+void emex64_op_inc(emex64_core_t *core)
 {
     uint8_t param_cnt = core->op.param_cnt;
     uint64_t **param_list = core->op.param;
 
-    la64_instr_termcond(param_cnt != 1);
+    emex64_instr_termcond(param_cnt != 1);
 
     for(uint8_t i = 0; i < param_cnt; i++)
     {
@@ -288,12 +288,12 @@ void la64_op_inc(la64_core_t *core)
     }
 }
 
-void la64_op_dec(la64_core_t *core)
+void emex64_op_dec(emex64_core_t *core)
 {
     uint8_t param_cnt = core->op.param_cnt;
     uint64_t **param_list = core->op.param;
 
-    la64_instr_termcond(param_cnt != 1);
+    emex64_instr_termcond(param_cnt != 1);
 
     for(uint8_t i = 0; i < param_cnt; i++)
     {

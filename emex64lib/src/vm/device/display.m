@@ -101,9 +101,9 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
     return p;
 }
 
-@implementation LA64GLView
+@implementation EMEX64GLView
 
-- (instancetype)initWithFrame:(NSRect)frame display:(la64_display_t *)display
+- (instancetype)initWithFrame:(NSRect)frame display:(emex64_display_t *)display
 {
     NSOpenGLPixelFormatAttribute attrs[] = {
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
@@ -126,7 +126,7 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
     _display = display;
     [self setWantsBestResolutionOpenGLSurface:YES];
     __weak typeof(self) weakSelf = self;
-    _timer = [NSTimer scheduledTimerWithTimeInterval:LA64_FB_TICK_DT repeats:YES block:^(NSTimer *timer){
+    _timer = [NSTimer scheduledTimerWithTimeInterval:EMEX64_FB_TICK_DT repeats:YES block:^(NSTimer *timer){
         [weakSelf setNeedsDisplay:YES];
     }];
     return self;
@@ -198,7 +198,7 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
 
     glGenTextures(1, &_texIndex);
     glBindTexture(GL_TEXTURE_2D, _texIndex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, LA64_FB_WIDTH, LA64_FB_HEIGHT,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT,
                  0, GL_RED, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -224,7 +224,7 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _texIndex);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LA64_FB_WIDTH, LA64_FB_HEIGHT, GL_RED, GL_UNSIGNED_BYTE, _display->fb);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT, GL_RED, GL_UNSIGNED_BYTE, _display->fb);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, _texPal);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 512, 1, GL_RGB, GL_UNSIGNED_BYTE, _display->palette);
@@ -233,7 +233,7 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
     GLint winW = (GLint)px.size.width;
     GLint winH = (GLint)px.size.height;
 
-    const float fbAspect  = (float)LA64_FB_WIDTH / (float)LA64_FB_HEIGHT;
+    const float fbAspect  = (float)EMEX64_FB_WIDTH / (float)EMEX64_FB_HEIGHT;
     const float winAspect = (float)winW / (float)winH;
 
     GLint vpX, vpY, vpW, vpH;
@@ -287,24 +287,24 @@ void *display_start(void *arg)
     @autoreleasepool
     {
         run_on_main(^{
-            la64_display_t *display = (la64_display_t *)arg;
+            emex64_display_t *display = (emex64_display_t *)arg;
             if (!display) return;
 
             [NSApplication sharedApplication];
             [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
             [NSApp activateIgnoringOtherApps:YES];
 
-            NSRect r = NSMakeRect(100, 100, LA64_FB_WIDTH, LA64_FB_HEIGHT);
+            NSRect r = NSMakeRect(100, 100, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT);
             NSWindow *win = [[NSWindow alloc] initWithContentRect:r styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |  NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable) backing:NSBackingStoreBuffered defer:NO];
             [win setTitle:@"EMEX64LCD @ 60Hz"];
             [[win standardWindowButton:NSWindowZoomButton] setEnabled:NO];
 
-            LA64GLView *glView = [[LA64GLView alloc] initWithFrame:r display:display];
+            EMEX64GLView *glView = [[EMEX64GLView alloc] initWithFrame:r display:display];
             [win setContentView:glView];
             [win setDelegate:glView];
 
-            [win setContentAspectRatio:NSMakeSize(LA64_FB_WIDTH, LA64_FB_HEIGHT)];
-            [win setContentMinSize:NSMakeSize(LA64_FB_WIDTH, LA64_FB_HEIGHT)];
+            [win setContentAspectRatio:NSMakeSize(EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT)];
+            [win setContentMinSize:NSMakeSize(EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT)];
 
             [win makeKeyAndOrderFront:nil];
             [NSApp run];
