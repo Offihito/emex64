@@ -107,6 +107,7 @@ void *display_start(void *arg)
 
     GLFWwindow* win = glfwCreateWindow(LA64_FB_WIDTH, LA64_FB_HEIGHT, "EMEX64LCD @ 60Hz", NULL, NULL);
     if(!win) die("glfwCreateWindow failed");
+    glfwSetWindowAspectRatio(win, LA64_FB_WIDTH, LA64_FB_HEIGHT);
     glfwMakeContextCurrent(win);
     glfwSwapInterval(1);
 
