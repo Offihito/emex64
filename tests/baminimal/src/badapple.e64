@@ -41,6 +41,8 @@ _start:
     ldb r0, FB_REG_ENABLED
     bz r0, .end
 
+    ldd r10, FB_REG_WIDTH
+
     ; this is the main start of the video
 .video_entry:
     add r1, FB_FRAMEBUFFER, VFB_SIZE            ; calculating the end of the framebuffer, r1 is for the lifetime of this stack frame the marker of the framebuffer end
@@ -65,7 +67,6 @@ _start:
     bswapq r4                                   ; reversing byte order
 
     ; inlined _virt_to_phys_fb_addr
-    ldd r10, FB_REG_WIDTH                       ; gather physicalframebuffer information
     sub r11, r0, FB_FRAMEBUFFER                 ; getting the offset of the provided ptr
     shr r12, r11, 8                             ; this math is only valid on 256 x 256 screens
     and r14, r11, 0xFF
