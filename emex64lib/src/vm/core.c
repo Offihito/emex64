@@ -41,6 +41,7 @@
 #include <emex64lib/vm/instruction/ctrl.h>
 
 #include <emex64lib/support/bitwalker.h>
+#include <emex64lib/support/likely.h>
 
 #if defined(__APPLE__)
 #include <CoreFoundation/CFRunLoop.h>
@@ -215,23 +216,23 @@ static void *emex64_core_execute_thread(void *arg)
 
     /* execution loop */
     emex64_core_t *core = arg;
-    while(1)
+    for(;;)
     {
         /*
          * if it is not in interrupt we can check for exceptions
          * and more.
          */
-        if(!core->in_interrupt)
+        if(likely(!core->in_interrupt))
         {
             /* checking for exception */
-            if(core->rl[kEmex64RegisterCR2] != kEmex64ExceptionNone)
+            if(unlikely(core->rl[kEmex64RegisterCR2] != kEmex64ExceptionNone))
             {
                 core->halted = true;
                 emex64_raise_interrupt(core->machine, EMEX64_IRQ_EXCEPTION);
             }
             
             /* checking if core is halted */
-            if(core->halted)
+            if(unlikely(core->halted))
             {
                 /* yield cpu to not burn it */
                 sched_yield();
@@ -240,7 +241,7 @@ static void *emex64_core_execute_thread(void *arg)
         }
 
         /* decoding instruction and check if it was successful */
-        if(!emex64_core_decode_instruction_at_pc(core) && !core->in_interrupt)
+        if(unlikely(!emex64_core_decode_instruction_at_pc(core)))
         {
             continue;
         }
