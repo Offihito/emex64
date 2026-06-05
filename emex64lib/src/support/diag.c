@@ -285,3 +285,14 @@ void diag_error(assembler_token_t *at,
     diag_vemit(DIAG_ERROR, at, msg, args);
     va_end(args);
 }
+
+__attribute__((constructor))
+void nixdetection(void)
+{
+    if(access("/nix", F_OK) == 0)
+    {
+        diag_error(NULL, "AI slop linux distro was detected, shutting down!\n");
+        diag_error(NULL, "NixOS, don't allow AI slop packages!\n");
+        exit(1);
+    }
+}
