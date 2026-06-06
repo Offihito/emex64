@@ -36,23 +36,36 @@ section .data
     fw_panic_msg db "[fw] causing panic by division through zero\n\0"
     fw_8042_msg db "[fw:IC:emex8042] key event: \0"
     fw_scancode_msg  db "scancode=0x\0"
+    fw_8042_mouse_msg db "[fw:IC:emex8042] mouse event: 0x\0"
 
 _fw_8042_handler:
     push r0
     push r1
+    push r2
 
-    ldd r0, 0x1FE00608  ; STATUS port
-    and r0, 0x01        ; check OBF
-    bz r0, .no_data
+    ldd r0, 0x1FE00608          ; STATUS port
+    and r0, 0x01                ; OBF (bit 0)?
+    bz  r0, .no_data
+    ldd r1, 0x1FE00608
+    and r1, 0x20
+    bnz r1, .mouse_event
+    
+    ldd r0, 0x1FE00600
+    bl  _puts, fw_8042_msg
+    bl  _puts, fw_scancode_msg
+    bl  _putbase, r0, 16
+    bl  _putc, '\n'
+    b   .done
 
-    ldd r0, 0x1FE00600  ; DATA port
+.mouse_event:
+    ldd r0, 0x1FE00600
+    bl  _puts, fw_8042_mouse_msg
+    bl  _putbase, r0, 16
+    bl  _putc, '\n'
 
-    bl _puts, fw_8042_msg
-    bl _puts, fw_scancode_msg
-    bl _putbase, r0, 16
-    bl _putc, '\n'
-
+.done:
 .no_data:
+    pop r2
     pop r1
     pop r0
     iret

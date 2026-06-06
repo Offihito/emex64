@@ -141,6 +141,9 @@ static const ps2_scancode_t kEmexKeyPhysToPS2Set1[] = {
     [kEmexKeyPhysUnknown] = {0, {0}},
 };
 
+#define STATUS_OBF          0x01
+#define STATUS_MOUSE_OBF    0x20
+
 emex64_8042_t *emex64_8042_alloc(emex64_machine_t *machine)
 {
     emex64_8042_t *dev = calloc(1, sizeof(emex64_8042_t));
@@ -172,14 +175,27 @@ void emex64_8042_dealloc(emex64_8042_t *dev)
 
 static void update_8042_interrupt(emex64_8042_t *dev)
 {
-    if((dev->kbd_head != dev->kbd_tail) || (dev->mouse_head != dev->mouse_tail))
+    bool has_kbd = (dev->kbd_head   != dev->kbd_tail);
+    bool has_mouse = (dev->mouse_head != dev->mouse_tail);
+
+    if(has_kbd || has_mouse)
     {
-        dev->status |= 0x01;
+        dev->status |= STATUS_OBF;
+
+        if(has_mouse && !has_kbd)
+        {
+            dev->status |= STATUS_MOUSE_OBF;
+        }
+        else
+        {
+            dev->status &= ~STATUS_MOUSE_OBF;
+        }
+
         emex64_raise_interrupt(dev->machine, EMEX64_IRQ_8042);
     }
     else
     {
-        dev->status &= ~0x01;
+        dev->status &= ~(STATUS_OBF | STATUS_MOUSE_OBF);
     }
 }
 
@@ -271,7 +287,8 @@ uint64_t emex64_8042_read(emex64_core_t *core, void *device, uint64_t offset, in
         {
             val = dev->kbd_buf[dev->kbd_head];
             dev->kbd_head = (dev->kbd_head + 1) % 64;
-        } 
+            dev->status &= ~STATUS_MOUSE_OBF;
+        }
         else if(dev->mouse_head != dev->mouse_tail)
         {
             val = dev->mouse_buf[dev->mouse_head];
@@ -279,7 +296,7 @@ uint64_t emex64_8042_read(emex64_core_t *core, void *device, uint64_t offset, in
         }
 
         update_8042_interrupt(dev);
-    } 
+    }
     else if(offset == 0x08)
     {
         val = dev->status;
@@ -306,7 +323,7 @@ void emex64_8042_write(emex64_core_t *core,
             dev->command_byte = value;
         }
         dev->last_command = 0;
-    } 
+    }
     else if(offset == 0x08)
     {
         dev->last_command = value;
@@ -324,10 +341,10 @@ void emex64_8042_write(emex64_core_t *core,
                 dev->mouse_enabled = true;
                 break;
             case 0xAD:
-                dev->kbd_enabled  = false;
+                dev->kbd_enabled = false;
                 break;
             case 0xAE:
-                dev->kbd_enabled  = true; 
+                dev->kbd_enabled = true;
                 break;
             case 0xD4:
                 dev->expecting_mouse_data = true;

@@ -33,7 +33,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <stdatomic.h>
-
+#include <CoreGraphics/CoreGraphics.h>
 #include <emex64lib/support/bitwalker.h>
 #include <emex64lib/vm/device/display.h>
 #include <emex64lib/vm/core.h>
@@ -211,6 +211,10 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
 }
 
 @implementation EMEX64GLView
+{
+    NSTrackingArea *_trackingArea;
+    BOOL _mouseGrabbed;
+}
 
 - (instancetype)initWithFrame:(NSRect)frame display:(emex64_display_t *)display
 {
@@ -238,7 +242,21 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
     _timer = [NSTimer scheduledTimerWithTimeInterval:EMEX64_FB_TICK_DT repeats:YES block:^(NSTimer *timer){
         [weakSelf setNeedsDisplay:YES];
     }];
+    [self updateTrackingAreas];
     return self;
+}
+
+- (void)updateTrackingAreas
+{
+    [super updateTrackingAreas];
+    if(_trackingArea)
+    {
+        [self removeTrackingArea:_trackingArea];
+        _trackingArea = nil;
+    }
+    NSTrackingAreaOptions options = NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect;
+    _trackingArea = [[NSTrackingArea alloc] initWithRect:NSZeroRect options:options owner:self userInfo:nil];
+    [self addTrackingArea:_trackingArea];
 }
 
 - (void)prepareOpenGL
@@ -323,7 +341,7 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
 
     glUseProgram(_prog);
     glUniform1i(glGetUniformLocation(_prog, "uIndexTex"), 0);
-    glUniform1i(glGetUniformLocation(_prog, "uPalette"),  1);
+    glUniform1i(glGetUniformLocation(_prog, "uPalette"), 1);
 }
 
 - (void)drawRect:(NSRect)dirtyRect
@@ -381,6 +399,12 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
 {
     [_timer invalidate];
     _timer = nil;
+    if(_trackingArea)
+    {
+        [self removeTrackingArea:_trackingArea];
+        _trackingArea = nil;
+    }
+    [self ungrabMouse];
 }
 
 - (BOOL)windowShouldClose:(id)sender
@@ -389,8 +413,194 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
     return YES;
 }
 
+static NSString *backuped_windowname;
+
+- (void)grabMouse
+{
+    if(_mouseGrabbed)
+    {
+        return;
+    }
+
+    backuped_windowname = self.window.title;
+    [self.window setTitle:[backuped_windowname stringByAppendingString:@" (Cmd + Option + G to release mouse)"]];
+
+    _mouseGrabbed = YES;
+    CGAssociateMouseAndMouseCursorPosition(NO);
+    [NSCursor hide];
+}
+
+- (void)ungrabMouse
+{
+    if(!_mouseGrabbed)
+    {
+        return;
+    }
+
+    [self.window setTitle:backuped_windowname];
+
+    _mouseGrabbed = NO;
+    CGAssociateMouseAndMouseCursorPosition(YES);
+    [NSCursor unhide];
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification
+{
+    [self ungrabMouse];
+}
+
+- (void)sendMouseMovement:(NSEvent *)event
+{
+    emex64_display_t *d = _display;
+    if(!d || !d->emex8042)
+    {
+        return;
+    }
+
+    NSUInteger pressed = [NSEvent pressedMouseButtons];
+    uint8_t status = 0x08;
+
+    if(pressed & 0x0001)
+    {
+        status |= 0x01;
+    }
+    if(pressed & 0x0002)
+    {
+        status |= 0x02;
+    }
+    if(pressed & 0x0004)
+    {
+        status |= 0x04;
+    }
+
+    CGFloat dx = event.deltaX;
+    CGFloat dy = event.deltaY;
+
+    int32_t dx32 = (int32_t)lround(dx);
+    int32_t dy32 = (int32_t)lround(dy);
+
+    if(dx32 > 127)
+    {
+        dx32 = 127;
+    }
+    if(dx32 < -128)
+    {
+        dx32 = -128;
+    }
+    if(dy32 > 127) 
+    {
+        dy32 = 127;
+    }
+    if(dy32 < -128)
+    {
+        dy32 = -128;
+    }
+
+    int8_t dx8 = (int8_t)dx32;
+    int8_t dy8 = (int8_t)dy32;
+
+    if(dx8 < 0)
+    {
+        status |= 0x10;
+    }
+    if(dy8 < 0)
+    {
+        status |= 0x20;
+    }
+
+    emex64_8042_send_mouse(d->emex8042, status);
+    emex64_8042_send_mouse(d->emex8042, (uint8_t)dx8);
+    emex64_8042_send_mouse(d->emex8042, (uint8_t)dy8);
+}
+
+- (void)mouseDown:(NSEvent *)event
+{
+    emex64_display_t *d = _display;
+    if(!d || !d->emex8042)
+    {
+        return;
+    }
+    if(!_mouseGrabbed)
+    {
+        [self grabMouse];
+    }
+    [self sendMouseMovement:event];
+}
+
+- (void)mouseUp:(NSEvent *)event
+{
+    [self sendMouseMovement:event];
+}
+
+- (void)rightMouseDown:(NSEvent *)event
+{
+    emex64_display_t *d = _display;
+    if(!d || !d->emex8042)
+    {
+        return;
+    }
+    if(!_mouseGrabbed)
+    {
+        [self grabMouse];
+    }
+    [self sendMouseMovement:event];
+}
+
+- (void)rightMouseUp:(NSEvent *)event
+{
+    [self sendMouseMovement:event];
+}
+
+- (void)otherMouseDown:(NSEvent *)event
+{
+    emex64_display_t *d = _display;
+    if(!d || !d->emex8042)
+    {
+        return;
+    }
+    if(!_mouseGrabbed)
+    {
+        [self grabMouse];
+    }
+    [self sendMouseMovement:event];
+}
+
+- (void)otherMouseUp:(NSEvent *)event
+{
+    [self sendMouseMovement:event];
+}
+
+- (void)mouseMoved:(NSEvent *)event
+{
+    [self sendMouseMovement:event];
+}
+
+- (void)mouseDragged:(NSEvent *)event
+{
+    [self sendMouseMovement:event];
+}
+
+- (void)rightMouseDragged:(NSEvent *)event
+{
+    [self sendMouseMovement:event];
+}
+
+- (void)otherMouseDragged:(NSEvent *)event
+{
+    [self sendMouseMovement:event];
+}
+
 - (void)keyDown:(NSEvent *)event
 {
+    if((event.modifierFlags & (NSEventModifierFlagOption | NSEventModifierFlagCommand)) == (NSEventModifierFlagOption | NSEventModifierFlagCommand))
+    {
+        if(event.keyCode == 5)
+        {
+            [self ungrabMouse];
+            return;
+        }
+    }
+
     emex64_display_t *d = _display;
     kEmexKeyPhys phys_key = mac_keycode_to_kEmexKeyPhys(event.keyCode);
     emex64_8042_send_keyboard_make(d->emex8042, phys_key);
@@ -489,15 +699,18 @@ void *display_start(void *arg)
     {
         run_on_main(^{
             emex64_display_t *display = (emex64_display_t *)arg;
-            if (!display) return;
+            if(!display)
+            {
+                return;
+            }
 
             [NSApplication sharedApplication];
             [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
             [NSApp activateIgnoringOtherApps:YES];
 
             NSRect r = NSMakeRect(100, 100, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT);
-            NSWindow *win = [[NSWindow alloc] initWithContentRect:r styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |  NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable) backing:NSBackingStoreBuffered defer:NO];
-            [win setTitle:@"EMEX64LCD @ 60Hz"];
+            NSWindow *win = [[NSWindow alloc] initWithContentRect:r styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable) backing:NSBackingStoreBuffered defer:NO];
+            [win setTitle:[NSString stringWithFormat:@"EMEX64LCD %d x %d @ 60Hz", EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT]];
             [[win standardWindowButton:NSWindowZoomButton] setEnabled:NO];
 
             EMEX64GLView *glView = [[EMEX64GLView alloc] initWithFrame:r display:display];
