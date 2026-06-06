@@ -37,6 +37,7 @@ add_library(emex64 ${LIB_TYPE}
     src/support/fdwalker.c
     src/support/diag.c
     src/support/file.c
+    src/support/keyboard.c
 
     # Virtual Machine
 
