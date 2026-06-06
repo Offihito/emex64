@@ -163,28 +163,28 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     core->rl[kEmex64RegisterSP] = core->rl[kEmex64RegisterCR1];
 
     /* creating interrupt stack frame */
-    emex64_push(core, oldel);
-    emex64_push(core, core->rl[kEmex64RegisterPC]);
-    emex64_push(core, oldsp);
-    emex64_push(core, core->rl[kEmex64RegisterFP]);
-    emex64_push(core, core->rl[kEmex64RegisterCF]);
-    emex64_push(core, core->rl[kEmex64RegisterR0]);
-    emex64_push(core, core->rl[kEmex64RegisterR1]);
-    emex64_push(core, core->rl[kEmex64RegisterR2]);
-    emex64_push(core, core->rl[kEmex64RegisterR3]);
-    emex64_push(core, core->rl[kEmex64RegisterR4]);
-    emex64_push(core, core->rl[kEmex64RegisterR5]);
-    emex64_push(core, core->rl[kEmex64RegisterR6]);
-    emex64_push(core, core->rl[kEmex64RegisterR7]);
-    emex64_push(core, core->rl[kEmex64RegisterR8]);
-    emex64_push(core, core->rl[kEmex64RegisterR9]);
-    emex64_push(core, core->rl[kEmex64RegisterR10]);
-    emex64_push(core, core->rl[kEmex64RegisterR11]);
-    emex64_push(core, core->rl[kEmex64RegisterR12]);
-    emex64_push(core, core->rl[kEmex64RegisterR13]);
-    emex64_push(core, core->rl[kEmex64RegisterR14]);
-    emex64_push(core, core->rl[kEmex64RegisterR15]);
-    emex64_push(core, core->rl[kEmex64RegisterR16]);
+    emex64_push_il(core, oldel);
+    emex64_push_il(core, core->rl[kEmex64RegisterPC]);
+    emex64_push_il(core, oldsp);
+    emex64_push_il(core, core->rl[kEmex64RegisterFP]);
+    emex64_push_il(core, core->rl[kEmex64RegisterCF]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR0]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR1]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR2]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR3]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR4]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR5]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR6]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR7]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR8]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR9]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR10]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR11]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR12]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR13]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR14]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR15]);
+    emex64_push_il(core, core->rl[kEmex64RegisterR16]);
 
     /* storing it as frame pointer  */
     core->rl[kEmex64RegisterFP] = core->rl[kEmex64RegisterSP];
