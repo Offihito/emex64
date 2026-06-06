@@ -71,7 +71,7 @@ void emex64_memory_dealloc(emex64_memory_t *memory)
 }
 
 bool emex64_memory_load_image(emex64_memory_t *memory,
-                              onst char *image_path)
+                              const char *image_path)
 {
     /*
      * opening bios image with RO(read-only)
@@ -147,9 +147,9 @@ void *emex64_memory_access(emex64_core_t *core,
 }
 
 bool emex64_memory_read(emex64_core_t *core,
-                      uint64_t addr,
-                      size_t size,
-                      uint64_t *value)
+                        uint64_t addr,
+                        size_t size,
+                        uint64_t *value)
 {
     if(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_READ, &addr))
     {
@@ -194,9 +194,9 @@ bool emex64_memory_read(emex64_core_t *core,
 }
 
 bool emex64_memory_write(emex64_core_t *core,
-                       uint64_t addr,
-                       uint64_t value,
-                       size_t size)
+                         uint64_t addr,
+                         uint64_t value,
+                         size_t size)
 {
     if(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_WRITE, &addr))
     {
