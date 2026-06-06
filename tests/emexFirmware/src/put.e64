@@ -24,7 +24,8 @@
 
 ; normal ass data for the system
 section .data
-    putc_uart_logo dq "\n         +++++++++++++\n        ++++++++++++++\n       +++++++++++++++\n      ++++++++++++++++\n     +++++      ++++++\n    +++++      ++++++ \n   +++++      ++++++  \n  +++++      ++++++   \n +++++      ++++++    \n+++++      ++++++     \n+++++      +++++      \n +++++      +++       \n  +++++      +        \n   +++++              \n    +++++             \n     +++++            \n      ++++++++++++++++\n       +++++++++++++++\n        ++++++++++++++\n         +++++++++++++\n\nemexLabs(c) 2026\n\n\0"
+    putc_uart_logo db "\n         +++++++++++++\n        ++++++++++++++\n       +++++++++++++++\n      ++++++++++++++++\n     +++++      ++++++\n    +++++      ++++++ \n   +++++      ++++++  \n  +++++      ++++++   \n +++++      ++++++    \n+++++      ++++++     \n+++++      +++++      \n +++++      +++       \n  +++++      +        \n   +++++              \n    +++++             \n     +++++            \n      ++++++++++++++++\n       +++++++++++++++\n        ++++++++++++++\n         +++++++++++++\n\0"
+    putc_copyright db "\nemexLabs(c) 2026\n\n\0"
     putc_sym dq _gui_putc
 
 ; memory units for _put_mem
@@ -46,9 +47,11 @@ _put_init:
 .end_uart:
     stq putc_sym, _uart_putc
     bl _puts, putc_uart_logo
+    bl _puts, putc_copyright
     ret
 .end_gui:
     stw gui_line, 10
+    bl _puts, putc_copyright
     ret
 
 _puts:
