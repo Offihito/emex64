@@ -67,9 +67,9 @@ _fw_start:
     ldw r0, FB_HEIGHT
     ldw r1, FB_WIDTH
     bz r0, .dsp_not_installed
-    bl _putbase, r0, 10
-    bl _puts, fw_display_x_msg
     bl _putbase, r1, 10
+    bl _puts, fw_display_x_msg
+    bl _putbase, r0, 10
     bl _putc, '\n'
     b .dsp_installed
 .dsp_not_installed:
