@@ -39,8 +39,15 @@ _exception_handler:
     bl _putbase, cr2, 16
     bl _putc, '\n'
 
+    ;
     ; no iret needed, platform is panicking
-    stb PLATFORM_PWR, 0
+    ; but we need to hang so the user sees what
+    ; happened.
+    ;
+    ; stb PLATFORM_PWR, 0
+    ;
+
+    b _fw_start.hang
 
 _fw_start:
     bl _interrupt_register_handler IRQ_EXCEPTION, _exception_handler
@@ -69,6 +76,8 @@ _fw_start:
     bl _puts, fw_bytes_msg 
     
     bl _print_time
+
+    div r0, 0, 0
     
 .hang:
     hlt
