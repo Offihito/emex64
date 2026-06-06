@@ -25,6 +25,38 @@
 section .data
     exception_msg db "\n-- panic --\nexception code: 0x\0"
     exception2_msg db "reason: \0"
+    exception_pc_msg db "pc\0"
+    exception_sp_msg db "sp\0"
+    exception_fp_msg db "fp\0"
+    exception_cf_msg db "cf\0"
+    exception_r0_msg db "r0\0"
+    exception_r1_msg db "r1\0"
+    exception_r2_msg db "r2\0"
+    exception_r3_msg db "r3\0"
+    exception_r4_msg db "r4\0"
+    exception_r5_msg db "r5\0"
+    exception_r6_msg db "r6\0"
+    exception_r7_msg db "r7\0"
+    exception_r8_msg db "r8\0"
+    exception_r9_msg db "r9\0"
+    exception_r10_msg db "r10\0"
+    exception_r11_msg db "r11\0"
+    exception_r12_msg db "r12\0"
+    exception_r13_msg db "r13\0"
+    exception_r14_msg db "r14\0"
+    exception_r15_msg db "r15\0"
+    exception_r16_msg db "r16\0"
+    exception_rr_msg db "rr\0"
+    exception_cr0_msg db "cr0 (crel)\0"
+    exception_cr1_msg db "cr1 (crksp)\0"
+    exception_cr2_msg db "cr2 (crexc)\0"
+    exception_cr3_msg db "cr3 (crvec)\0"
+    exception_cr4_msg db "cr4 (crptb)\0"
+    exception_cr5_msg db "cr5\0"
+    exception_cr6_msg db "cr6\0"
+    exception_cr7_msg db "cr7\0"
+    exception_cr8_msg db "cr8\0"
+    exception_cr9_msg db "cr9\0"
 
 ; array of exception types as string
 section .data
@@ -41,6 +73,22 @@ _exception_str_for_code:
     ldq rr, r0
     ret
 
+; register printing
+;
+; r0: reg str
+; r1: reg value
+;
+_exception_putreg:
+    bl _puts, r0
+    bl _putc, ':'
+    bl _putc, ' '
+    bl _putc, '0'
+    bl _putc, 'x'
+    bl _putbase, r1, 16
+    bl _putc, '\n'
+    ret
+
+; the handler it self
 _exception_handler:
     bl _puts, exception_msg
     bl _putbase, cr2, 16
@@ -50,6 +98,40 @@ _exception_handler:
     bl _exception_str_for_code, cr2
     bl _puts, rr
     bl _putc, '\n'
+    bl _putc, '\n'
+
+    bl _exception_putreg, exception_pc_msg, pc
+    bl _exception_putreg, exception_sp_msg, sp
+    bl _exception_putreg, exception_fp_msg, fp
+    bl _exception_putreg, exception_cf_msg, cf
+    bl _exception_putreg, exception_r0_msg, r0
+    bl _exception_putreg, exception_r1_msg, r1
+    bl _exception_putreg, exception_r2_msg, r2
+    bl _exception_putreg, exception_r3_msg, r3
+    bl _exception_putreg, exception_r4_msg, r4
+    bl _exception_putreg, exception_r5_msg, r5
+    bl _exception_putreg, exception_r6_msg, r6
+    bl _exception_putreg, exception_r7_msg, r7
+    bl _exception_putreg, exception_r8_msg, r8
+    bl _exception_putreg, exception_r9_msg, r9
+    bl _exception_putreg, exception_r10_msg, r10
+    bl _exception_putreg, exception_r11_msg, r11
+    bl _exception_putreg, exception_r12_msg, r12
+    bl _exception_putreg, exception_r13_msg, r13
+    bl _exception_putreg, exception_r14_msg, r14
+    bl _exception_putreg, exception_r15_msg, r15
+    bl _exception_putreg, exception_r16_msg, r16
+    bl _exception_putreg, exception_rr_msg, rr
+    bl _exception_putreg, exception_cr0_msg, cr0
+    bl _exception_putreg, exception_cr1_msg, cr1
+    bl _exception_putreg, exception_cr2_msg, cr2
+    bl _exception_putreg, exception_cr3_msg, cr3
+    bl _exception_putreg, exception_cr4_msg, cr4
+    bl _exception_putreg, exception_cr5_msg, cr5
+    bl _exception_putreg, exception_cr6_msg, cr6
+    bl _exception_putreg, exception_cr7_msg, cr7
+    bl _exception_putreg, exception_cr8_msg, cr8
+    bl _exception_putreg, exception_cr9_msg, cr9
 
     ;
     ; no iret needed, platform is panicking

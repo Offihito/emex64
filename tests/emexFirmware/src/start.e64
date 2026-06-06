@@ -37,7 +37,7 @@ _fw_start:
     bl _interrupt_register_handler IRQ_EXCEPTION, _exception_handler
 
     stw gui_line, 10
-    
+
     bl _puts, fw_font_test_msg
 
     ldw r0, FB_HEIGHT
@@ -74,3 +74,4 @@ _start:
     bl _interrupt_init                              ; initilizing interrupt controller
     bl _fw_start                                    ; branching to main symbol
     stb PLATFORM_PWR, 0                             ; telling platform device to turn off
+    
