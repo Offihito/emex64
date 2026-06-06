@@ -35,7 +35,7 @@ section .data
 ;
 ; r0: character
 ;
-_putc:
+_gui_putc:
     bz r0, .end
 
     ldw r1, gui_column

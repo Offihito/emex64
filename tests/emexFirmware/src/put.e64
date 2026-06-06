@@ -22,6 +22,20 @@
 ; SOFTWARE.
 ;
 
+section .data
+    putc_sym dq _gui_putc
+
+_putc:
+    ldq r1, putc_sym
+    b r1
+
+_put_init:
+    ldb r0, FB_ENABLED
+    bnz r0, .end
+    stq putc_sym, _uart_putc
+.end:
+    ret
+
 _puts:
 .start:
     ldb r1, r0
