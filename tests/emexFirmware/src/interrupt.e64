@@ -35,6 +35,7 @@
 %define% IRQ_DISK		3
 %define% IRQ_NETWORK	4
 %define% IRQ_SOFTWARE	5
+%define% IRQ_8042       6
 
 section .bss
     ivec dq 63

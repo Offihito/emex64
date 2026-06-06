@@ -34,9 +34,32 @@ section .data
     fw_memory_available_msg db "[fw] memory available: \0"
     fw_bytes_msg db " Bytes\n\0"
     fw_panic_msg db "[fw] causing panic by division through zero\n\0"
+    fw_8042_msg db "[fw:IC:emex8042] key event: \0"
+    fw_scancode_msg  db "scancode=0x\0"
+
+_fw_8042_handler:
+    push r0
+    push r1
+
+    ldd r0, 0x1FE00608  ; STATUS port
+    and r0, 0x01        ; check OBF
+    bz r0, .no_data
+
+    ldd r0, 0x1FE00600  ; DATA port
+
+    bl _puts, fw_8042_msg
+    bl _puts, fw_scancode_msg
+    bl _putbase, r0, 16
+    bl _putc, '\n'
+
+.no_data:
+    pop r1
+    pop r0
+    iret
 
 _fw_start:
-    bl _interrupt_register_handler IRQ_EXCEPTION, _exception_handler
+    bl _interrupt_register_handler, IRQ_EXCEPTION, _exception_handler
+    bl _interrupt_register_handler, IRQ_8042, _fw_8042_handler
 
     bl _puts, fw_font_test_msg
 
@@ -66,10 +89,6 @@ _fw_start:
     bl _putc, '\n'
     
     bl _print_time
-    bl _puts, fw_panic_msg
-
-    ; intentionally causing a panic
-    div r0, 0, 0
     
 .hang:
     hlt

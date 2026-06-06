@@ -41,7 +41,89 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+static uint8_t glfw_key_to_ps2_set2(int key)
+{
+    switch(key)
+    {
+        case GLFW_KEY_A: return 0x1C;
+        case GLFW_KEY_B: return 0x32;
+        case GLFW_KEY_C: return 0x21;
+        case GLFW_KEY_D: return 0x23;
+        case GLFW_KEY_E: return 0x24;
+        case GLFW_KEY_F: return 0x2B;
+        case GLFW_KEY_G: return 0x34;
+        case GLFW_KEY_H: return 0x33;
+        case GLFW_KEY_I: return 0x43;
+        case GLFW_KEY_J: return 0x3B;
+        case GLFW_KEY_K: return 0x42;
+        case GLFW_KEY_L: return 0x4B;
+        case GLFW_KEY_M: return 0x3A;
+        case GLFW_KEY_N: return 0x31;
+        case GLFW_KEY_O: return 0x44;
+        case GLFW_KEY_P: return 0x4D;
+        case GLFW_KEY_Q: return 0x15;
+        case GLFW_KEY_R: return 0x2D;
+        case GLFW_KEY_S: return 0x1B;
+        case GLFW_KEY_T: return 0x2C;
+        case GLFW_KEY_U: return 0x3C;
+        case GLFW_KEY_V: return 0x2A;
+        case GLFW_KEY_W: return 0x1D;
+        case GLFW_KEY_X: return 0x22;
+        case GLFW_KEY_Y: return 0x35;
+        case GLFW_KEY_Z: return 0x1A;
+
+        case GLFW_KEY_0: return 0x45;
+        case GLFW_KEY_1: return 0x16;
+        case GLFW_KEY_2: return 0x1E;
+        case GLFW_KEY_3: return 0x26;
+        case GLFW_KEY_4: return 0x25;
+        case GLFW_KEY_5: return 0x2E;
+        case GLFW_KEY_6: return 0x36;
+        case GLFW_KEY_7: return 0x3D;
+        case GLFW_KEY_8: return 0x3E;
+        case GLFW_KEY_9: return 0x46;
+
+        case GLFW_KEY_SPACE: return 0x29;
+        case GLFW_KEY_ENTER: return 0x5A;
+        case GLFW_KEY_BACKSPACE: return 0x66;
+        case GLFW_KEY_TAB: return 0x0D;
+        case GLFW_KEY_ESCAPE: return 0x76;
+
+        case GLFW_KEY_LEFT: return 0x6B;
+        case GLFW_KEY_RIGHT: return 0x74;
+        case GLFW_KEY_UP: return 0x75;
+        case GLFW_KEY_DOWN: return 0x72;
+
+        default: return 0;
+    }
+}
+
 void uart_restore_mode(void);
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    emex64_display_t *display = (emex64_display_t*)glfwGetWindowUserPointer(window);
+    if(!display || !display->emex8042)
+    {
+        return;
+    }
+
+    uint8_t ps2_code = glfw_key_to_ps2_set2(key);
+    if(ps2_code == 0)
+    {
+        return;
+    }
+
+    if(action == GLFW_PRESS || action == GLFW_REPEAT)
+    {
+        emex64_8042_send_keyboard(display->emex8042, ps2_code);
+    }
+    else if(action == GLFW_RELEASE)
+    {
+        emex64_8042_send_keyboard(display->emex8042, 0xF0);
+        emex64_8042_send_keyboard(display->emex8042, ps2_code);
+    }
+}
 
 static void display_close_callback(GLFWwindow* window)
 {
@@ -126,6 +208,8 @@ void *display_start(void *arg)
     GLFWwindow* win = glfwCreateWindow(EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT, "EMEX64LCD @ 60Hz", NULL, NULL);
     if(!win) die("glfwCreateWindow failed");
     glfwSetWindowCloseCallback(win, display_close_callback);
+    glfwSetWindowUserPointer(win, display);
+    glfwSetKeyCallback(win, key_callback);
     glfwSetWindowMaximizeCallback(win, maximize_callback);
     glfwSetWindowAspectRatio(win, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT);
     glfwSetWindowSizeLimits(win, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
@@ -374,6 +458,8 @@ emex64_display_t *emex64_display_alloc(emex64_machine_t *machine)
         free(display);
         return NULL;
     }
+
+    display->emex8042 = machine->emex8042;
 
     #if EMEX64VM_DEVICE_DISPLAY
     emex64_display_draw_logo(display);

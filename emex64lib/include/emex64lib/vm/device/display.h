@@ -49,6 +49,8 @@
 #include <stdint.h>
 #include <pthread.h>
 
+#include <emex64lib/vm/device/8042.h>
+
 typedef struct emex64_core emex64_core_t;
 typedef struct emex64_machine emex64_machine_t;
 
@@ -57,6 +59,7 @@ typedef struct {
     uint8_t *palette;
     uint8_t *fb;
     pthread_t pthread;
+    emex64_8042_t *emex8042;
 } emex64_display_t;
 
 emex64_display_t *emex64_display_alloc(emex64_machine_t *machine);

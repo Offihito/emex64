@@ -38,6 +38,63 @@
 #include <emex64lib/vm/device/display.h>
 #include <emex64lib/vm/core.h>
 
+uint8_t mac_keycode_to_ps2_set2(uint16_t keyCode)
+{
+    switch(keyCode)
+    {
+        case 0: return 0x1C;
+        case 11: return 0x32;
+        case 8: return 0x21;
+        case 2: return 0x23;
+        case 14: return 0x24;
+        case 3: return 0x2B;
+        case 5: return 0x34;
+        case 4: return 0x33;
+        case 34: return 0x43;
+        case 38: return 0x3B;
+        case 40: return 0x42;
+        case 37: return 0x4B;
+        case 46: return 0x3A;
+        case 45: return 0x31;
+        case 31: return 0x44;
+        case 35: return 0x4D;
+        case 12: return 0x15;
+        case 15: return 0x2D;
+        case 1: return 0x1B;
+        case 17: return 0x2C;
+        case 32: return 0x3C;
+        case 9: return 0x2A;
+        case 13: return 0x1D;
+        case 7: return 0x22;
+        case 16: return 0x35;
+        case 6: return 0x1A;
+
+        case 29: return 0x45;
+        case 18: return 0x16;
+        case 19: return 0x1E;
+        case 20: return 0x26;
+        case 21: return 0x25;
+        case 23: return 0x2E;
+        case 22: return 0x36;
+        case 26: return 0x3D;
+        case 28: return 0x3E;
+        case 25: return 0x46;
+
+        case 36: return 0x5A;
+        case 49: return 0x29;
+        case 51: return 0x66;
+        case 48: return 0x0D;
+        case 53: return 0x76;
+
+        case 123: return 0x6B;
+        case 124: return 0x74;
+        case 125: return 0x72;
+        case 126: return 0x75;
+
+        default: return 0;
+    }
+}
+
 static void die(const char* msg)
 {
     fprintf(stderr, "Error: %s\n", msg);
@@ -280,6 +337,37 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
     return YES;
 }
 
+- (void)keyDown:(NSEvent *)event
+{
+    emex64_display_t *display = self->_display;
+    if(!display || !display->emex8042)
+    {
+        return;
+    }
+
+    uint8_t sc = mac_keycode_to_ps2_set2([event keyCode]);
+    if(sc != 0)
+    {
+        emex64_8042_send_keyboard(display->emex8042, sc);
+    }
+}
+
+- (void)keyUp:(NSEvent *)event
+{
+    emex64_display_t *display = self->_display;
+    if(!display || !display->emex8042)
+    {
+        return;
+    }
+
+    uint8_t sc = mac_keycode_to_ps2_set2([event keyCode]);
+    if(sc != 0)
+    {
+        emex64_8042_send_keyboard(display->emex8042, 0xF0);
+        emex64_8042_send_keyboard(display->emex8042, sc);
+    }
+}
+
 @end
 
 void *display_start(void *arg)
@@ -306,6 +394,7 @@ void *display_start(void *arg)
             [win setContentAspectRatio:NSMakeSize(EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT)];
             [win setContentMinSize:NSMakeSize(EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT)];
 
+            [win makeFirstResponder:glView];
             [win makeKeyAndOrderFront:nil];
             [NSApp run];
         });
