@@ -143,34 +143,55 @@ _scroll_up:
 
     clr r4
 
+    mov r12, r0
+    mul r12, r12, r2
+
 .row_loop:
     mov r5, r1
     sub r5, r0
     cmp r4, r5
     bge .clear_bottom
+    
+    mov r13, r4
+    mul r13, r13, r2
+    add r9, r3, r13
 
-    mov r6, r4
-    add r6, r0
-
-    mul r7, r4, r2
-    mul r8, r6, r2
-
-    add r9, r3, r7
-    add r10, r3, r8
+    mov r14, r4
+    add r14, r14, r0
+    mul r14, r14, r2
+    add r10, r3, r14
 
     mov r11, r2
-.copy_loop:
+    shr r6, r11, 3
+
+.copy_qloop:
+    bz r6, .copy_remainder
+
+    ldq r7, r10
+    stq r9, r7
+    
+    add r10, r10, 8
+    add r9, r9, 8
+
+    dec r6
+    b .copy_qloop
+
+.copy_remainder:
+    and r11, r11, 7
+
+.rem_loop:
     bz r11, .next_row
-    ldb r12, r10
-    stb r9, r12
-    inc r9
+    ldb r7, r10
+    stb r9, r7
     inc r10
+    inc r9
     dec r11
-    b .copy_loop
+    b .rem_loop
 
 .next_row:
     inc r4
     b .row_loop
+
 
 .clear_bottom:
     mov r4, r1
@@ -179,17 +200,33 @@ _scroll_up:
 .clear_loop:
     cmp r4, r1
     bge .end
-        
+
     mul r7, r4, r2
     add r9, r3, r7
 
     mov r11, r2
-.clear_row:
+
+.clear_qloop:
+    shr r6, r11, 3
+    bz r6, .clear_remainder
+
+.clear_q:
+    bz r6, .clear_remainder
+    stq r9, 0
+
+    add r9, r9, 8
+    dec r6
+    b .clear_q
+
+.clear_remainder:
+    and r11, r11, 7
+
+.clear_byte:
     bz r11, .next_clear
     stb r9, 0
     inc r9
     dec r11
-    b .clear_row
+    b .clear_byte
 
 .next_clear:
     inc r4
