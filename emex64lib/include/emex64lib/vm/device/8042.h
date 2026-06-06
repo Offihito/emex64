@@ -25,6 +25,8 @@
 #ifndef EMEX64VM_DEVICE_8042_H
 #define EMEX64VM_DEVICE_8042_H
 
+#include <emex64lib/support/keyboard.h>
+
 #define EMEX64_8042_BASE    0x1FE00600
 #define EMEX64_8042_SIZE    0x10
 
@@ -57,6 +59,9 @@ void emex64_8042_dealloc(emex64_8042_t *dev);
 
 /* for display backend */
 void emex64_8042_send_keyboard(emex64_8042_t *dev, uint8_t scancode);
+void emex64_8042_send_keyboard_make(emex64_8042_t *dev, kEmexKeyPhys key);
+void emex64_8042_send_keyboard_break(emex64_8042_t *dev, kEmexKeyPhys key);
+
 void emex64_8042_send_mouse(emex64_8042_t *dev, uint8_t byte);
 
 uint64_t emex64_8042_read(emex64_core_t *core, void *device, uint64_t offset, int size);

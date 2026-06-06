@@ -38,60 +38,112 @@
 #include <emex64lib/vm/device/display.h>
 #include <emex64lib/vm/core.h>
 
-uint8_t mac_keycode_to_ps2_set2(uint16_t keyCode)
+typedef struct {
+    uint8_t sc;
+    bool e0;
+} ps2_code_t;
+
+kEmexKeyPhys mac_keycode_to_kEmexKeyPhys(uint16_t keyCode)
 {
     switch(keyCode)
     {
-        case 0: return 0x1C;
-        case 11: return 0x32;
-        case 8: return 0x21;
-        case 2: return 0x23;
-        case 14: return 0x24;
-        case 3: return 0x2B;
-        case 5: return 0x34;
-        case 4: return 0x33;
-        case 34: return 0x43;
-        case 38: return 0x3B;
-        case 40: return 0x42;
-        case 37: return 0x4B;
-        case 46: return 0x3A;
-        case 45: return 0x31;
-        case 31: return 0x44;
-        case 35: return 0x4D;
-        case 12: return 0x15;
-        case 15: return 0x2D;
-        case 1: return 0x1B;
-        case 17: return 0x2C;
-        case 32: return 0x3C;
-        case 9: return 0x2A;
-        case 13: return 0x1D;
-        case 7: return 0x22;
-        case 16: return 0x35;
-        case 6: return 0x1A;
+        case 0: return kEmexKeyPhysA;
+        case 11: return kEmexKeyPhysB;
+        case 8: return kEmexKeyPhysC;
+        case 2: return kEmexKeyPhysD;
+        case 14: return kEmexKeyPhysE;
+        case 3: return kEmexKeyPhysF;
+        case 5: return kEmexKeyPhysG;
+        case 4: return kEmexKeyPhysH;
+        case 34: return kEmexKeyPhysI;
+        case 38: return kEmexKeyPhysJ;
+        case 40: return kEmexKeyPhysK;
+        case 37: return kEmexKeyPhysL;
+        case 46: return kEmexKeyPhysM;
+        case 45: return kEmexKeyPhysN;
+        case 31: return kEmexKeyPhysO;
+        case 35: return kEmexKeyPhysP;
+        case 12: return kEmexKeyPhysQ;
+        case 15: return kEmexKeyPhysR;
+        case 1: return kEmexKeyPhysS;
+        case 17: return kEmexKeyPhysT;
+        case 32: return kEmexKeyPhysU;
+        case 9: return kEmexKeyPhysV;
+        case 13: return kEmexKeyPhysW;
+        case 7: return kEmexKeyPhysX;
+        case 16: return kEmexKeyPhysY;
+        case 6: return kEmexKeyPhysZ;
 
-        case 29: return 0x45;
-        case 18: return 0x16;
-        case 19: return 0x1E;
-        case 20: return 0x26;
-        case 21: return 0x25;
-        case 23: return 0x2E;
-        case 22: return 0x36;
-        case 26: return 0x3D;
-        case 28: return 0x3E;
-        case 25: return 0x46;
+        case 18: return kEmexKeyPhys1;
+        case 19: return kEmexKeyPhys2;
+        case 20: return kEmexKeyPhys3;
+        case 21: return kEmexKeyPhys4;
+        case 23: return kEmexKeyPhys5;
+        case 22: return kEmexKeyPhys6;
+        case 26: return kEmexKeyPhys7;
+        case 28: return kEmexKeyPhys8;
+        case 25: return kEmexKeyPhys9;
+        case 29: return kEmexKeyPhys0;
 
-        case 36: return 0x5A;
-        case 49: return 0x29;
-        case 51: return 0x66;
-        case 48: return 0x0D;
-        case 53: return 0x76;
+        case 50: return kEmexKeyPhysGrave;
+        case 27: return kEmexKeyPhysMinus;
+        case 24: return kEmexKeyPhysEqual;
+        case 33: return kEmexKeyPhysLeftBracket;
+        case 30: return kEmexKeyPhysRightBracket;
+        case 42: return kEmexKeyPhysBackslash;
+        case 41: return kEmexKeyPhysSemicolon;
+        case 39: return kEmexKeyPhysQuote;
+        case 43: return kEmexKeyPhysComma;
+        case 47: return kEmexKeyPhysPeriod;
+        case 44: return kEmexKeyPhysSlash;
 
-        case 123: return 0x6B;
-        case 124: return 0x74;
-        case 125: return 0x72;
-        case 126: return 0x75;
+        case 36: return kEmexKeyPhysEnter;
+        case 49: return kEmexKeyPhysSpace;
+        case 51: return kEmexKeyPhysBackspace;
+        case 48: return kEmexKeyPhysTab;
+        case 53: return kEmexKeyPhysEsc;
 
-        default: return 0;
+        case 56: return kEmexKeyPhysLeftShift;
+        case 60: return kEmexKeyPhysRightShift;
+        case 59: return kEmexKeyPhysLeftCtrl;
+        case 62: return kEmexKeyPhysRightCtrl;
+        case 58: return kEmexKeyPhysLeftAlt;
+        case 61: return kEmexKeyPhysRightAlt;
+        case 54: return kEmexKeyPhysLeftGUI;
+        case 55: return kEmexKeyPhysRightGUI;
+
+        case 123: return kEmexKeyPhysArrowLeft;
+        case 124: return kEmexKeyPhysArrowRight;
+        case 125: return kEmexKeyPhysArrowDown;
+        case 126: return kEmexKeyPhysArrowUp;
+        case 115: return kEmexKeyPhysHome;
+        case 119: return kEmexKeyPhysEnd;
+        case 116: return kEmexKeyPhysPageUp;
+        case 121: return kEmexKeyPhysPageDown;
+        case 114: return kEmexKeyPhysInsert;
+        case 117: return kEmexKeyPhysDelete;
+
+        case 122: return kEmexKeyPhysF1;
+        case 120: return kEmexKeyPhysF2;
+        case 99: return kEmexKeyPhysF3;
+        case 118: return kEmexKeyPhysF4;
+        case 96: return kEmexKeyPhysF5;
+        case 97: return kEmexKeyPhysF6;
+        case 98: return kEmexKeyPhysF7;
+        case 100: return kEmexKeyPhysF8;
+        case 101: return kEmexKeyPhysF9;
+        case 109: return kEmexKeyPhysF10;
+        case 103: return kEmexKeyPhysF11;
+        case 111: return kEmexKeyPhysF12;
+
+        case 57: return kEmexKeyPhysCapsLock;
+        case 71: return kEmexKeyPhysNumLock;
+        case 107: return kEmexKeyPhysScrollLock;
+
+        case 105: return kEmexKeyPhysPrintScreen;
+        case 113: return kEmexKeyPhysPause;
+
+        default: return kEmexKeyPhysUnknown;
     }
 }
 
@@ -339,33 +391,94 @@ static GLuint linkProgram(GLuint vs, GLuint fs)
 
 - (void)keyDown:(NSEvent *)event
 {
-    emex64_display_t *display = self->_display;
-    if(!display || !display->emex8042)
-    {
-        return;
-    }
-
-    uint8_t sc = mac_keycode_to_ps2_set2([event keyCode]);
-    if(sc != 0)
-    {
-        emex64_8042_send_keyboard(display->emex8042, sc);
-    }
+    emex64_display_t *d = _display;
+    kEmexKeyPhys phys_key = mac_keycode_to_kEmexKeyPhys(event.keyCode);
+    emex64_8042_send_keyboard_make(d->emex8042, phys_key);
 }
 
 - (void)keyUp:(NSEvent *)event
 {
-    emex64_display_t *display = self->_display;
-    if(!display || !display->emex8042)
+    emex64_display_t *d = _display;
+    kEmexKeyPhys phys_key = mac_keycode_to_kEmexKeyPhys(event.keyCode);
+    emex64_8042_send_keyboard_break(d->emex8042, phys_key);
+}
+
+- (void)flagsChanged:(NSEvent *)event
+{
+    emex64_display_t *d = _display;
+    static NSUInteger lastFlags = 0;
+    NSUInteger current = event.modifierFlags;
+
+    if((current & NSEventModifierFlagShift) != (lastFlags & NSEventModifierFlagShift))
     {
-        return;
+        BOOL pressed = (current & NSEventModifierFlagShift) != 0;
+        kEmexKeyPhys key = kEmexKeyPhysLeftShift;
+        if(pressed)
+        {
+            emex64_8042_send_keyboard_make(d->emex8042, key);
+        }
+        else
+        {
+            emex64_8042_send_keyboard_break(d->emex8042, key);
+        }
     }
 
-    uint8_t sc = mac_keycode_to_ps2_set2([event keyCode]);
-    if(sc != 0)
+    if((current & NSEventModifierFlagControl) != (lastFlags & NSEventModifierFlagControl))
     {
-        emex64_8042_send_keyboard(display->emex8042, 0xF0);
-        emex64_8042_send_keyboard(display->emex8042, sc);
+        BOOL pressed = (current & NSEventModifierFlagControl) != 0;
+        kEmexKeyPhys key = kEmexKeyPhysLeftCtrl;
+        if(pressed)
+        {
+            emex64_8042_send_keyboard_make(d->emex8042, key);
+        }
+        else
+        {
+            emex64_8042_send_keyboard_break(d->emex8042, key);
+        }
     }
+
+    if((current & NSEventModifierFlagOption) != (lastFlags & NSEventModifierFlagOption))
+    {
+        BOOL pressed = (current & NSEventModifierFlagOption) != 0;
+        kEmexKeyPhys key = kEmexKeyPhysLeftAlt;
+        if(pressed)
+        {
+            emex64_8042_send_keyboard_make(d->emex8042, key);
+        }
+        else
+        {
+            emex64_8042_send_keyboard_break(d->emex8042, key);
+        }
+    }
+
+    if((current & NSEventModifierFlagCommand) != (lastFlags & NSEventModifierFlagCommand))
+    {
+        BOOL pressed = (current & NSEventModifierFlagCommand) != 0;
+        kEmexKeyPhys key = kEmexKeyPhysLeftGUI;
+        if(pressed)
+        {
+            emex64_8042_send_keyboard_make(d->emex8042, key);
+        }
+        else
+        {
+            emex64_8042_send_keyboard_break(d->emex8042, key);
+        }
+    }
+
+    if((current & NSEventModifierFlagCapsLock) != (lastFlags & NSEventModifierFlagCapsLock))
+    {
+        BOOL pressed = (current & NSEventModifierFlagCapsLock) != 0;
+        if(pressed)
+        {
+            emex64_8042_send_keyboard_make(d->emex8042, kEmexKeyPhysCapsLock);
+        }
+        else
+        {
+            emex64_8042_send_keyboard_break(d->emex8042, kEmexKeyPhysCapsLock);
+        }
+    }
+
+    lastFlags = current;
 }
 
 @end
