@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <unistd.h>
 
 #include <emex64lib/vm/core.h>
 #include <emex64lib/vm/memory.h>
@@ -237,7 +238,7 @@ static void *emex64_core_execute_thread(void *arg)
             if(unlikely(core->halted))
             {
                 /* yield cpu to not burn it */
-                sched_yield();
+                usleep(100);
                 goto skip_execution;
             }
         }
