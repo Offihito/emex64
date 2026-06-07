@@ -32,21 +32,29 @@
 #include <emex64lib/asm/type.h>
 #include <emex64lib/asm/options.h>
 
+typedef struct {
+    char *match;
+    char *value;
+} assembler_macro_definition_t;
+
 typedef struct assembler_invocation {
-    emex_file_t **file;                     /* code files */
-    size_t file_cnt;                        /* count of files */
+    emex_file_t **file;                         /* code files */
+    size_t file_cnt;                            /* count of files */
 
-    assembler_line_t **line;                /* code lines */
-    uint64_t line_cnt;                      /* count of lines */
+    assembler_line_t **line;                    /* code lines */
+    uint64_t line_cnt;                          /* count of lines */
 
-    char *label_scope;                      /* current resolved label scope (the global label used for the local ones) */
-    assembler_label_t *label;               /* label array */
+    char *label_scope;                          /* current resolved label scope (the global label used for the local ones) */
+    assembler_label_t *label;                   /* label array */
 
-    uint64_t label_cnt;                     /* count of labels */
-    reloc_table_entry_t *rtbe;              /* relocation table root entry */
+    uint64_t label_cnt;                         /* count of labels */
+    reloc_table_entry_t *rtbe;                  /* relocation table root entry */
     fdwalker_t *fdwalker;
 
     assembler_options_t options;
+
+    uint64_t definition_cnt;
+    assembler_macro_definition_t *definition;   /* array of definitions*/
 } assembler_invocation_t;
 
 assembler_invocation_t *assembler_invocation_alloc(const char *output_path);

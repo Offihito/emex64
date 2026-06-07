@@ -42,7 +42,7 @@ typedef struct {
 bool assembler_macro_expand(assembler_invocation_t *inv)
 {
     /* count the amount of macros */
-    uint64_t c = 0;
+    uint64_t c = inv->definition_cnt;
     for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
         if(inv->line[i]->type == kAssemblerLineTypeMacroDefinition)
@@ -77,11 +77,26 @@ bool assembler_macro_expand(assembler_invocation_t *inv)
         }
     }
 
+    for(uint64_t i = 0; i < inv->definition_cnt; i++)
+    {
+        am[c].match = inv->definition[i].match;
+        am[c].inject_token_cnt = 1;
+        am[c].inject_token = calloc(1, sizeof(char*));
+        am[c].inject_token[0] = inv->definition[i].value;
+        c++;
+    }
+
     /* expand macro definitions */
     for(uint64_t li = 0; li < inv->line_cnt; li++)
     {
         for(uint64_t ti = 0; ti < inv->line[li]->token_cnt; ti++)
         {
+            if(ti == 0 && strcmp(inv->line[li]->token[ti]->str, "%ifdef%") == 0)
+            {
+                /* NEXT LINE! */
+                break;
+            }
+
             /* matching macro */
             uint16_t macro_nest_remaining = UINT16_MAX;
 
@@ -173,6 +188,29 @@ bool assembler_macro_expand(assembler_invocation_t *inv)
                 else
                 {
                     condition_met = false;
+                }
+
+                in_a_condition = true;
+            }
+            if(strcmp(inv->line[li]->token[0]->str, "%ifdef%") == 0)
+            {
+                if(in_a_condition == true)
+                {
+                    diag_error(inv->line[li]->token[0], "%%ifdef%% was defined inside another %%if%%. condition nesting is still WIP.\n");
+                    return false;
+                }
+
+                condition_met = false;
+                if(inv->line[li]->token_cnt >= 2 && strlen(inv->line[li]->token[1]->str) >= 0)
+                {
+                    for(uint64_t ami = 0; ami < c; ami++)
+                    {
+                        if(strcmp(inv->line[li]->token[1]->str, am[ami].match) == 0)
+                        {
+                            condition_met = true;
+                            break;
+                        }
+                    }
                 }
 
                 in_a_condition = true;

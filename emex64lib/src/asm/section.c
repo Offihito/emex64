@@ -56,8 +56,13 @@ bool assembler_section_parse(assembler_invocation_t *inv)
 
                 /* iterating till section data is over */
                 i++;
-                for(; i < inv->line_cnt && inv->line[i]->type == kAssemblerLineTypeSectionData; i++)
+                for(; i < inv->line_cnt && (inv->line[i]->type == kAssemblerLineTypeSectionData || inv->line[i]->type == kAssemblerLineTypeIgnore); i++)
                 {
+                    if(inv->line[i]->type == kAssemblerLineTypeIgnore)
+                    {
+                        continue;
+                    }
+
                     /* checking count */
                     if(inv->line[i]->token_cnt < 3)
                     {
@@ -242,8 +247,13 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                 
                 /* finding variable type */
                 i++;
-                for(; i < inv->line_cnt && inv->line[i]->type == kAssemblerLineTypeSectionData; i++)
+                for(; i < inv->line_cnt && (inv->line[i]->type == kAssemblerLineTypeSectionData || inv->line[i]->type == kAssemblerLineTypeIgnore); i++)
                 {
+                    if(inv->line[i]->type == kAssemblerLineTypeIgnore)
+                    {
+                        continue;
+                    }
+
                     /* checking count */
                     if(inv->line[i]->token_cnt != 3)
                     {

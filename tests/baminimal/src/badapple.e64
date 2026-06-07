@@ -34,12 +34,34 @@
 %define% VFB_WIDTH  256
 %define% VFB_SIZE   0x10000
 
-%define% BADAPPLE   0
+%define% TIMER_CTRL    0x1FE00100
+%define% TIMER_COUNT   0x1FE00108
+%define% TIMER_COMPARE 0x1FE00110
+%define% TIMER_STATUS  0x1FE00118
+%define% TIMER_FREQ    0x1FE00120
+
+%define% MCSIZE 0x1FE00400
 
 section .data
     badapple_bitmap df "../../badapple/vid.bitmask"
+%ifdef% BENCHMARK
+    result_msg db "Timer Ticks: \0"
+%endif%
 
 _start:
+%ifdef% BENCHMARK
+    ; setup stack
+    ldq r0, MCSIZE
+    sub r0, 8
+    mov sp, r0
+
+    bl _put_init
+    stw gui_line, 0
+
+    stq TIMER_COMPARE, 0xFFFFFFFFFFFFFFFF   ; we need ticks
+    stq TIMER_CTRL, 0x7
+%endif%    
+
     ; checking if display device is available
     ldb r0, FB_REG_ENABLED
     bz r0, .end
@@ -58,7 +80,11 @@ _start:
     ; advances to the next frame
 .video_frame_next:
     cmp r5, 6520
+%ifdef% BENCHMARK
+    bgt .end
+%else%
     bgt .video_playback
+%endif%
     mov r0, FB_FRAMEBUFFER
 
     ; draws the entire frame in 8 byte steps
@@ -91,4 +117,15 @@ _start:
 
     ; shuts down the platform
 .end:
+%ifdef% BENCHMARK
+    ldq r0, TIMER_COUNT
+    bl _puts, result_msg
+    bl _putbase, r0, 10
+    bl _putc, '\n'
+
+.no_end:
+    hlt
+    b .no_end
+    
+%endif%
     stb PLATFORM_PWR, 0

@@ -50,6 +50,10 @@ int main(int argc, char *argv[])
     bool warning_deprecated = true;
     bool offset_branch = true;
 
+    /* macros passed to assembler arguments */
+    uint64_t macro_cnt = 0;
+    assembler_macro_definition_t *macro = NULL;
+
     /* parse arguments */
     for(int i = 1; i < argc; i++)
     {
@@ -162,6 +166,72 @@ int main(int argc, char *argv[])
 
             start_entry_name = flag;
         }
+        else if(strncmp(argv[i], "-D", 2) == 0)
+        {
+            const char *flag;
+            if(argv[i][2] != '\0')
+            {
+                flag = argv[i] + 2;
+            }
+            else if(i + 1 < argc)
+            {
+                flag = argv[++i];
+            }
+            else
+            {
+                diag_error(NULL, "missing argument to '-D'\n");
+                goto failed;
+            }
+
+            const char *eq = strchr(flag, '=');
+            char *match = NULL;
+            char *value = NULL;
+            if(!eq)
+            {
+                match = strdup(flag);
+                size_t len = strlen(match);
+                if(len > 0 && (match[len-1] == '"' || match[len-1] == '\''))
+                {
+                    match[len-1] = '\0';
+                }
+                value = "1";
+            }
+
+            size_t name_len = eq - flag;
+            match = malloc(name_len + 1);
+            memcpy(match, flag, name_len);
+            match[name_len] = '\0';
+
+            const char *v = eq + 1;
+            char quote = 0;
+
+            if(*v == '"' || *v == '\'')
+            {
+                quote = *v;
+                v++;
+            }
+
+            const char *end = v;
+            while (*end && *end != quote && *end != '\0') end++;
+
+            size_t val_len = end - v;
+            value = malloc(val_len + 1);
+            memcpy(value, v, val_len);
+            value[val_len] = '\0';
+
+            uint64_t macro_slot = macro_cnt++;
+            if(macro == NULL)
+            {
+                macro = calloc(macro_cnt, sizeof(assembler_macro_definition_t));
+            }
+            else
+            {
+                macro = realloc(macro, macro_cnt * sizeof(assembler_macro_definition_t));
+            }
+
+            macro[macro_slot].match = match;
+            macro[macro_slot].value = value;
+        }
         else if(argv[i][0] != '-')
         {
             files[file_count++] = strdup(argv[i]);
@@ -195,6 +265,9 @@ int main(int argc, char *argv[])
         diag_error(NULL, "something went terribly wrong\n");
         goto failed;
     }
+
+    inv->definition = macro;
+    inv->definition_cnt = macro_cnt;
 
     bool succeeded = assembler_invocation_emit(inv, file_count, files);
     for(int i = 0; i < file_count; i++)
