@@ -70,7 +70,7 @@ bool emex_file_open(emex_file_t *f)
 {
     if(f->code != MAP_FAILED)
     {
-        return true;
+        emex_file_close(f);
     }
 
     /* initial open */
@@ -89,7 +89,7 @@ bool emex_file_open(emex_file_t *f)
     }
 
     f->len = fdstat.st_size;
-    f->code = mmap(NULL, f->len, PROT_READ, MAP_SHARED, fd, 0);
+    f->code = mmap(NULL, f->len, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
     if(f->code == MAP_FAILED)
     {
         close(fd);
