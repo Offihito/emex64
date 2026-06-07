@@ -22,14 +22,17 @@
 ; SOFTWARE.
 ;
 
-%define% FB_ENABLED 0x1FE00700
-%define% FB_PALLETE 0x1FE00701
-%define% FB_FRAMEBUFFER 0x1FE00A01
-%define% FRAMEBUFFER_SIZE 0x10000
+%define% FB_REG_ENABLED     0x1FF00000
+%define% FB_REG_HEIGHT      0x1FF00001
+%define% FB_REG_WIDTH       0x1FF00003
+%define% FB_PALLETE         0x1FF00005
+%define% FB_FRAMEBUFFER     0x1FF00305
 
-%define% PLATFORM_PWR 0x1FE00500
+%define% PLATFORM_PWR   0x1FE00500
 
-%define% VIDEO_BASE __emex64_exec_img_end
+%define% VFB_HEIGHT 256
+%define% VFB_WIDTH  256
+%define% VFB_SIZE   0x10000
 
 %define% TIMER_CTRL    0x1FE00100
 %define% TIMER_COUNT   0x1FE00108
@@ -37,50 +40,119 @@
 %define% TIMER_STATUS  0x1FE00118
 %define% TIMER_FREQ    0x1FE00120
 
+%define% MCSIZE 0x1FE00400
+
+section .data
+    badapple_bitmap df "../vid.bitmask"
+%ifdef% BENCHMARK
+    result_msg db "Timer Ticks: \0"
+%endif%
+
+%ifdef% FULL
 _timer_handler:
     iret
+%endif%
 
-_main:
+_start:
+%ifdef% BENCHMARK
+    ; setup stack
+    ldq r0, MCSIZE
+    sub r0, 8
+    mov sp, r0
+
+    bl _put_init
+    stw gui_line, 0
+
+    stq TIMER_COMPARE, 0xFFFFFFFFFFFFFFFF   ; we need ticks
+    stq TIMER_CTRL, 0x7
+%endif%
+
+%ifdef% FULL
+    ; setup stack
+    ldq r0, MCSIZE
+    sub r0, 8
+    mov sp, r0
+    
+    bl _pmm_init
+    bl _interrupt_init
     bl _interrupt_register_handler, IRQ_TIMER, _timer_handler
 
     ldq r0, TIMER_FREQ
     div r0, 60
     stq TIMER_COMPARE, r0
+%endif%
 
-    stb FB_ENABLED, 1                   ; enables the framebuffer
-    ldb r0, FB_ENABLED
+    ; checking if display device is available
+    ldb r0, FB_REG_ENABLED
     bz r0, .end
+
+    ldd r10, FB_REG_WIDTH
+
+    ; this is the main start of the video
 .video_entry:
-    add r1, FB_FRAMEBUFFER, 0x10000     ; calculating the framebuffer end
-    mov r2, VIDEO_BASE
-.video_rereloop:
-    mov r2, VIDEO_BASE
+    add r1, FB_FRAMEBUFFER, VFB_SIZE            ; calculating the end of the framebuffer, r1 is for the lifetime of this stack frame the marker of the framebuffer end
+
+    ; starts the video it self
+.video_playback:
+    mov r2, badapple_bitmap
     mov r5, 0
-.video_reloop:
+
+    ; advances to the next frame
+.video_frame_next:
+%ifdef% FULL
     stq TIMER_CTRL, 0x7
     hlt
     stq TIMER_CTRL, 0x0
     stq TIMER_COUNT, 0
+%endif%
+
     cmp r5, 6520
-    bgt .video_rereloop
+%ifdef% BENCHMARK
+    bgt .end
+%else%
+    bgt .video_playback
+%endif%
     mov r0, FB_FRAMEBUFFER
-.video_loop:
-    ldb r3, r2
-    pdep r4, r3, 0x0101010101010101     ; spread bits to byte
-    mul  r4, r4, 0xFF                   ; expand to bytes
-    bswapq r4
-    stq r0, r4
+
+    ; draws the entire frame in 8 byte steps
+.video_frame_draw:
+    ; drawing logic (8 byte per draw)
+    ldb r3, r2                                  ; loading the bitmap byte of the next 8 pixels of the current frame on the video
+    pdep r4, r3, 0x0101010101010101             ; expanding the bitmap byte to a 64bit unsigned integer so we can draw it on the frame buffer
+    mul r4, 0xFF                                ; applying color, 0xFF usually is white
+    bswapq r4                                   ; reversing byte order
+
+    ; inlined _virt_to_phys_fb_addr
+    sub r11, r0, FB_FRAMEBUFFER                 ; getting the offset of the provided ptr
+    shr r12, r11, 8                             ; this math is only valid on 256 x 256 screens
+    and r14, r11, 0xFF
+    mul r15, r12, r10
+    add r15, r14
+    add r15, FB_FRAMEBUFFER
+    
+    stq r15, r4                                  ; and drawing the 8byte segment to the framebuffer
+
+    ; pointer advancement logic
     add r0, 8
     inc r2
-    cmp r0, r1
-    blt .video_loop
-    inc r5
-    b .video_reloop
-.end:
-    ret
 
-_start:
-    bl _pmm_init
-    bl _interrupt_init
-    bl _main
+    ; frame drawing management logic
+    cmp r0, r1
+    blt .video_frame_draw
+    inc r5
+    b .video_frame_next
+
+    ; shuts down the platform
+.end:
+%ifdef% BENCHMARK
+    ldq r0, TIMER_COUNT
+    bl _puts, result_msg
+    bl _putbase, r0, 10
+    bl _putc, '\n'
+
+.no_end:
+    hlt
+    b .no_end
+    
+%endif%
     stb PLATFORM_PWR, 0
