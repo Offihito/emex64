@@ -76,6 +76,8 @@
 typedef struct emex64_memory {
     uint8_t *memory;
     uint64_t memory_size;
+    uint64_t ktrr_size;
+    bool ktrr_locked;
 } emex64_memory_t;
 
 emex64_memory_t *emex64_memory_alloc(uint64_t size);

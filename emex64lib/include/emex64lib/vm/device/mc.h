@@ -28,10 +28,15 @@
 #include <stdint.h>
 
 #define EMEX64_MC_BASE        0x1FE00400
-#define EMEX64_MC_SIZE        0x08
+#define EMEX64_MC_SIZE        0x10
+
+#define EMEX64_MC_REG_SIZE          0x00
+#define EMEX64_MC_REG_KTRR_SIZE     0x08
+#define EMEX64_MC_REG_KTRR_LOCKED   0x0F
 
 typedef struct emex64_core emex64_core_t;
 
 uint64_t emex64_mc_read(emex64_core_t *core, void *device, uint64_t offset, int size);
+void emex64_mc_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
 #endif /* EMEX64VM_DEVICE_MC_H */

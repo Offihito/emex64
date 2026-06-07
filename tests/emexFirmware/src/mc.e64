@@ -27,3 +27,10 @@
 _mc_get_mem_size:
     ldq rr, MCSIZE                  ; loading memory size
     wret
+
+_mc_lock_ktrr:
+    ; data start sits right after the text region ends
+    mov r0, __data_start
+    dec r0
+    stq MCKTRR_SIZE, r0
+    wret

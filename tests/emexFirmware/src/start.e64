@@ -36,6 +36,7 @@ section .data
     fw_8042_msg db "[fw:IC:emex8042] key event: \0"
     fw_scancode_msg  db "scancode=0x\0"
     fw_8042_mouse_msg db "[fw:IC:emex8042] mouse event: 0x\0"
+    fw_ktrr_msg db "[fw] locked KTRR\0"
 
 _fw_8042_handler:
     ldq r3, putc_sym
@@ -98,6 +99,9 @@ _fw_start:
     blw _putc, '\n'
     
     blw _print_time
+
+    blw _mc_lock_ktrr
+    blw _puts, fw_ktrr_msg
     
 .hang:
     hlt

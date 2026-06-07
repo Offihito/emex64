@@ -275,6 +275,11 @@ enum kEmex64Exception {
      * not mapped.
      */
     kEmex64ExceptionPageFault =         0b101,
+
+    /*
+     * KTRR exception!?
+     */
+    kEmex64ExceptionKTRRViolation =         0b110,
 };
 
 typedef struct emex64_core emex64_core_t;

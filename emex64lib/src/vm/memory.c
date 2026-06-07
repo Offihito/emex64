@@ -208,6 +208,13 @@ bool emex64_memory_write(emex64_core_t *core,
         return false;
     }
 
+    /* checking against KTRR */
+    if(unlikely(core->machine->memory->ktrr_size >= addr))
+    {
+        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
+        return false;
+    }
+
     /* MMIO devices exist ^^ */
     emex64_mmio_region_t *mmio = emex64_mmio_find(core->machine->mmio_bus, addr);
     if(mmio != NULL)

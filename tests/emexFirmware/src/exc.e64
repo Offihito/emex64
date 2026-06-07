@@ -39,7 +39,8 @@ section .data
     exception_badinstruction_msg db "bad instruction\0"
     exception_badarithmetic_msg db "bad arithmetic\0"
     exception_pagefault_msg db "page fault\0"
-    exception_type_array_msg dq exception_unknown_msg, exception_badaccess_msg, exception_permission_msg, exception_badinstruction_msg, exception_badarithmetic_msg, exception_pagefault_msg
+    exception_ktrr_msg db "ktrr violation\0"
+    exception_type_array_msg dq exception_unknown_msg, exception_badaccess_msg, exception_permission_msg, exception_badinstruction_msg, exception_badarithmetic_msg, exception_pagefault_msg, exception_ktrr_msg
 
 ; array of all register names
 section .data

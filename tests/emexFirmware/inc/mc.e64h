@@ -22,5 +22,7 @@
 ; SOFTWARE.
 ;
 
-%define% MC_BASE    0x1FE00400
-%define% MCSIZE     0x1FE00400
+%define% MC_BASE        0x1FE00400
+%define% MCSIZE         0x1FE00400
+%define% MCKTRR_SIZE    0x1FE00408
+%define% MCKTRR_LOCKED  0x1FE0040F

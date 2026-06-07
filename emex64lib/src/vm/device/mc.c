@@ -25,13 +25,60 @@
 #include <emex64lib/vm/machine.h>
 #include <emex64lib/vm/device/mc.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 
+/*
+#define EMEX64_MC_REG_KTRR_SIZE     0x08
+#define EMEX64_MC_REG_KTRR_LOCKED   0x0F*/
+
 uint64_t emex64_mc_read(emex64_core_t *core,
-                      void *device,
-                      uint64_t offset,
-                      int size)
+                        void *device,
+                        uint64_t offset,
+                        int size)
 {
-    /* returning memory size */
-    return core->machine->memory->memory_size;
+    if(offset == EMEX64_MC_REG_SIZE)
+    {
+        return core->machine->memory->memory_size;
+    }
+    else if(offset == EMEX64_MC_REG_KTRR_SIZE)
+    {
+        return core->machine->memory->ktrr_size;
+    }
+    
+    return core->machine->memory->ktrr_locked;
+}
+
+void emex64_mc_write(emex64_core_t *core,
+                     void *device,
+                     uint64_t offset,
+                     uint64_t value,
+                     int size)
+{
+    if(offset == EMEX64_MC_REG_KTRR_SIZE)
+    {
+        if(core->machine->memory->ktrr_locked)
+        {
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
+            printf("PINGO!\n");
+            fflush(stdout);
+            return;
+        }
+
+        core->machine->memory->ktrr_size = value;
+    }
+    else if(offset == EMEX64_MC_REG_KTRR_LOCKED)
+    {
+        if(core->machine->memory->ktrr_locked)
+        {
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
+            printf("PINGO!\n");
+            fflush(stdout);
+            return;
+        }
+
+        core->machine->memory->ktrr_locked = value;
+    }
+
+    return;
 }

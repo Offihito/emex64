@@ -85,7 +85,7 @@ emex64_machine_t *emex64_machine_alloc(uint64_t memory_size)
         goto out_release_uart;
     }
 
-    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_MC_BASE, EMEX64_MC_SIZE, NULL, emex64_mc_read, NULL))
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_MC_BASE, EMEX64_MC_SIZE, NULL, emex64_mc_read, emex64_mc_write))
     {
         goto out_release_uart;
     }
