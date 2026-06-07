@@ -210,7 +210,7 @@ enum kEmex64Register: uint8_t {
 enum kEmex64ElevationLevel: uint8_t {
     kEmex64ElevationLevelUser =             0b00,
     kEmex64ElevationLevelKernel =           0b01,
-    kEmex64ElevationLevelSecureMonitor =    0b10    /* used for software kernel secure mechanism like the apples PPL */
+    kEmex64ElevationLevelSecureMonitor =    0b10    /* used for software kernel secure mechanism like apples PPL */
 };
 
 /*
