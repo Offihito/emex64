@@ -170,7 +170,7 @@ uint64_t emex64_pop(emex64_core_t *core)
 }
 
 /* call convention not needed, emex64 supports arguments directly in bl (biggest L ever, we gotta make a call convention) */
-void emex64_op_bl(emex64_core_t *core)
+void emex64_op_blw(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt < 1);
 
@@ -217,7 +217,7 @@ void emex64_op_bl(emex64_core_t *core)
     core->rl[kEmex64RegisterPC] = emex64_branch_pc(core->rl[kEmex64RegisterPC], param_imm[0], core->op.param_coding[0]);
 }
 
-void emex64_op_ret(emex64_core_t *core)
+void emex64_op_wret(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 0);
 
@@ -287,4 +287,44 @@ void emex64_op_iret(emex64_core_t *core)
     core->machine->intc->current_irq = -1;
     core->in_interrupt = false;
     core->halted = false;
+}
+
+void emex64_op_bl(emex64_core_t *core)
+{
+    emex64_instr_termcond(core->op.param_cnt < 1);
+
+    /* backup all parameters from pointer to not malform double passed registers for example */
+    uint64_t param_imm[32] = {};
+    for(uint8_t i = 0; i < core->op.param_cnt; i++)
+    {
+        param_imm[i] = *(core->op.param[i]);
+    }
+
+    /* pushing all relevant registers onto stack */
+    emex64_push_il(core, core->rl[kEmex64RegisterPC] + core->op.ilen);
+    emex64_push_il(core, core->rl[kEmex64RegisterFP]);
+
+    /* writing parameters */
+    for(uint8_t i = 1; i < core->op.param_cnt && i < (kEmex64RegisterR16 - 1); i++)
+    {
+        core->rl[(kEmex64RegisterR0 - 1) + i] = param_imm[i];
+    }
+
+    /* setting current frame pointer to stack pointer to point to stack frame */
+    core->rl[kEmex64RegisterFP] = core->rl[kEmex64RegisterSP];
+
+    /* initiating jump */
+    core->op.ilen = 0;
+    core->rl[kEmex64RegisterPC] = emex64_branch_pc(core->rl[kEmex64RegisterPC], param_imm[0], core->op.param_coding[0]);
+}
+
+void emex64_op_ret(emex64_core_t *core)
+{
+    emex64_instr_termcond(core->op.param_cnt != 0);
+
+    core->rl[kEmex64RegisterSP] = core->rl[kEmex64RegisterFP];
+
+    core->rl[kEmex64RegisterFP] = emex64_pop_il(core);
+    core->rl[kEmex64RegisterPC] = emex64_pop_il(core);
+    core->op.ilen = 0;
 }

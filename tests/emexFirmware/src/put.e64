@@ -46,27 +46,27 @@ _put_init:
     bnz r0, .end_gui
 .end_uart:
     stq putc_sym, _uart_putc
-    bl _puts, putc_uart_logo
-    bl _puts, putc_copyright
-    ret
+    blw _puts, putc_uart_logo
+    blw _puts, putc_copyright
+    wret
 .end_gui:
     stw gui_line, 10
-    bl _puts, putc_copyright
-    ret
+    blw _puts, putc_copyright
+    wret
 
 _puts:
 .start:
     ldb r1, r0
     inc r0
-    bl _putc, r1
+    blw _putc, r1
     bnz r1, .start
-    ret
+    wret
     
 _putbase:
     clr rr
     bnz r0, .start
-    bl _putc, '0'
-    ret
+    blw _putc, '0'
+    wret
 .start:
     push 0
 .loop:
@@ -85,9 +85,9 @@ _putbase:
     bnz r0, .loop
 .print:
     pop r0
-    bl _putc
+    blw _putc
     bnz r0, .print
-    ret
+    wret
 
 ;
 ; r0: main memory amount
@@ -121,11 +121,11 @@ _put_mem:
     b .whole_loop
 
 .whole_done:
-    bl _putbase, r0, 10
+    blw _putbase, r0, 10
 
     bz r2, .suffix
 
-    bl _putc, '.'
+    blw _putc, '.'
     mov r3, r2
     mov r5, 1
 .unit_sz:
@@ -138,12 +138,12 @@ _put_mem:
     mod r4, r4, r5
     mul r6, r4, 10
     div r6, r5
-    bl _putbase, r6, 10
+    blw _putbase, r6, 10
 
 .suffix:
     mul r2, 8
     add r2, mem_unit_ptrs
     ldq r0, r2
-    bl _puts, r0
-    bl _putc, ' '
-    ret
+    blw _puts, r0
+    blw _putc, ' '
+    wret

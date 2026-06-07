@@ -28,14 +28,14 @@ _strlen:
     ldb r1, r0                  ; loading byte from address
     inc r0, rr                  ; incrementing address
     bnz r1, .loop               ; if not reached a null terminator yet continue till we reached one
-    ret
+    wret
 
 _strdup:
-    bl _strlen, r0              ; getting size of string
+    blw _strlen, r0              ; getting size of string
     mov r1, rr
-    bl _kmalloc, r1             ; allocating memory for string
+    blw _kmalloc, r1             ; allocating memory for string
     mov r2, rr
     bz r2, .null_exception      ; null pointer checking allocation
-    bl _memcpy, r2, r0, r1      ; copying string over
+    blw _memcpy, r2, r0, r1      ; copying string over
 .null_exception:
-    ret
+    wret

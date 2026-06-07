@@ -31,14 +31,14 @@ section .bss
 
 _pmm_page_addr:
     mul rr, r0, PAGE_SIZE                           ; page number by size equals address
-    ret
+    wret
 
 _pmm_addr_page:
     clr r0                                          ; clearing return register to return NULL on failure
     bz r0, .end
     div rr, r0, PAGE_SIZE                           ; page number by size equals address
 .end:
-    ret
+    wret
 
 _pmm_page_get:
     clr r1, r2
@@ -52,7 +52,7 @@ _pmm_page_get:
     ldb r3, r1
     shr r3, r2
     and rr, r3, 1
-    ret
+    wret
 
 _pmm_page_set:
     clr r2, r3
@@ -71,7 +71,7 @@ _pmm_page_set:
     shl r1, r3
     or r4, r1
     stb r2, r4
-    ret
+    wret
 
 _pmm_alloc:
     ; preparing for loop
@@ -80,36 +80,36 @@ _pmm_alloc:
 
     ; trying to find free page
 .loop:
-    bl _pmm_page_get, r0
+    blw _pmm_page_get, r0
     bz rr, .got_page
     cmp r0, r1
     bgt .no_free_pages
     inc r0
     b .loop
 .got_page:
-    bl _pmm_page_set, r0, 0x1
-    bl _pmm_page_addr, r0
-    ret
+    blw _pmm_page_set, r0, 0x1
+    blw _pmm_page_addr, r0
+    wret
 .no_free_pages:
     mov rr, 0
-    ret
+    wret
 
 _pmm_free:
     ; getting page from address
-    bl _pmm_addr_page
+    blw _pmm_addr_page
     ldq r0, pmm_max_pages
     cmp rr, r0
 
     ; making sure page is not bigger than max pages
     bgt .end
-    bl _pmm_page_set, rr, 0
+    blw _pmm_page_set, rr, 0
 .end:
-    ret
+    wret
 
 _pmm_alloc_zero:
-    bl _pmm_alloc
-    bl _memset, rr, 0x0, 0x2000
-    ret
+    blw _pmm_alloc
+    blw _memset, rr, 0x0, 0x2000
+    wret
 
 _pmm_init:
     ; sanity checks to make sure page memory manager is only initilized once in kernel lifetime
@@ -117,7 +117,7 @@ _pmm_init:
     bnz r0, .return                                 ; early return to end
 
     ; getting memory size
-    bl _mc_get_mem_size                             ; asking memory controller nicely to say how large it is
+    blw _mc_get_mem_size                             ; asking memory controller nicely to say how large it is
     mov r0, rr                                      ; moving result to safe location
 
     ; dividing through page size to get count of pages that fit into the memory space
@@ -130,7 +130,7 @@ _pmm_init:
     div r1, PAGE_SIZE                               ; get the number of pages the image is sized
 
     ; getting the end address of image but in the logic of our page math
-    bl _pmm_page_addr, r1                           ; get end address of image
+    blw _pmm_page_addr, r1                           ; get end address of image
     stq pmm_master_ptr, rr                          ; store address 
 
     ; prepare for loop
@@ -140,9 +140,9 @@ _pmm_init:
     div r3, PAGE_SIZE                               ; do ceiling calculating
 .loop:
     dec r3
-    bl _pmm_page_set, r3, 0x1                       ; mark page as used
+    blw _pmm_page_set, r3, 0x1                       ; mark page as used
     bnz r3, .loop
 .end:
     stb pmm_init_once, 1                            ; mark as initilized
 .return:
-    ret
+    wret

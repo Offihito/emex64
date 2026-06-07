@@ -33,7 +33,7 @@ _uart_putc:
     and r1, UART_STATUS_TX_EMPTY
     bz r1, .start
     std UART_DATA, r0
-    ret
+    wret
 
 _uart_getc:
 .start:
@@ -41,4 +41,4 @@ _uart_getc:
     and r1, UART_STATUS_RX_READY
     bz r1, .start
     ldd rr, UART_DATA
-    ret
+    wret

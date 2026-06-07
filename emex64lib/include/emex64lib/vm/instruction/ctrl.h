@@ -42,9 +42,12 @@ void emex64_op_bnz(emex64_core_t *core);
 void emex64_push(emex64_core_t *core, uint64_t value);
 uint64_t emex64_pop(emex64_core_t *core);
 
+void emex64_op_blw(emex64_core_t *core);
+void emex64_op_wret(emex64_core_t *core);
+void emex64_op_iret(emex64_core_t *core);
+
 void emex64_op_bl(emex64_core_t *core);
 void emex64_op_ret(emex64_core_t *core);
-void emex64_op_iret(emex64_core_t *core);
 
 static inline void emex64_push_il(emex64_core_t *core, uint64_t value)
 {

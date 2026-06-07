@@ -50,17 +50,17 @@ _fw_8042_handler:
     bnz r1, .mouse_event
     
     ldd r0, 0x1FE00600
-    bl _puts, fw_8042_msg
-    bl _puts, fw_scancode_msg
-    bl _putbase, r0, 16
-    bl _putc, '\n'
+    blw _puts, fw_8042_msg
+    blw _puts, fw_scancode_msg
+    blw _putbase, r0, 16
+    blw _putc, '\n'
     b .done
     
 .mouse_event:
     ldd r0, 0x1FE00600
-    bl _puts, fw_8042_mouse_msg
-    bl _putbase, r0, 16
-    bl _putc, '\n'
+    blw _puts, fw_8042_mouse_msg
+    blw _putbase, r0, 16
+    blw _putc, '\n'
 
 .done:
 .no_data:
@@ -68,37 +68,37 @@ _fw_8042_handler:
     iret
 
 _fw_start:
-    bl _interrupt_register_handler, IRQ_EXCEPTION, _exception_handler
-    bl _interrupt_register_handler, IRQ_8042, _fw_8042_handler
+    blw _interrupt_register_handler, IRQ_EXCEPTION, _exception_handler
+    blw _interrupt_register_handler, IRQ_8042, _fw_8042_handler
 
-    bl _puts, fw_font_test_msg
+    blw _puts, fw_font_test_msg
 
-    bl _puts, fw_display_msg
+    blw _puts, fw_display_msg
     ldw r0, FB_HEIGHT
     ldw r1, FB_WIDTH
     bz r0, .dsp_not_installed
-    bl _putbase, r1, 10
-    bl _puts, fw_display_x_msg
-    bl _putbase, r0, 10
-    bl _putc, '\n'
+    blw _putbase, r1, 10
+    blw _puts, fw_display_x_msg
+    blw _putbase, r0, 10
+    blw _putc, '\n'
     b .dsp_installed
 .dsp_not_installed:
-    bl _puts, fw_display_unavailable
+    blw _puts, fw_display_unavailable
 .dsp_installed:
 
-    bl _mc_get_mem_size
+    blw _mc_get_mem_size
     mov r1, rr
     sub r0, r1, __emex64_exec_img_end
     
-    bl _puts, fw_memory_msg
-    bl _put_mem, r1, r1
-    bl _putc, '\n'
+    blw _puts, fw_memory_msg
+    blw _put_mem, r1, r1
+    blw _putc, '\n'
 
-    bl _puts, fw_memory_available_msg
-    bl _put_mem, r0, r1
-    bl _putc, '\n'
+    blw _puts, fw_memory_available_msg
+    blw _put_mem, r0, r1
+    blw _putc, '\n'
     
-    bl _print_time
+    blw _print_time
     
 .hang:
     hlt
@@ -111,11 +111,11 @@ _start:
     sub r0, 8
     mov sp, r0
     
-    bl _put_init                                    ; checks for fb
-    bl _pmm_init                                    ; initilizing page allocator
-    bl _slab_init                                   ; initilizing slab allocator
-    bl _interrupt_init                              ; initilizing interrupt controller
-    bl _fw_start                                    ; branching to main symbol
+    blw _put_init                                    ; checks for fb
+    blw _pmm_init                                    ; initilizing page allocator
+    blw _slab_init                                   ; initilizing slab allocator
+    blw _interrupt_init                              ; initilizing interrupt controller
+    blw _fw_start                                    ; branching to main symbol
 .poweroff:
     stb PLATFORM_PWR, 0                             ; telling platform device to turn off
     

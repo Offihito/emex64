@@ -26,4 +26,4 @@
 
 _mc_get_mem_size:
     ldq rr, MCSIZE                  ; loading memory size
-    ret
+    wret

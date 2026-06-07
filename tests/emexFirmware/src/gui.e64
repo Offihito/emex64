@@ -109,7 +109,7 @@ _gui_putc:
     blt .row_loop
 
 .end:
-    ret
+    wret
 
 .newline:
     ; reset column
@@ -128,7 +128,7 @@ _gui_putc:
 
     stw gui_line, r5
 
-    ret
+    wret
 
 .newline_scroll:
     mov r0, 10
@@ -233,4 +233,4 @@ _scroll_up:
     b .clear_loop
 
 .end:
-    ret
+    wret

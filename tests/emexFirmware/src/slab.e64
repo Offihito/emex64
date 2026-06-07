@@ -55,12 +55,12 @@ _get_size_class:
     dec r0
     bne .start
 .done:
-    ret
+    wret
 
 _get_objs_per_class:
     mov rr, 0b11111110
     shr rr, r0
-    ret
+    wret
 
 _slab_init:
     clr r0
@@ -68,10 +68,10 @@ _slab_init:
 .loop:
     cmp r0, NUM_SIZE_CLASSES                                    ; checking if r0 is greater than the number of size classes which means all size classes have been initilized
     bge .done
-    bl _get_size_class, r0                                      ; getting size class from programatic symbol    
+    blw _get_size_class, r0                                     ; getting size class from programatic symbol    
     mov r4, rr                                                  ; moving size result into the appropriate register
     stq r1, r4                                                  ; storing size class into size chache slot
-    bl _get_objs_per_class, r0                                  ; getting objects count for class
+    blw _get_objs_per_class, r0                                 ; getting objects count for class
     mov r4, rr
     add r5, r1, CACHE_OFF_OBJS                                  ; get the address of the cache objects value in structure
     stq r5, r4                                                  ; storing objects count into objects
@@ -85,14 +85,14 @@ _slab_init:
     add r1, CACHE_STRUCT_SIZE
     b .loop
 .done:
-    ret
+    wret
 
 _find_size_class:
     clr r1
 .loop:
     cmp r1, NUM_SIZE_CLASSES                                    ; same as above, the classes count comparison
     bge .too_large
-    bl _get_size_class, r1                                      ; getting size class
+    blw _get_size_class, r1                                      ; getting size class
     cmp r0, rr                                                  ; checking if we found the appropriate size class
     ble .found
     inc r1                                                      ; incrementing return
@@ -101,14 +101,14 @@ _find_size_class:
     mov rr, r1                                                  ; found appropriate size class so now we multiplacate with the size of one cache structure entry
     mul rr, CACHE_STRUCT_SIZE                                   ; seeee
     add rr, size_caches                                         ; adding offset to caches
-    ret
+    wret
 .too_large:
     clr rr
-    ret
+    wret
 
 _create_slab:
     mov r5, r0
-    bl _pmm_alloc
+    blw _pmm_alloc
     bz rr, .fail
     mov r6, rr
     add r7, r6, PAGE_SIZE
@@ -134,10 +134,10 @@ _create_slab:
     add r8, 8
     stq r8, 0
     mov rr, r7
-    ret
+    wret
 .fail:
     clr rr
-    ret
+    wret
 
 _find_free_bit:
     bz r0, .none
@@ -153,11 +153,11 @@ _find_free_bit:
 .none:
     mov rr, 64
 .found:
-    ret
+    wret
 
 _kmalloc:
     bz r0, .fail
-    bl _find_size_class
+    blw _find_size_class
     bz rr, .alloc_pages
     mov r1, rr
     add r4, r1, CACHE_OFF_PARTIAL
@@ -178,7 +178,7 @@ _kmalloc:
     b .have_slab
 .need_new_slab:
     mov r0, r1
-    bl _create_slab
+    blw _create_slab
     bz rr, .fail
     mov r2, rr
     add r4, r1, CACHE_OFF_PARTIAL
@@ -190,7 +190,7 @@ _kmalloc:
 .have_slab:
     add r4, r2, SLAB_OFF_BITMAP
     ldq r0, r4
-    bl _find_free_bit
+    blw _find_free_bit
     cmp rr, 64
     bge .fail
     mov r3, rr
@@ -224,13 +224,13 @@ _kmalloc:
     ldq r5, r5
     mul r3, r5
     add rr, r4, r3
-    ret
+    wret
 .alloc_pages:
-    bl _pmm_alloc
-    ret
+    blw _pmm_alloc
+    wret
 .fail:
     clr rr
-    ret
+    wret
 
 _kfree:
     bz r0, .done                                                ; null pointer checking r0
@@ -307,19 +307,19 @@ _kfree:
     b .done
 .destroy_slab:
     ldq r0, r2
-    bl _pmm_free
+    blw _pmm_free
     b .done
 .free_page:
     and r0, r1, PAGE_MASK
-    bl _pmm_free
+    blw _pmm_free
 .done:
-    ret
+    wret
 
 _kcalloc:
     mul r0, r1                                                  ; calculating final memory allocation size
-    bl _kmalloc, r0                                             ; allocating size
+    blw _kmalloc, r0                                             ; allocating size
     mov r1, rr                                                  ; keeping return value at a safe place
     bz rr, .null_exception                                      ; handling null pointer
-    bl _memset, r1, 0, r0                                       ; nullifying the memory
+    blw _memset, r1, 0, r0                                       ; nullifying the memory
 .null_exception:
-    ret
+    wret

@@ -32,7 +32,7 @@ _memset:
 .loop_continue:
     sub r3, r2, r0      ; calculating remaining lenght
     bnz r3, .loop       ; in-case r3 is still not zero we continue
-    ret
+    wret
 
 _memcpy:
     add r3, r0, r2      ; calculating end address of destination
@@ -43,4 +43,4 @@ _memcpy:
 .loop_continue:
     cmp r0, r3
     ble .loop
-    ret
+    wret

@@ -85,11 +85,13 @@ enum kEmex64Opcode: uint8_t {
     kEmex64OpcodeBGE =      0b00101101,
     kEmex64OpcodeBZ =       0b00101110,
     kEmex64OpcodeBNZ =      0b00101111,
-    kEmex64OpcodeBL =       0b00110000,
-    kEmex64OpcodeRET =      0b00110001,
+    kEmex64OpcodeBLW =      0b00110000,
+    kEmex64OpcodeWRET =     0b00110001,
     kEmex64OpcodeIRET =     0b00110010,
+    kEmex64OpcodeBL =       0b00110011,
+    kEmex64OpcodeRET =      0b00110100,
 
-    kEmex64OpcodeMAX = kEmex64OpcodeIRET,
+    kEmex64OpcodeMAX = kEmex64OpcodeRET,
 };
 
 enum kEmex64ParameterCoding: uint8_t {

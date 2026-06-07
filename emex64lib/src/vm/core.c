@@ -104,9 +104,11 @@ static emex64_opfunc_entry_t kOpfuncTable[] = {
     [kEmex64OpcodeBGE] = { .func = emex64_op_bge, .maxargs = 1 },
     [kEmex64OpcodeBZ] = { .func = emex64_op_bz, .maxargs = 2 },
     [kEmex64OpcodeBNZ] = { .func = emex64_op_bnz, .maxargs = 2 },
+    [kEmex64OpcodeBLW] = { .func = emex64_op_blw, .maxargs = 32 },
+    [kEmex64OpcodeWRET] = { .func = emex64_op_wret, .maxargs = 0 },
+    [kEmex64OpcodeIRET] = { .func = emex64_op_iret, .maxargs = 0 },
     [kEmex64OpcodeBL] = { .func = emex64_op_bl, .maxargs = 32 },
     [kEmex64OpcodeRET] = { .func = emex64_op_ret, .maxargs = 0 },
-    [kEmex64OpcodeIRET] = { .func = emex64_op_iret, .maxargs = 0 },
 };
 
 static const uint8_t kImmBits[] = {

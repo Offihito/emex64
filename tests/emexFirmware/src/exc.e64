@@ -114,7 +114,7 @@ _exception_str_for_code:
     mul r0, 8
     add r0, exception_type_array_msg
     ldq rr, r0
-    ret
+    wret
 
 ; register printing
 ;
@@ -207,14 +207,14 @@ _exception_putreg:
 
     ; here r1 becomes the reg str
     ; here r2 becomes register value
-    bl _puts, r4
-    bl _putc, ':'
-    bl _putc, ' '
-    bl _putc, '0'
-    bl _putc, 'x'
-    bl _putbase, r0, 16
-    bl _putc, '\n'
-    ret
+    blw _puts, r4
+    blw _putc, ':'
+    blw _putc, ' '
+    blw _putc, '0'
+    blw _putc, 'x'
+    blw _putbase, r0, 16
+    blw _putc, '\n'
+    wret
 
 ; the handler it self
 _exception_handler:
@@ -225,27 +225,27 @@ _exception_handler:
 
     ; printing the exception code which
     ; is what declares the reason
-    bl _puts, exception_msg
-    bl _putbase, cr2, 16
-    bl _putc, '\n'
+    blw _puts, exception_msg
+    blw _putbase, cr2, 16
+    blw _putc, '\n'
 
     ; decoding exception code into
     ; the exact exception
-    bl _puts, exception2_msg
-    bl _exception_str_for_code, cr2
-    bl _puts, rr
-    bl _putc, '\n'
-    bl _putc, '\n'
+    blw _puts, exception2_msg
+    blw _exception_str_for_code, cr2
+    blw _puts, rr
+    blw _putc, '\n'
+    blw _putc, '\n'
 
     ; register dump
     ; the hard part is getting the old values
     ; from the stack frame IC created
-    bl _puts, exception_reg_msg
+    blw _puts, exception_reg_msg
     and r0, cr4, CR4_PT_PRESENT
     bz r0, .can_dump_registers
 
     ; seems to have page tables enabled
-    bl _puts, exception_unsupported_ptb_msg
+    blw _puts, exception_unsupported_ptb_msg
     b _fw_start.hang
     
 .can_dump_registers:
@@ -255,7 +255,7 @@ _exception_handler:
     mov r0, REG_PC
     mov r1, REG_CR9
 .loop:
-    bl _exception_putreg, r0, fp
+    blw _exception_putreg, r0, fp
     inc r0
     cmp r0, r1
     ble .loop

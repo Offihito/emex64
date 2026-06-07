@@ -84,9 +84,11 @@ const opcode_entry_t opcode_table[] = {
     { .name = "bge",    .opcode = kEmex64OpcodeBGE,         .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
     { .name = "bz",     .opcode = kEmex64OpcodeBZ,          .minargs = 2, .maxargs = 2,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
     { .name = "bnz",    .opcode = kEmex64OpcodeBNZ,         .minargs = 2, .maxargs = 2,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
+    { .name = "blw",    .opcode = kEmex64OpcodeBLW,         .minargs = 1, .maxargs = 32, .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
+    { .name = "wret",   .opcode = kEmex64OpcodeWRET,        .minargs = 0, .maxargs = 0,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
+    { .name = "iret",   .opcode = kEmex64OpcodeIRET,        .minargs = 0, .maxargs = 0,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
     { .name = "bl",     .opcode = kEmex64OpcodeBL,          .minargs = 1, .maxargs = 32, .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
     { .name = "ret",    .opcode = kEmex64OpcodeRET,         .minargs = 0, .maxargs = 0,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
-    { .name = "iret",    .opcode = kEmex64OpcodeIRET,       .minargs = 0, .maxargs = 0,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
 
     /* compatibility stubs for older code */
     { .name = "jmp",    .opcode = kEmex64OpcodeB,           .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"b\" instead", .handler = assembler_emit_instruction_generic },

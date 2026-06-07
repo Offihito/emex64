@@ -36,33 +36,33 @@ section .data
 _rtc_2putbase:
     cmp r0, 10
     bge .end
-    bl _putc, '0'
+    blw _putc, '0'
 .end:
-    bl _putbase, r0, 10
-    ret
+    blw _putbase, r0, 10
+    wret
 
 _print_time:
     mov r1, RTC_DAY
-    bl _puts, time
+    blw _puts, time
 .loop:
     ldd r0, r1
-    bl _rtc_2putbase, r0
+    blw _rtc_2putbase, r0
     add r1, 4
     cmp r1, RTC_YEAR
     bgt .loop_2_entry
-    bl _putc, '.'
+    blw _putc, '.'
     b .loop
 .loop_2_entry:
     sub r1, 16
-    bl _putc, ' '
+    blw _putc, ' '
 .loop_2:
     ldd r0, r1
-    bl _rtc_2putbase, r0
+    blw _rtc_2putbase, r0
     sub r1, 4
     cmp r1, RTC_SECONDS
     blt .end
-    bl _putc, ':'
+    blw _putc, ':'
     b .loop_2
 .end:
-    bl _putc, '\n'
-    ret
+    blw _putc, '\n'
+    wret

@@ -42,7 +42,7 @@ section .bss
 
 _interrupt_init:
     ; allocate kernel stack for the interrupt handlers
-    bl _pmm_alloc
+    blw _pmm_alloc
     add rr, 0x1FFE
     mov cr1, rr
 
@@ -50,7 +50,7 @@ _interrupt_init:
     stq INTC_REG_VECTOR, ivec
     stb INTC_REG_ENABLED, 0x0
     stq INTC_REG_CTRL, 1
-    ret
+    wret
 
 _interrupt_register_handler:
     ; calculate interrupt vector handler slot address
@@ -65,7 +65,7 @@ _interrupt_register_handler:
     shl r1, 0x1, r0
     or r2, r1
     stq INTC_REG_ENABLED, r2
-    ret
+    wret
 
 _interrupt_unregister_handler:
     ; calculate interupt vector handler slot address
@@ -81,4 +81,4 @@ _interrupt_unregister_handler:
     not r1
     and r2, r1
     stq INTC_REG_ENABLED, r2
-    ret
+    wret
