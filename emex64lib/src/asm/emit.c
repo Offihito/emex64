@@ -142,11 +142,11 @@ bool assembler_emit_instruction_clr(const opcode_entry_t *opce,
         assembler_emit_opcode(al->inv, kEmex64OpcodeMOV);
 
         /* it must be a register */
-        register_entry_t *reg = register_from_string(al->token[i].str);
+        register_entry_t *reg = register_from_string(al->token[i]->str);
 
         if(reg == NULL)
         {
-            diag_error(&(al->token[i]), "expected register, got intermediate or label \"%s\"\n", al->token[i].str);
+            diag_error(al->token[i], "expected register, got intermediate or label \"%s\"\n", al->token[i]->str);
             return false;
         }
 
@@ -194,7 +194,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
 
     for(uint64_t i = 1; i < al->token_cnt; i++)
     {
-        register_entry_t *reg = register_from_string(al->token[i].str);
+        register_entry_t *reg = register_from_string(al->token[i]->str);
         if(reg != NULL)
         {
             /* registers are always allowed so far */
@@ -205,7 +205,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
         /* checking if allowed to be something else than a register */
         if(opcode_arg_accepts_reg_only(opce,  i - 1))
         {
-            diag_error(&(al->token[i]), "expected register, got intermediate or label \"%s\"\n", al->token[i].str);
+            diag_error(al->token[i], "expected register, got intermediate or label \"%s\"\n", al->token[i]->str);
             return false;
         }
 
@@ -219,19 +219,19 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
          *       are going to use later on, so the
          *       relocations work perfectly fine.
          */
-        parser_return_t pr = parse_value_from_string(al->token[i].str);
+        parser_return_t pr = parse_value_from_string(al->token[i]->str);
 
         if(pr.type == emexParserValueTypeString)
         {
             /* the label is either local or global */
             char *label = NULL;
-            if(al->token[i].str[0] == '.')
+            if(al->token[i]->str[0] == '.')
             {
-                asprintf(&label, "%s%s", al->inv->label_scope, al->token[i].str);
+                asprintf(&label, "%s%s", al->inv->label_scope, al->token[i]->str);
             }
             else
             {
-                label = strdup(al->token[i].str);
+                label = strdup(al->token[i]->str);
             }
 
             if(al->inv->options.offset_branch &&
@@ -296,7 +296,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
             rtbe->name = label;
             rtbe->byte_pos = al->inv->fdwalker->byte_pos;
             rtbe->bit_idx = al->inv->fdwalker->bit_idx;
-            rtbe->at_link = &(al->token[i]);
+            rtbe->at_link = al->token[i];
 
             /*
              * skip the 64bit the label occupies
@@ -328,38 +328,38 @@ bool assembler_emit_line(assembler_line_t *al)
     /* parameter count check */
     if(al->token_cnt <= 0)
     {
-        diag_error(&(al->token[0]), "insufficient operands\n");
+        diag_error(al->token[0], "insufficient operands\n");
         return false;
     }
     else if(al->token_cnt > 32)
     {
-        diag_error(&(al->token[0]), "holy smokes, why soo many operands, maximum is 32 operands in 64bit lightweight architecture\n");
+        diag_error(al->token[0], "holy smokes, why soo many operands, maximum is 32 operands in 64bit lightweight architecture\n");
         return false;
     }
 
     /* getting opcode entry if it exists */
-    const opcode_entry_t *opce = opcode_from_string(al->token[0].str);
+    const opcode_entry_t *opce = opcode_from_string(al->token[0]->str);
     if(opce == NULL)
     {
-        diag_error(&(al->token[0]), "illegal opcode \"%s\"\n", al->token[0].str);
+        diag_error(al->token[0], "illegal opcode \"%s\"\n", al->token[0]->str);
         return false;
     }
 
     /* checking for deprecation */
     if(opce->dnstr != NULL && al->inv->options.warning_deprecated)
     {
-        diag_warn(&(al->token[al->token_cnt - 1]), "opcode \"%s\" is deprecated: %s\n", opce->name, opce->dnstr);
+        diag_warn(al->token[al->token_cnt - 1], "opcode \"%s\" is deprecated: %s\n", opce->name, opce->dnstr);
     }
 
     /* checking argument count */
     if((al->token_cnt - 1) > opce->maxargs)
     {
-        diag_error(&(al->token[al->token_cnt - 1]), "too many operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->maxargs, al->token_cnt - 1);
+        diag_error(al->token[al->token_cnt - 1], "too many operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->maxargs, al->token_cnt - 1);
         return false;
     }
     else if((al->token_cnt - 1) < opce->minargs)
     {
-        diag_error(&(al->token[al->token_cnt - 1]), "too few operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->minargs, al->token_cnt - 1);
+        diag_error(al->token[al->token_cnt - 1], "too few operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->minargs, al->token_cnt - 1);
         return false;
     }
 
@@ -374,18 +374,18 @@ bool assembler_emit(assembler_invocation_t *inv)
     for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
         /* checking for label */
-        if(inv->line[i].type == kAssemblerLineTypeGlobalLabel ||
-           inv->line[i].type == kAssemblerLineTypeLocalLabel)
+        if(inv->line[i]->type == kAssemblerLineTypeGlobalLabel ||
+           inv->line[i]->type == kAssemblerLineTypeLocalLabel)
         {
             /* insert into labels */
-            if(!assembler_label_append(&(inv->line[i].token[0])))
+            if(!assembler_label_append(inv->line[i]->token[0]))
             {
                 return false;
             }
         }
-        else if(inv->line[i].type == kAssemblerLineTypeAssembly)
+        else if(inv->line[i]->type == kAssemblerLineTypeAssembly)
         {
-            if(!assembler_emit_line(&(inv->line[i])))
+            if(!assembler_emit_line(inv->line[i]))
             {
                 return false;
             }

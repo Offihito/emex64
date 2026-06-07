@@ -47,45 +47,45 @@ bool assembler_section_parse(assembler_invocation_t *inv)
     /* iterating for section token type and creating data section */
     for(unsigned long i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == kAssemblerLineTypeSection)
+        if(inv->line[i]->type == kAssemblerLineTypeSection)
         {
-            if(strcmp(inv->line[i].token[1].str, ".data") == 0)
+            if(strcmp(inv->line[i]->token[1]->str, ".data") == 0)
             {
                 /* so relocation never breaks */
                 fdwalker_align_byte(inv->fdwalker);
 
                 /* iterating till section data is over */
                 i++;
-                for(; i < inv->line_cnt && inv->line[i].type == kAssemblerLineTypeSectionData; i++)
+                for(; i < inv->line_cnt && inv->line[i]->type == kAssemblerLineTypeSectionData; i++)
                 {
                     /* checking count */
-                    if(inv->line[i].token_cnt < 3)
+                    if(inv->line[i]->token_cnt < 3)
                     {
-                        diag_error(&(inv->line[i].token[inv->line[i].token_cnt - 1]), "insufficient tokens for entry in .data section\n");
+                        diag_error(inv->line[i]->token[inv->line[i]->token_cnt - 1], "insufficient tokens for entry in .data section\n");
                         return false;
                     }
 
                     /* inserting address as label */
-                    inv->label[inv->label_cnt].name = strdup(inv->line[i].token[0].str);
+                    inv->label[inv->label_cnt].name = strdup(inv->line[i]->token[0]->str);
                     inv->label[inv->label_cnt++].addr = fdwalker_bytes_used(inv->fdwalker);
 
                     /* checking if its known */
                     int dbs = 8;
-                    if(strcmp(inv->line[i].token[1].str, "dw") == 0)
+                    if(strcmp(inv->line[i]->token[1]->str, "dw") == 0)
                     {
                         dbs = 16;
                     }
-                    else if(strcmp(inv->line[i].token[1].str, "dd") == 0)
+                    else if(strcmp(inv->line[i]->token[1]->str, "dd") == 0)
                     {
                         dbs = 32;
                     }
-                    else if(strcmp(inv->line[i].token[1].str, "dq") == 0)
+                    else if(strcmp(inv->line[i]->token[1]->str, "dq") == 0)
                     {
                         dbs = 64;
                     }
-                    else if(strcmp(inv->line[i].token[1].str, "df") == 0)
+                    else if(strcmp(inv->line[i]->token[1]->str, "df") == 0)
                     {
-                        const char *base_file_path = inv->file[inv->line[i].file_idx]->path;
+                        const char *base_file_path = inv->file[inv->line[i]->file_idx]->path;
 
                         /* need directory path */
                         char base_dir[PATH_MAX];
@@ -109,10 +109,10 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                         }
 
                         /* iterating through the chain */
-                        for(unsigned long a = 2; a < inv->line[i].token_cnt; a++)
+                        for(unsigned long a = 2; a < inv->line[i]->token_cnt; a++)
                         {
                             /* using low level type parser */
-                            parser_return_t pr = parse_value_from_string(inv->line[i].token[a].str);
+                            parser_return_t pr = parse_value_from_string(inv->line[i]->token[a]->str);
 
                             /* checking type */
                             if(pr.type == emexParserValueTypeBuffer)
@@ -125,7 +125,7 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                                 int n = snprintf(joined, sizeof(joined), "%s/%s", base_dir, path_component);
                                 if(n < 0 || n >= (int)sizeof(joined))
                                 {
-                                    diag_error(&inv->line[i].token[a], "path too long: %s\n", path_component);
+                                    diag_error(inv->line[i]->token[a], "path too long: %s\n", path_component);
                                     free(path_component);
                                     return false;
                                 }
@@ -133,7 +133,7 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                                 char resolved[PATH_MAX];
                                 if(realpath(joined, resolved) == NULL)
                                 {
-                                    diag_error(&inv->line[i].token[a], "cannot resolve path \"%s\"\n", path_component);
+                                    diag_error(inv->line[i]->token[a], "cannot resolve path \"%s\"\n", path_component);
                                     free(path_component);
                                     return false;
                                 }
@@ -141,7 +141,7 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                                 emex_file_t *file = emex_file_alloc(resolved);
                                 if(file == NULL || !emex_file_open(file))
                                 {
-                                    diag_error(&inv->line[i].token[a], "cannot open file at \"%s\"\n", path_component);
+                                    diag_error(inv->line[i]->token[a], "cannot open file at \"%s\"\n", path_component);
                                     free(path_component);
                                     return false;
                                 }
@@ -154,23 +154,23 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                                 continue;
                             }
 
-                            diag_error(&(inv->line[i].token[1]), "not a file path \"%s\"\n", inv->line[i].token[1].str);
+                            diag_error(inv->line[i]->token[1], "not a file path \"%s\"\n", inv->line[i]->token[1]->str);
                             return false;
                         }
 
                         continue;
                     }
-                    else if(strcmp(inv->line[i].token[1].str, "db") != 0)
+                    else if(strcmp(inv->line[i]->token[1]->str, "db") != 0)
                     {
-                        diag_error(&(inv->line[i].token[1]), "invalid data type for .data section entry \"%s\"\n", inv->line[i].token[1].str);
+                        diag_error(inv->line[i]->token[1], "invalid data type for .data section entry \"%s\"\n", inv->line[i]->token[1]->str);
                         return false;
                     }
 
                     /* iterating through the chain */
-                    for(unsigned long a = 2; a < inv->line[i].token_cnt; a++)
+                    for(unsigned long a = 2; a < inv->line[i]->token_cnt; a++)
                     {
                         /* using low level type parser */
-                        parser_return_t pr = parse_value_from_string(inv->line[i].token[a].str);
+                        parser_return_t pr = parse_value_from_string(inv->line[i]->token[a]->str);
 
                         /* checking type */
                         if(pr.type == emexParserValueTypeBuffer)
@@ -183,7 +183,7 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                         {
                             if(dbs != 64)
                             {
-                                diag_error(&(inv->line[i].token[a]), "don't put labels inside improper data types, i watch you!\n");
+                                diag_error(inv->line[i]->token[a], "don't put labels inside improper data types, i watch you!\n");
                                 return false;
                             }
 
@@ -206,8 +206,8 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                                 rtbe = rtbe->next;
                             }
 
-                            rtbe->name = strdup(inv->line[i].token[a].str);
-                            rtbe->at_link = &(inv->line[i].token[a]);
+                            rtbe->name = strdup(inv->line[i]->token[a]->str);
+                            rtbe->at_link = inv->line[i]->token[a];
                             rtbe->byte_pos = inv->fdwalker->byte_pos;
                             rtbe->bit_idx = 0;
                             fdwalker_skip(inv->fdwalker, 64);
@@ -233,56 +233,56 @@ bool assembler_section_parse(assembler_invocation_t *inv)
     /* iterating for section token type and creating bss section */
     for(unsigned long i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == kAssemblerLineTypeSection)
+        if(inv->line[i]->type == kAssemblerLineTypeSection)
         {
-            if(strcmp(inv->line[i].token[1].str, ".bss") == 0)
+            if(strcmp(inv->line[i]->token[1]->str, ".bss") == 0)
             {
                 /* so relocation never breaks */
                 fdwalker_align_byte(inv->fdwalker);
                 
                 /* finding variable type */
                 i++;
-                for(; i < inv->line_cnt && inv->line[i].type == kAssemblerLineTypeSectionData; i++)
+                for(; i < inv->line_cnt && inv->line[i]->type == kAssemblerLineTypeSectionData; i++)
                 {
                     /* checking count */
-                    if(inv->line[i].token_cnt != 3)
+                    if(inv->line[i]->token_cnt != 3)
                     {
-                        diag_error(&(inv->line[i].token[inv->line[i].token_cnt - 1]), "insufficient or too many tokens for entry in .bss section\n");
+                        diag_error(inv->line[i]->token[inv->line[i]->token_cnt - 1], "insufficient or too many tokens for entry in .bss section\n");
                         return false;
                     }
 
                     /* insert label into label array */
-                    inv->label[inv->label_cnt].name = strdup(inv->line[i].token[0].str);
+                    inv->label[inv->label_cnt].name = strdup(inv->line[i]->token[0]->str);
                     inv->label[inv->label_cnt++].addr = fdwalker_bytes_used(inv->fdwalker);
 
                     /* find out size */
                     int dbs = 8;
-                    if(strcmp(inv->line[i].token[1].str, "dw") == 0)
+                    if(strcmp(inv->line[i]->token[1]->str, "dw") == 0)
                     {
                         dbs = 16;
                     }
-                    else if(strcmp(inv->line[i].token[1].str, "dd") == 0)
+                    else if(strcmp(inv->line[i]->token[1]->str, "dd") == 0)
                     {
                         dbs = 32;
                     }
-                    else if(strcmp(inv->line[i].token[1].str, "dq") == 0)
+                    else if(strcmp(inv->line[i]->token[1]->str, "dq") == 0)
                     {
                         dbs = 64;
                     }
-                    else if(strcmp(inv->line[i].token[1].str, "db") != 0)
+                    else if(strcmp(inv->line[i]->token[1]->str, "db") != 0)
                     {
-                        diag_error(&(inv->line[i].token[1]), "invalid data type for .bss section entry \"%s\"\n", inv->line[i].token[1].str);
+                        diag_error(inv->line[i]->token[1], "invalid data type for .bss section entry \"%s\"\n", inv->line[i]->token[1]->str);
                         return false;
                     }
 
                     /* offset image address by value */
-                    parser_return_t pr = parse_value_from_string(inv->line[i].token[2].str);
+                    parser_return_t pr = parse_value_from_string(inv->line[i]->token[2]->str);
 
                     /* checking if the type makes sense */
                     /* imagine you read that comment and you realise that you had the same idea before */
                     if(pr.type != emexParserValueTypeNumber)
                     {
-                        diag_error(&(inv->line[i].token[2]), "invalid size for .bss section entry \"%s\"\n", inv->line[i].token[2].str);
+                        diag_error(inv->line[i]->token[2], "invalid size for .bss section entry \"%s\"\n", inv->line[i]->token[2]->str);
                         return false;
                     }
 

@@ -85,7 +85,7 @@ bool assembler_code_parse(assembler_invocation_t *inv,
     }
 
     /* copy each line */
-    inv->line = calloc(total_lines, sizeof(assembler_line_t));
+    inv->line = calloc(total_lines, sizeof(assembler_line_t*));
     inv->line_cnt = 0;
     for(size_t a = 0; a < inv->file_cnt; a++)
     {
@@ -102,14 +102,16 @@ bool assembler_code_parse(assembler_invocation_t *inv,
                 size_t len = end_off - start_off;
 
                 /* allocate and copy line string */
-                inv->line[inv->line_cnt].str = malloc(len + 1);
-                memcpy(inv->line[inv->line_cnt].str, &(inv->file[a]->code[start_off]), len);
-                inv->line[inv->line_cnt].str[len] = '\0';
+                assembler_line_t *al = calloc(1, sizeof(assembler_line_t));
+                al->str = malloc(len + 1);
+                memcpy(al->str, &(inv->file[a]->code[start_off]), len);
+                al->str[len] = '\0';
 
                 /* store diagnostic info */
-                inv->line[inv->line_cnt].line_num = ++file_line_cnt;
-                inv->line[inv->line_cnt].file_idx = a;
-                inv->line[(inv->line_cnt)++].inv = inv;
+                al->line_num = ++file_line_cnt;
+                al->file_idx = a;
+                al->inv = inv;
+                inv->line[inv->line_cnt++] = al;
                 start_off = i + 1;
             }
         }
@@ -119,31 +121,33 @@ bool assembler_code_parse(assembler_invocation_t *inv,
     for(unsigned long i = 0; i < inv->line_cnt; i++)
     {
         /* using cmptok in first pass to get token count */
-        for(cmptok_token_t token = cmptok(inv->line[i].str); token.token != NULL;)
+        for(cmptok_token_t token = cmptok(inv->line[i]->str); token.token != NULL;)
         {
             /*
              * until this is not null i will not move
              * anywhere else than my safe space which
              * is this while loop :3
              */
-            inv->line[i].token_cnt++;
+            inv->line[i]->token_cnt++;
             token = cmptok(NULL);
         }
 
         /* copy subtokens */
-        inv->line[i].token = calloc(inv->line[i].token_cnt, sizeof(assembler_token_t));
-        inv->line[i].token_cnt = 0;
+        inv->line[i]->token = calloc(inv->line[i]->token_cnt, sizeof(assembler_token_t*));
+        inv->line[i]->token_cnt = 0;
 
         /*
          * again doing the same dance, over and over
          * and over again, is this a carousell or
          * why am I getting ill rn.
          */
-        for(cmptok_token_t token = cmptok(inv->line[i].str); token.token != NULL;)
+        for(cmptok_token_t token = cmptok(inv->line[i]->str); token.token != NULL;)
         {
-            inv->line[i].token[inv->line[i].token_cnt].str = strdup(token.token);
-            inv->line[i].token[inv->line[i].token_cnt].column_num = token.column + 1;
-            inv->line[i].token[inv->line[i].token_cnt++].al = &(inv->line[i]);
+            assembler_token_t *at = calloc(1, sizeof(assembler_token_t));
+            at->str = strdup(token.token);
+            at->column_num = token.column + 1;
+            at->al = inv->line[i];
+            inv->line[i]->token[inv->line[i]->token_cnt++] = at;
             token = cmptok(NULL);
         }
     }
@@ -152,15 +156,15 @@ bool assembler_code_parse(assembler_invocation_t *inv,
     bool section_mode = false;
     for(unsigned long i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].token_cnt == 0)
+        if(inv->line[i]->token_cnt == 0)
         {
             /* probably a whitespace */
             continue;
         }
-        else if(inv->line[i].token_cnt < 2)
+        else if(inv->line[i]->token_cnt < 2)
         {
             /* getting size of subtoken */
-            size_t size = strlen(inv->line[i].token[0].str);
+            size_t size = strlen(inv->line[i]->token[0]->str);
             if(size == 0)
             {
                 /* invalid size */
@@ -171,7 +175,7 @@ bool assembler_code_parse(assembler_invocation_t *inv,
              * checking if last character of token is a ':',
              * because that means that its a label.
              */
-            if(inv->line[i].token[0].str[size - 1] == ':')
+            if(inv->line[i]->token[0]->str[size - 1] == ':')
             {
                 section_mode = false;
 
@@ -184,32 +188,33 @@ bool assembler_code_parse(assembler_invocation_t *inv,
                  *       '.example' is a local label which can only
                  *       be called within the same global label's code. 
                  */
-                switch(inv->line[i].token[0].str[0])
+                switch(inv->line[i]->token[0]->str[0])
                 {
                     case '_':
-                        inv->line[i].type = kAssemblerLineTypeGlobalLabel;
+                        inv->line[i]->type = kAssemblerLineTypeGlobalLabel;
                         break;
                     case '.':
-                        inv->line[i].type = kAssemblerLineTypeLocalLabel;
+                        inv->line[i]->type = kAssemblerLineTypeLocalLabel;
                         break;
                     default:
-                        diag_error(&(inv->line[i].token[0]), "illegal label definition \"%s\"\n", inv->line[i].token[0].str);
+                        diag_error(inv->line[i]->token[0], "illegal label definition \"%s\"\n", inv->line[i]->token[0]->str);
                         return false;
                 }
 
                 continue;
             }
         }
-        else if(inv->line[i].token_cnt < 3 && strcmp(inv->line[i].token[0].str, "section") == 0)
+        
+        if(inv->line[i]->token_cnt < 3 && strcmp(inv->line[i]->token[0]->str, "section") == 0)
         {
             section_mode = true;
-            inv->line[i].type = kAssemblerLineTypeSection;
+            inv->line[i]->type = kAssemblerLineTypeSection;
             continue;
         }
-        else if(strcmp(inv->line[i].token[0].str, "%define%") == 0)
+        else if(strcmp(inv->line[i]->token[0]->str, "%define%") == 0)
         {
             section_mode = false;
-            inv->line[i].type = kAssemblerLineTypeMacroDef;
+            inv->line[i]->type = kAssemblerLineTypeMacroDefinition;
             continue;
         }
 
@@ -218,7 +223,7 @@ bool assembler_code_parse(assembler_invocation_t *inv,
          * assembly, this is a very important
          * differentiation. 
          */
-        inv->line[i].type = section_mode ? kAssemblerLineTypeSectionData : kAssemblerLineTypeAssembly;
+        inv->line[i]->type = section_mode ? kAssemblerLineTypeSectionData : kAssemblerLineTypeAssembly;
     }
 
     /*

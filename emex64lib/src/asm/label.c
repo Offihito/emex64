@@ -46,9 +46,9 @@ bool assembler_label_prealloc(assembler_invocation_t *inv)
     inv->label_cnt = 1;
     for(uint64_t i = 0; i < inv->line_cnt; i++)
     {
-        if(inv->line[i].type == kAssemblerLineTypeGlobalLabel ||
-           inv->line[i].type == kAssemblerLineTypeLocalLabel ||
-           inv->line[i].type == kAssemblerLineTypeSectionData)
+        if(inv->line[i]->type == kAssemblerLineTypeGlobalLabel ||
+           inv->line[i]->type == kAssemblerLineTypeLocalLabel ||
+           inv->line[i]->type == kAssemblerLineTypeSectionData)
         {
             (inv->label_cnt)++;
         }

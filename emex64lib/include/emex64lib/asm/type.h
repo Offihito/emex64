@@ -38,7 +38,7 @@ enum kAssemblerLineType: uint8_t {
     kAssemblerLineTypeLocalLabel,
     kAssemblerLineTypeSection,
     kAssemblerLineTypeSectionData,
-    kAssemblerLineTypeMacroDef
+    kAssemblerLineTypeMacroDefinition,
 };
 
 typedef struct assembler_token {
@@ -50,7 +50,7 @@ typedef struct assembler_token {
 typedef struct assembler_line {
     char *str;
     enum kAssemblerLineType type;           /* type of line */
-    struct assembler_token *token;          /* subtokens */
+    struct assembler_token **token;         /* subtokens */
     uint64_t token_cnt;                     /* count of subtokens */
     size_t line_num;                        /* line number in file */   
     size_t file_idx;                        /* index of file in compiler invocation */
