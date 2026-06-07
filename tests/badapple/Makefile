@@ -1,8 +1,8 @@
 # Makefile
 
-all: minimal doit
+all: full doit
 all-benchmark: benchmark doit
-all-full: full doit
+all-minimal: minimal doit
 
 doit: execute clean
 
