@@ -8,7 +8,7 @@ section .data
     msg db "hello\r\n\0"
 
 _start:
-    mov r0, 8   ; compilation must be using -fno_page_align, because then the string starts 8 bytes right after null
+    mov r0, msg
 .loop:
     ldb r1, r0
 .retry:

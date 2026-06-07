@@ -32,6 +32,7 @@
 #include <emex64lib/support/diag.h>
 
 #include <emex64lib/asm/label.h>
+#include <emex64lib/asm/emit.h>
 
 bool assembler_label_prealloc(assembler_invocation_t *inv)
 {
@@ -156,9 +157,9 @@ bool assembler_label_insert_start_entry(assembler_invocation_t *inv)
     }
 
     /* writing start address into the start of the image */
-    fdwalker_t fw = *(inv->fdwalker);
-    fdwalker_seek(&fw, 0, 0);
-    fdwalker_write(&fw, label->addr, 64);
+    fdwalker_seek(inv->fdwalker, 0, 0);
+    assembler_emit_opcode(inv, kEmex64OpcodeB);
+    assembler_emit_imm64(inv, label->addr);
 
     return true;
 }

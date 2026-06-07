@@ -62,7 +62,7 @@ assembler_invocation_t *assembler_invocation_alloc(const char *output_path)
     }
 
     fdwalker_init(inv->fdwalker, fd, BW_LITTLE_ENDIAN);
-    fdwalker_seek(inv->fdwalker, 8, 0);
+    fdwalker_seek(inv->fdwalker, 10, 0);
 
     /* setting default values */
     inv->options = assembler_options_default();

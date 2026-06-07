@@ -95,17 +95,7 @@ int main(int argc, char *argv[])
         diag_error(NULL, "failed to load firmware image\n");
         return 1;
     }
-
-    /*
-     * getting entry point of boot image of virtual machine
-     * and setting program pointer of first core to it
-     */
-    bitwalker_t bw;
-    bitwalker_init_read(&bw, machine->memory->memory, 8, BW_LITTLE_ENDIAN);
-    machine->core->rl[kEmex64RegisterPC] = bitwalker_read(&bw, 64);
-    machine->core->rl[kEmex64RegisterSP] = machine->memory->memory_size - 8;
-    machine->core->rl[kEmex64RegisterCR0] = kEmex64ElevationLevelSecureMonitor;
-
+    
     /* executing virtual machines 1st core TODO: Implement threading */
     emex64_core_execute(machine->core);
 

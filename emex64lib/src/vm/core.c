@@ -126,6 +126,8 @@ emex64_core_t *emex64_core_alloc()
         return NULL;
     }
 
+    core->rl[kEmex64RegisterCR0] = kEmex64ElevationLevelSecureMonitor;
+
     return core;
 }
 
