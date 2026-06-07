@@ -28,10 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/*
-#define EMEX64_MC_REG_KTRR_SIZE     0x08
-#define EMEX64_MC_REG_KTRR_LOCKED   0x0F*/
-
 uint64_t emex64_mc_read(emex64_core_t *core,
                         void *device,
                         uint64_t offset,
@@ -60,8 +56,6 @@ void emex64_mc_write(emex64_core_t *core,
         if(core->machine->memory->ktrr_locked)
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
-            printf("PINGO!\n");
-            fflush(stdout);
             return;
         }
 
@@ -72,8 +66,6 @@ void emex64_mc_write(emex64_core_t *core,
         if(core->machine->memory->ktrr_locked)
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
-            printf("PINGO!\n");
-            fflush(stdout);
             return;
         }
 
