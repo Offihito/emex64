@@ -1,38 +1,39 @@
 # Makefile
+ASM = emex64asm
+LD = emex64ld
+VM = emex64vm
 
-all: full doit
-all-benchmark: benchmark doit
-all-minimal: minimal doit
+# firmware headers
+INCDIR = $(abspath ./../emexFirmware/inc)
 
-doit: execute clean
+ASMFLAGS = -fno_page_align -I$(INCDIR)
+LDSCRIPT = $(abspath ./../emexFirmware/emex64.e64ld)
 
-minimal:
-	emex64asm -o badapple src/*.e64 -fno_page_align
+SRCDIR = src
+BUILDDIR = build
+TARGET = $(BUILDDIR)/emex64fw
 
-benchmark:
-	emex64asm \
-		-o badapple \
-		src/*.e64 \
-	    ../emexFirmware/src/uart.e64 \
-	    ../emexFirmware/src/put.e64 \
-	    ../emexFirmware/src/gui.e64 \
-	    ../emexFirmware/src/font.e64 \
-	    -fno_page_align \
-	    -DBENCHMARK="1"
+SRCS = $(wildcard $(SRCDIR)/*.e64)
+OBJS = $(patsubst $(SRCDIR)/%.e64,$(BUILDDIR)/%.e64o,$(SRCS))
 
-full:
-	emex64asm \
-		-o badapple \
-		src/*.e64 \
-		../emexFirmware/src/interrupt.e64 \
-		../emexFirmware/src/pmm.e64 \
-		../emexFirmware/src/mem.e64 \
-		../emexFirmware/src/mc.e64 \
-		-fno_page_align \
-		-DFULL="1"
+LINK_ORDER = \
+    $(BUILDDIR)/badapple.e64o
+
+all: compile execute
+
+compile: $(TARGET)
+
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
+
+$(BUILDDIR)/%.e64o: $(SRCDIR)/%.e64 | $(BUILDDIR)
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+$(TARGET): $(LINK_ORDER) $(LDSCRIPT)
+	$(LD) -T $(LDSCRIPT) -o $@ $(LINK_ORDER)
 
 execute:
-	emex64vm --firmware ./badapple
+	$(VM) --firmware $(TARGET)
 
 clean:
-	rm -rf badapple
+	rm -rf $(BUILDDIR)
