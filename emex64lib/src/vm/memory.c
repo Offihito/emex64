@@ -152,7 +152,7 @@ bool emex64_memory_read(emex64_core_t *core,
                         size_t size,
                         uint64_t *value)
 {
-    if(unlikely(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_READ, &addr)))
+    if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessRead, &addr)))
     {
         /* MMU wrote exception */
         return false;
@@ -202,7 +202,7 @@ bool emex64_memory_write(emex64_core_t *core,
                          uint64_t value,
                          size_t size)
 {
-    if(unlikely(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_WRITE, &addr)))
+    if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessWrite, &addr)))
     {
         /* MMU wrote exception */
         return false;

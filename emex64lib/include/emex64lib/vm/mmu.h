@@ -27,27 +27,32 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include <emex64lib/vm/core.h>
 
-/* page table entry flags */
-#define EMEX64_MMU_PT_PRESENT         0b00000001  /* marks a PTE or PXD as present */
-#define EMEX64_MMU_PT_USER            0b00000010  /* marks a PTE as user accessible, meaning user mode can access that page */
-#define EMEX64_MMU_PT_DIRTY           0b00000100  /* marks a PTE as dirty, writes on it cause a page fault TODO: to be implemented */
-#define EMEX64_MMU_PT_READ            0b00001000  /* marks a PTE as readable */
-#define EMEX64_MMU_PT_WRITE           0b00010000  /* marks a PTE as writable (most MMU's don't have that, but this one does) */
-#define EMEX64_MMU_PT_EXEC            0b00100000  /* marks a PTE as executable (means the CPU core can fetch instructions from it and execute them) */
-#define EMEX64_MMU_PT_ACCESSED        0b01000000  /* marks a PTE as accessed (MMU sets this bit when this has been accessed) */
+/* page table entry bit flags */
+typedef enum: uint8_t {
+    kEmex64MMUPTPresent =   0b00000001, /* marks a PTE or PXD as present */
+    kEmex64MMUPTUser =      0b00000010, /* marks a PTE as user accessible, meaning user mode can access that page */
+    kEmex64MMUPTDirty =     0b00000100, /* marks a PTE as dirty, writes on it cause a page fault TODO: to be implemented */
+    kEmex64MMUPTRead =      0b00001000, /* marks a PTE as readable */
+    kEmex64MMUPTWrite =     0b00010000, /* marks a PTE as writable (most MMU's don't have that, but this one does) */
+    kEmex64MMUPTExec =      0b00100000, /* marks a PTE as executable (means the CPU core can fetch instructions from it and execute them) */
+    kEmex64MMUPTAccessed =  0b01000000, /* marks a PTE as accessed (MMU sets this bit when this has been accessed) */
+} kEmex64MMUPT;
+
+/* access types */
+typedef enum: uint8_t {
+    kEmex64MMUAccessPageDirectory = 0b00000000, /* MARK: this is a internal private type, don't use it outside of mmu.c */
+    kEmex64MMUAccessRead =          kEmex64MMUPTRead,
+    kEmex64MMUAccessWrite =         kEmex64MMUPTWrite,
+    kEmex64MMUAccessExec =          kEmex64MMUPTExec
+} kEmex64MMUAccess;
 
 /* page table enry masks */
 #define EMEX64_MMU_MASK_FLAGS         0b0000000000000000000000000000000000000000000000000000000011111111
 #define EMEX64_MMU_MASK_PFN           0b1111111111111111111111111111111111111111111111111111111100000000
 
-/* access types */
-#define EMEX64_MMU_ACC_PXD            0   /* MARK: this is a internal private type, don't use it outside of mmu.c */
-#define EMEX64_MMU_ACC_READ           EMEX64_MMU_PT_READ
-#define EMEX64_MMU_ACC_WRITE          EMEX64_MMU_PT_WRITE
-#define EMEX64_MMU_ACC_EXEC           EMEX64_MMU_PT_EXEC
-
-bool emex64_mmu_access(emex64_core_t *core, uint64_t vaddr, uint8_t acc, uint64_t *paddr);
+bool emex64_mmu_access(emex64_core_t *core, uint64_t vaddr, kEmex64MMUAccess acc, uint64_t *paddr);
 
 #endif /* EMEX64VM_MMU_H */

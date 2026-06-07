@@ -53,7 +53,7 @@ static inline emex64_mmu_entry_lookup_t emex64_mmu_lookup_pte(emex64_core_t *cor
     uint64_t *pt = (uint64_t*)&core->machine->memory->memory[pt_addr];
     uint64_t *pte = &pt[idx];
 
-    if(unlikely(!((*pte & EMEX64_MMU_MASK_FLAGS) & EMEX64_MMU_PT_PRESENT)))
+    if(unlikely(!((*pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent)))
     {
         return (emex64_mmu_entry_lookup_t){ .fail = true, .pte = NULL };
     }
@@ -64,7 +64,7 @@ static inline emex64_mmu_entry_lookup_t emex64_mmu_lookup_pte(emex64_core_t *cor
 static inline bool emex64_mmu_access_pxd(emex64_core_t *core,
                                          uint64_t pt_addr,
                                          uint16_t pxd_idx,
-                                         uint8_t acc,
+                                         kEmex64MMUAccess acc,
                                          uint64_t *oaddr)
 {
     emex64_mmu_entry_lookup_t lookup = emex64_mmu_lookup_pte(core, pt_addr, pxd_idx);
@@ -74,7 +74,7 @@ static inline bool emex64_mmu_access_pxd(emex64_core_t *core,
     }
 
     uint64_t mmu_flags = 0;
-    if(acc != EMEX64_MMU_ACC_PXD)
+    if(acc != kEmex64MMUAccessPageDirectory)
     {
         uint8_t checkflg = acc;
 
@@ -85,7 +85,7 @@ static inline bool emex64_mmu_access_pxd(emex64_core_t *core,
          */
         if(core->rl[kEmex64RegisterCR0] < kEmex64ElevationLevelKernel)
         {
-            checkflg |= EMEX64_MMU_PT_USER;
+            checkflg |= kEmex64MMUPTUser;
         }
 
         /* initial flag check */
@@ -105,15 +105,15 @@ static inline bool emex64_mmu_access_pxd(emex64_core_t *core,
 
     switch(acc)
     {
-        case EMEX64_MMU_ACC_PXD:
+        case kEmex64MMUAccessPageDirectory:
             /* not a normal page access */
             break;
-        case EMEX64_MMU_ACC_WRITE:
-            mmu_flags |= EMEX64_MMU_PT_DIRTY;
+        case kEmex64MMUAccessWrite:
+            mmu_flags |= kEmex64MMUPTDirty;
             /* fallthrough */
-        case EMEX64_MMU_ACC_READ:
-        case EMEX64_MMU_ACC_EXEC:
-            mmu_flags |= EMEX64_MMU_PT_ACCESSED;
+        case kEmex64MMUAccessRead:
+        case kEmex64MMUAccessExec:
+            mmu_flags |= kEmex64MMUPTAccessed;
             *(lookup.pte) = (*(lookup.pte) & ~EMEX64_MMU_MASK_FLAGS) | mmu_flags;
     }
 
@@ -124,7 +124,7 @@ static inline bool emex64_mmu_access_pxd(emex64_core_t *core,
 
 bool emex64_mmu_access(emex64_core_t *core,
                        uint64_t vaddr,
-                       uint8_t acc,
+                       kEmex64MMUAccess acc,
                        uint64_t *paddr)
 {
     /* vaddr cannot be bigger than 53bits */
@@ -144,7 +144,7 @@ bool emex64_mmu_access(emex64_core_t *core,
      * control register.. for simplicity we do that hahaha.
      */
     uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
-    if(!((cr_pte & EMEX64_MMU_MASK_FLAGS) & EMEX64_MMU_PT_PRESENT) || core->in_interrupt)
+    if(!((cr_pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) || core->in_interrupt)
     {
         /* incase paging is disabled virtual addresses are physical ones */
         *paddr = vaddr;
@@ -166,9 +166,9 @@ bool emex64_mmu_access(emex64_core_t *core,
     uint64_t pud_addr, pmd_addr, pte_addr, physaddr;
 
     /* now access each table */
-    if(!emex64_mmu_access_pxd(core, pgd_addr, pgd_index, EMEX64_MMU_ACC_PXD, &pud_addr) ||
-       !emex64_mmu_access_pxd(core, pud_addr, pud_index, EMEX64_MMU_ACC_PXD, &pmd_addr) ||
-       !emex64_mmu_access_pxd(core, pmd_addr, pmd_index, EMEX64_MMU_ACC_PXD, &pte_addr) ||
+    if(!emex64_mmu_access_pxd(core, pgd_addr, pgd_index, kEmex64MMUAccessPageDirectory, &pud_addr) ||
+       !emex64_mmu_access_pxd(core, pud_addr, pud_index, kEmex64MMUAccessPageDirectory, &pmd_addr) ||
+       !emex64_mmu_access_pxd(core, pmd_addr, pmd_index, kEmex64MMUAccessPageDirectory, &pte_addr) ||
        !emex64_mmu_access_pxd(core, pte_addr, pte_index, acc, &physaddr))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionPageFault;
