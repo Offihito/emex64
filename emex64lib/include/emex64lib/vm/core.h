@@ -265,6 +265,14 @@ enum kEmex64Exception {
      * like for example N / 0 or N % 0.
      */
     kEmex64ExceptionBadArithmetic =     0b100,
+
+    /*
+     * when the MMU sees a page is dirty and a user program
+     * wants to write to it it will cause a page fault or
+     * when a page was accessed that is not accessible or
+     * not mapped.
+     */
+    kEmex64ExceptionPageFault =         0b101,
 };
 
 typedef struct emex64_core emex64_core_t;
