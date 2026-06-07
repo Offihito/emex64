@@ -60,7 +60,7 @@ _start:
     sub r0, 8
     mov sp, r0
 
-    bl _put_init
+    blw _put_init
     stw gui_line, 0
 
     stq TIMER_COMPARE, 0xFFFFFFFFFFFFFFFF   ; we need ticks
@@ -73,9 +73,9 @@ _start:
     sub r0, 8
     mov sp, r0
     
-    bl _pmm_init
-    bl _interrupt_init
-    bl _interrupt_register_handler, IRQ_TIMER, _timer_handler
+    blw _pmm_init
+    blw _interrupt_init
+    blw _interrupt_register_handler, IRQ_TIMER, _timer_handler
 
     ldq r0, TIMER_FREQ
     div r0, 30
@@ -145,9 +145,9 @@ _start:
 .end:
 %ifdef% BENCHMARK
     ldq r0, TIMER_COUNT
-    bl _puts, result_msg
-    bl _putbase, r0, 10
-    bl _putc, '\n'
+    blw _puts, result_msg
+    blw _putbase, r0, 10
+    blw _putc, '\n'
 
 .no_end:
     hlt
