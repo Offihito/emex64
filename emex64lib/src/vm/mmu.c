@@ -112,6 +112,8 @@ bool emex64_mmu_access(emex64_core_t *core,
     /* vaddr cannot be bigger than 53bits */
     if(vaddr >> 53)
     {
+        /* not a valid address to begin with */
+        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return false;
     }
 
@@ -151,6 +153,7 @@ bool emex64_mmu_access(emex64_core_t *core,
        !emex64_mmu_access_pxd(core, pmd_addr, pmd_index, EMEX64_MMU_ACC_PXD, &pte_addr) ||
        !emex64_mmu_access_pxd(core, pte_addr, pte_index, acc, &physaddr))
     {
+        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionPageFault;
         return false;
     }
 

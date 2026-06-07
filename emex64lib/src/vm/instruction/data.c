@@ -57,12 +57,7 @@ void emex64_op_push(emex64_core_t *core)
 
     for(uint8_t i = 0; i < core->op.param_cnt; i++)
     {
-        if(!emex64_memory_write(core, core->rl[kEmex64RegisterSP], *(core->op.param[i]), sizeof(uint64_t)))
-        {
-            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-            return;
-        }
-
+        emex64_memory_write(core, core->rl[kEmex64RegisterSP], *(core->op.param[i]), sizeof(uint64_t));
         core->rl[kEmex64RegisterSP] -= 8;
     }
 }
@@ -74,12 +69,7 @@ void emex64_op_pop(emex64_core_t *core)
     for(uint8_t i = 0; i < core->op.param_cnt; i++)
     {
         core->rl[kEmex64RegisterSP] += 8;
-
-        if(!emex64_memory_read(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), core->op.param[i]))
-        {
-            core->rl[kEmex64RegisterSP] = kEmex64ExceptionBadAccess;
-            return;
-        }
+        emex64_memory_read(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), core->op.param[i]);
     }
 }
 
@@ -87,86 +77,54 @@ void emex64_op_ldb(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!emex64_memory_read(core, *(core->op.param[1]), sizeof(uint8_t), core->op.param[0]))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
+    emex64_memory_read(core, *(core->op.param[1]), sizeof(uint8_t), core->op.param[0]);
 }
 
 void emex64_op_ldw(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!emex64_memory_read(core, *(core->op.param[1]), sizeof(uint16_t), core->op.param[0]))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
+    emex64_memory_read(core, *(core->op.param[1]), sizeof(uint16_t), core->op.param[0]);
 }
 
 void emex64_op_ldd(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!emex64_memory_read(core, *(core->op.param[1]), sizeof(uint32_t), core->op.param[0]))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
+    emex64_memory_read(core, *(core->op.param[1]), sizeof(uint32_t), core->op.param[0]);
 }
 
 void emex64_op_ldq(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!emex64_memory_read(core, *(core->op.param[1]), sizeof(uint64_t), core->op.param[0]))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
+    emex64_memory_read(core, *(core->op.param[1]), sizeof(uint64_t), core->op.param[0]);
 }
 
 void emex64_op_stb(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint8_t)))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
+    emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint8_t));
 }
 
 void emex64_op_stw(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint16_t)))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
+    emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint16_t));
 }
 
 void emex64_op_std(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint32_t)))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
+    emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint32_t));
 }
 
 void emex64_op_stq(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 2);
 
-    if(!emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint64_t)))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
+    emex64_memory_write(core, *(core->op.param[0]), *(core->op.param[1]), sizeof(uint64_t));
 }

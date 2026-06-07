@@ -32,6 +32,7 @@
 #include <assert.h>
 
 #include <emex64lib/support/diag.h>
+#include <emex64lib/support/likely.h>
 
 #include <emex64lib/vm/memory.h>
 #include <emex64lib/vm/core.h>
@@ -151,8 +152,9 @@ bool emex64_memory_read(emex64_core_t *core,
                         size_t size,
                         uint64_t *value)
 {
-    if(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_READ, &addr))
+    if(unlikely(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_READ, &addr)))
     {
+        /* MMU wrote exception */
         return false;
     }
 
@@ -160,7 +162,7 @@ bool emex64_memory_read(emex64_core_t *core,
     emex64_mmio_region_t *mmio = emex64_mmio_find(core->machine->mmio_bus, addr);
     if(mmio != NULL)
     {
-        if(mmio->read != NULL)
+        if(unlikely(mmio->read != NULL))
         {
             *value = mmio->read(core, mmio->device, addr - mmio->base_addr, (int)size);
             return true;
@@ -171,6 +173,7 @@ bool emex64_memory_read(emex64_core_t *core,
     void *ptr = emex64_memory_access(core, addr, size);
     if(ptr == NULL)
     {
+        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return false;
     }
 
@@ -189,6 +192,7 @@ bool emex64_memory_read(emex64_core_t *core,
             *value = *(uint64_t *)ptr;
             return true;
         default:
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
             return false;
     }
 }
@@ -198,8 +202,9 @@ bool emex64_memory_write(emex64_core_t *core,
                          uint64_t value,
                          size_t size)
 {
-    if(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_WRITE, &addr))
+    if(unlikely(!emex64_mmu_access(core, addr, EMEX64_MMU_ACC_WRITE, &addr)))
     {
+        /* MMU wrote exception */
         return false;
     }
 
@@ -207,7 +212,7 @@ bool emex64_memory_write(emex64_core_t *core,
     emex64_mmio_region_t *mmio = emex64_mmio_find(core->machine->mmio_bus, addr);
     if(mmio != NULL)
     {
-        if(mmio->write != NULL)
+        if(unlikely(mmio->write != NULL))
         {
             mmio->write(core, mmio->device, addr - mmio->base_addr, value, (int)size);
             return true;
@@ -216,8 +221,9 @@ bool emex64_memory_write(emex64_core_t *core,
     }
 
     void *ptr = emex64_memory_access(core, addr, size);
-    if(ptr == NULL)
+    if(unlikely(ptr == NULL))
     {
+        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return false;
     }
 
@@ -236,6 +242,7 @@ bool emex64_memory_write(emex64_core_t *core,
             *(uint64_t *)ptr = value;
             return true;
         default:
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
             return false;
     }
 }
