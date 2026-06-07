@@ -102,10 +102,10 @@ bool assembler_invocation_emit(assembler_invocation_t *inv,
 
     /* generating tokens,labels,sections out of the code */
     if(!assembler_code_preparse(inv, (const char **)filev, filec) ||
+       !assembler_macro_expand(inv) ||
        !assembler_code_parse(inv) ||
        !assembler_label_prealloc(inv) ||
        !assembler_section_parse(inv) ||
-       !assembler_macro_expand(inv) ||
        !assembler_emit(inv) ||
        !assembler_label_insert_start_entry(inv))
     {
