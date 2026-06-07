@@ -134,6 +134,7 @@ bool assembler_macro_expand(assembler_invocation_t *inv)
     /* expand macro conditions */
     bool in_a_condition = false;
     bool condition_met = false;
+    bool in_a_else_condition = false;
     assembler_line_t *last_condition_line = NULL;
 
     for(uint64_t li = 0; li < inv->line_cnt; li++)
@@ -192,7 +193,13 @@ bool assembler_macro_expand(assembler_invocation_t *inv)
                     diag_error(inv->line[li]->token[0], "%%else%% was defined but no %%if%% was defined prior.\n");
                     return false;
                 }
+                else if(in_a_else_condition)
+                {
+                    diag_error(inv->line[li]->token[0], "%%else%% was defined after another %%else%%.\n");
+                    return false;
+                }
                 condition_met = !condition_met;
+                in_a_else_condition = true;
             }
             else if(strcmp(inv->line[li]->token[0]->str, "%endif%") == 0)
             {
@@ -203,6 +210,7 @@ bool assembler_macro_expand(assembler_invocation_t *inv)
                 }
                 in_a_condition = false;
                 condition_met = false;
+                in_a_else_condition = false;
             }
 
             last_condition_line = inv->line[li];
