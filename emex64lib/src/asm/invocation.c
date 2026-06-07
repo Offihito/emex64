@@ -104,19 +104,9 @@ bool assembler_invocation_emit(assembler_invocation_t *inv,
     if(!assembler_code_parse(inv, (const char **)filev, filec) ||
        !assembler_label_prealloc(inv) ||
        !assembler_section_parse(inv) ||
-       !assembler_macro_expand(inv))
-    {
-        return false;
-    }
-
-    /* finally compiling it to machine code */
-    if(!assembler_emit(inv))
-    {
-        return false;
-    }
-
-    /* insert entry */
-    if(!assembler_label_insert_start_entry(inv))
+       !assembler_macro_expand(inv) ||
+       !assembler_emit(inv) ||
+       !assembler_label_insert_start_entry(inv))
     {
         return false;
     }
