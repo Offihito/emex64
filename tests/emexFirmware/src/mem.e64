@@ -42,5 +42,5 @@ _memcpy:
     inc r0, r1
 .loop_continue:
     cmp r0, r3
-    ble .loop
+    blt .loop
     wret

@@ -280,7 +280,7 @@ void emex64_op_inc(emex64_core_t *core)
     uint8_t param_cnt = core->op.param_cnt;
     uint64_t **param_list = core->op.param;
 
-    emex64_instr_termcond(param_cnt != 1);
+    emex64_instr_termcond(param_cnt < 1);
 
     for(uint8_t i = 0; i < param_cnt; i++)
     {
@@ -293,7 +293,7 @@ void emex64_op_dec(emex64_core_t *core)
     uint8_t param_cnt = core->op.param_cnt;
     uint64_t **param_list = core->op.param;
 
-    emex64_instr_termcond(param_cnt != 1);
+    emex64_instr_termcond(param_cnt < 1);
 
     for(uint8_t i = 0; i < param_cnt; i++)
     {
