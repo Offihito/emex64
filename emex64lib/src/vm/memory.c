@@ -133,8 +133,8 @@ void *emex64_memory_access(emex64_core_t *core,
                            uint64_t addr,
                            size_t size)
 {
-    assert(size != 0);
-    if(__builtin_expect((addr | size) >> 32 || addr + size > core->machine->memory->memory_size, 0))
+    uint64_t addr_end = addr + size;
+    if(addr >= addr_end || core->machine->memory->memory_size < addr_end)
     {
         return NULL;
     }
