@@ -86,7 +86,7 @@ void emex64_memory_dealloc(emex64_memory_t *memory);
 bool emex64_memory_load_image(emex64_memory_t *memory, const char *image_path);
 
 void *emex64_memory_access(emex64_core_t *core, uint64_t addr, size_t size);
-bool emex64_memory_read(emex64_core_t *core, uint64_t addr, size_t size, uint64_t *value);
-bool emex64_memory_write(emex64_core_t *core, uint64_t addr, uint64_t value, size_t size);
+void emex64_memory_read(emex64_core_t *core, uint64_t addr, size_t size, uint64_t *value);
+void emex64_memory_write(emex64_core_t *core, uint64_t addr, uint64_t value, size_t size);
 
 #endif /* EMEX64VM_MEMORY_H */

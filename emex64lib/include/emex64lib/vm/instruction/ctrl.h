@@ -51,12 +51,7 @@ void emex64_op_ret(emex64_core_t *core);
 
 static inline void emex64_push_il(emex64_core_t *core, uint64_t value)
 {
-    if(!emex64_memory_write(core, core->rl[kEmex64RegisterSP], value, sizeof(uint64_t)))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
-    }
-
+    emex64_memory_write(core, core->rl[kEmex64RegisterSP], value, sizeof(uint64_t));
     core->rl[kEmex64RegisterSP] -= 8;
 }
 
@@ -65,13 +60,7 @@ static inline uint64_t emex64_pop_il(emex64_core_t *core)
     core->rl[kEmex64RegisterSP] += 8;
 
     uint64_t value = 0;
-
-    if(!emex64_memory_read(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), &value))
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return 0;
-    }
-
+    emex64_memory_read(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), &value);
     return value;
 }
 

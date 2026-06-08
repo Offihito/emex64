@@ -145,7 +145,7 @@ void *emex64_memory_access(emex64_core_t *core,
     return &(core->machine->memory->memory[addr]);
 }
 
-bool emex64_memory_read(emex64_core_t *core,
+void emex64_memory_read(emex64_core_t *core,
                         uint64_t addr,
                         size_t size,
                         uint64_t *value)
@@ -153,49 +153,45 @@ bool emex64_memory_read(emex64_core_t *core,
     if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessRead, &addr)))
     {
         /* MMU wrote exception */
-        return false;
+        return;
     }
 
     /* MMIO devices exist ^^ */
     emex64_mmio_region_t *mmio = emex64_mmio_find(core->machine->mmio_bus, addr);
     if(mmio != NULL)
     {
-        if(unlikely(mmio->read != NULL))
-        {
-            *value = mmio->read(core, mmio->device, addr - mmio->base_addr, (int)size);
-            return true;
-        }
-        return false;
+        *value = unlikely(mmio->read != NULL)  ? mmio->read(core, mmio->device, addr - mmio->base_addr, (int)size) : 0;
+        return;
     }
 
     void *ptr = emex64_memory_access(core, addr, size);
     if(ptr == NULL)
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return false;
+        return;
     }
 
     switch(size)
     {
         case 1:
             *value = *(uint8_t *)ptr;
-            return true;
+            return;
         case 2:
             *value = *(uint16_t *)ptr;
-            return true;
+            return;
         case 4:
             *value = *(uint32_t *)ptr;
-            return true;
+            return;
         case 8:
             *value = *(uint64_t *)ptr;
-            return true;
+            return;
         default:
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-            return false;
+            return;
     }
 }
 
-bool emex64_memory_write(emex64_core_t *core,
+void emex64_memory_write(emex64_core_t *core,
                          uint64_t addr,
                          uint64_t value,
                          size_t size)
@@ -203,14 +199,14 @@ bool emex64_memory_write(emex64_core_t *core,
     if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessWrite, &addr)))
     {
         /* MMU wrote exception */
-        return false;
+        return;
     }
 
     /* checking against KTRR */
     if(unlikely(core->machine->memory->ktrr_size >= addr))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
-        return false;
+        return;
     }
 
     /* MMIO devices exist ^^ */
@@ -220,34 +216,33 @@ bool emex64_memory_write(emex64_core_t *core,
         if(unlikely(mmio->write != NULL))
         {
             mmio->write(core, mmio->device, addr - mmio->base_addr, value, (int)size);
-            return true;
         }
-        return false;
+        return;
     }
 
     void *ptr = emex64_memory_access(core, addr, size);
     if(unlikely(ptr == NULL))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return false;
+        return;
     }
 
     switch(size)
     {
         case 1:
             *(uint8_t *)ptr = (uint8_t)value;
-            return true;
+            return;
         case 2:
             *(uint16_t *)ptr = (uint16_t)value;
-            return true;
+            return;
         case 4:
             *(uint32_t *)ptr = (uint32_t)value;
-            return true;
+            return;
         case 8:
             *(uint64_t *)ptr = value;
-            return true;
+            return;
         default:
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-            return false;
+            return;
     }
 }
