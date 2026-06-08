@@ -171,6 +171,7 @@ void emex64_memory_read(emex64_core_t *core,
         return;
     }
 
+    /* read data */
     uint64_t raw = *(uint64_t *)ptr;
     if(__builtin_expect(size == 0 || size > 8 || (size & (size - 1)), 0))
     {
@@ -217,6 +218,7 @@ void emex64_memory_write(emex64_core_t *core,
         return;
     }
 
+    /* writing data */
     uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
     uint64_t raw = *(uint64_t *)ptr;
     raw = (raw & ~mask) | (value & mask);

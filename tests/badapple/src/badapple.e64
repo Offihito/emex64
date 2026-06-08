@@ -22,6 +22,8 @@
 ; SOFTWARE.
 ;
 
+%include% <emex64.e64h>
+
 %define% FB_REG_ENABLED     0x1FF00000
 %define% FB_REG_HEIGHT      0x1FF00001
 %define% FB_REG_WIDTH       0x1FF00003
