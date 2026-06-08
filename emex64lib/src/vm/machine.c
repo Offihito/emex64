@@ -130,42 +130,13 @@ out_release_machine:
 
 void emex64_machine_dealloc(emex64_machine_t *machine)
 {
-    /* release devices */
-    if(machine->emex8042)
-    {
-        emex64_8042_dealloc(machine->emex8042);
-    }
-
-    if(machine->display)
-    {
-        emex64_display_dealloc(machine->display);
-    }
-
-    if(machine->uart)
-    {
-        emex64_uart_dealloc(machine->uart);
-    }
-
-    if(machine->timer)
-    {
-        emex64_timer_dealloc(machine->timer);
-    }
-
-    if(machine->intc)
-    {
-        emex64_intc_dealloc(machine->intc);
-    }
-
-    /* releasing machine internals */
+    emex64_8042_dealloc(machine->emex8042);
+    emex64_display_dealloc(machine->display);
+    emex64_uart_dealloc(machine->uart);
+    emex64_timer_dealloc(machine->timer);
+    emex64_intc_dealloc(machine->intc);
     emex64_core_dealloc(machine->core);
-
-    if(machine->mmio_bus)
-    {
-        emex64_mmio_dealloc(machine->mmio_bus);
-    }
-
+    emex64_mmio_dealloc(machine->mmio_bus);
     emex64_memory_dealloc(machine->memory);
-
-    /* release machine it self */
     free(machine);
 }
