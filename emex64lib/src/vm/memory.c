@@ -165,7 +165,7 @@ void emex64_memory_read(emex64_core_t *core,
     }
 
     void *ptr = emex64_memory_access(core, addr, size);
-    if(ptr == NULL)
+    if(unlikely(ptr == NULL))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return;
