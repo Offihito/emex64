@@ -409,8 +409,6 @@ void *display_start(void *arg)
 
 #endif /* __linux__ */
 
-#if defined(__linux__) || defined(__APPLE__)
-
 extern void *display_start(void *arg);
 
 emex64_display_t *emex64_display_alloc(emex64_machine_t *machine)
@@ -461,7 +459,7 @@ emex64_display_t *emex64_display_alloc(emex64_machine_t *machine)
 
     display->emex8042 = machine->emex8042;
 
-    #if EMEX64VM_DEVICE_DISPLAY
+    #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
     display->enabled = true;
     pthread_create(&(display->pthread), NULL, display_start, display);
     #endif /* EMEX64VM_DEVICE_DISPLAY */
@@ -477,7 +475,7 @@ void emex64_display_dealloc(emex64_display_t *display)
         return;
     }
 
-    #if EMEX64VM_DEVICE_DISPLAY
+    #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
     if(display->enabled)
     {
         pthread_cancel(display->pthread);
@@ -500,7 +498,8 @@ uint64_t emex64_fb_read(emex64_core_t *core,
                       uint64_t offset,
                       int size)
 {
-    #if EMEX64VM_DEVICE_DISPLAY
+
+    #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
     emex64_display_t *display = (emex64_display_t*)device;
 
     if(offset >= EMEX64_FB_FRAMEBUFFER)
@@ -534,7 +533,7 @@ void emex64_fb_write(emex64_core_t *core,
                    uint64_t value,
                    int size)
 {
-    #if EMEX64VM_DEVICE_DISPLAY
+    #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
     emex64_display_t *display = (emex64_display_t*)device;
 
     if(offset >= EMEX64_FB_FRAMEBUFFER)
@@ -553,5 +552,3 @@ void emex64_fb_write(emex64_core_t *core,
     }
     #endif /* EMEX64VM_DEVICE_DISPLAY */
 }
-
-#endif // __linux__ || __APPLE__

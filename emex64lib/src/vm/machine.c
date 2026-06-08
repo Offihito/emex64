@@ -96,24 +96,19 @@ emex64_machine_t *emex64_machine_alloc(uint64_t memory_size)
     }
 
     machine->emex8042 = emex64_8042_alloc(machine);
+    if(machine->emex8042 == NULL)
+    {
+        goto out_release_uart;
+    }
 
-
-    /* apple and linux have support for the EMEX64 LCD display */
-#if defined(__linux__) || defined(__APPLE__)
     machine->display = emex64_display_alloc(machine);
-
     if(machine->display == NULL)
     {
         goto out_release_8042;
     }
-#endif /* __linux__ */
 
     return machine;
 
-    /* much more compact error handling */
-#if defined(__linux__)  || defined(__APPLE__)
-    emex64_display_dealloc(machine->display);
-#endif /* __linux__ */
 out_release_8042:
     emex64_8042_dealloc(machine->emex8042);
 out_release_uart:
@@ -136,16 +131,14 @@ out_release_machine:
 void emex64_machine_dealloc(emex64_machine_t *machine)
 {
     /* release devices */
-#if defined(__linux__)  || defined(__APPLE__)
-    if(machine->display)
-    {
-        emex64_display_dealloc(machine->display);
-    }
-#endif /* __linux__ */
-
     if(machine->emex8042)
     {
         emex64_8042_dealloc(machine->emex8042);
+    }
+
+    if(machine->display)
+    {
+        emex64_display_dealloc(machine->display);
     }
 
     if(machine->uart)

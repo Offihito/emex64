@@ -34,9 +34,7 @@
 #include <emex64lib/vm/device/uart.h>
 #include <emex64lib/vm/device/8042.h>
 
-#if defined(__linux__)  || defined(__APPLE__)
 #include <emex64lib/vm/device/display.h>
-#endif /* __linux__ */
 
 #include <stdint.h>
 
@@ -47,10 +45,8 @@ typedef struct emex64_machine {
     emex64_intc_t *intc;
     emex64_timer_t *timer;
     emex64_uart_t *uart;
-#if defined(__linux__)  || defined(__APPLE__)
     emex64_display_t *display;
     emex64_8042_t *emex8042;
-#endif /* __linux__ */
 } emex64_machine_t;
 
 emex64_machine_t *emex64_machine_alloc(uint64_t memory_size);

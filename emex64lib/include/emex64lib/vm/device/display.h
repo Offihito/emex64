@@ -25,9 +25,6 @@
 #ifndef EMEX64VM_DEVICE_DISPLAY_H
 #define EMEX64VM_DEVICE_DISPLAY_H
 
-/* the apple and linux part yayy */
-#if defined(__linux__) || defined(__APPLE__)
-
 /* the size of the screen/framebuffer */
 #define EMEX64_FB_WIDTH   640
 #define EMEX64_FB_HEIGHT  480
@@ -96,4 +93,3 @@ void emex64_fb_write(emex64_core_t *core, void *device, uint64_t offset, uint64_
 
 #endif /* __APPLE__ */
 
-#endif /* EMEX64VM_DEVICE_DISPLAY_H */
