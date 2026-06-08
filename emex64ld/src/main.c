@@ -36,6 +36,8 @@
 #include <emex64lib/asm/elf.h>
 #include <emex64lib/vm/core.h>
 
+#include <emex64lib/support/diag.h>
+
 typedef Emex64_Ehdr Elf64_Ehdr;
 typedef Emex64_Shdr Elf64_Shdr;
 typedef Emex64_Sym Elf64_Sym;
@@ -110,7 +112,7 @@ static GlobSym *sym_define(const char *name, uint64_t addr)
     }
     if(g->defined && g->addr != addr)
     {
-        fprintf(stderr, "emex64ld: error: duplicate symbol '%s'\n", name);
+        diag_error(NULL, "duplicate symbol '%s'\n", name);
         return NULL;
     }
     g->addr = addr;
@@ -145,7 +147,7 @@ static uint8_t *read_file(const char *path, size_t *out_size)
 
     if(read(fd, buf, sz) != (ssize_t)sz)
     {
-        fprintf(stderr, "emex64ld: read error: %s\n", path);
+        diag_error(NULL, "read error: %s\n", path);
         free(buf);
         close(fd);
         return NULL;
@@ -169,7 +171,7 @@ static bool obj_load(Obj *o, const char *path)
 
     if(o->size < sizeof(Elf64_Ehdr))
     {
-        fprintf(stderr, "emex64ld: %s: too small to be ELF\n", path);
+        diag_error(NULL, "%s: too small to be ELF\n", path);
         return false;
     }
 
@@ -180,19 +182,19 @@ static bool obj_load(Obj *o, const char *path)
        o->ehdr->e_ident[2] != ELFMAG2 ||
        o->ehdr->e_ident[3] != ELFMAG3)
     {
-       fprintf(stderr, "emex64ld: %s: not an ELF file\n", path);
+       diag_error(NULL, "%s: not an ELF file\n", path);
        return false;
     }
 
     if(o->ehdr->e_machine != EM_EMEX64)
     {
-        fprintf(stderr, "emex64ld: %s: not an emex64 object (e_machine=0x%x)\n", path, o->ehdr->e_machine);
+        diag_error(NULL, "%s: not an emex64 object (e_machine=0x%x)\n", path, o->ehdr->e_machine);
         return false;
     }
 
     if(o->ehdr->e_type != ET_REL)
     {
-        fprintf(stderr, "emex64ld: %s: not a relocatable object\n", path);
+        diag_error(NULL, "%s: not a relocatable object\n", path);
         return false;
     }
 
@@ -386,7 +388,8 @@ static uint64_t sym_resolve(const Obj *o, uint32_t sym_idx)
             }
         }
 
-        fprintf(stderr, "emex64ld: undefined symbol '%s'\n", name);
+        diag_error(NULL, "undefined symbol '%s'\n", name);
+        exit(1); /* TODO: somehow make it not as strict, so it becomes embeddable */
     }
     return 0;
 }
@@ -408,7 +411,7 @@ static bool obj_apply_relocs(const Obj *o, uint8_t *out_text, uint8_t *out_data)
 
             if(type != R_EMEX64_ABS64)
             {
-                fprintf(stderr, "emex64ld: unsupported relocation type %u in .rela.text\n", type);
+                diag_error(NULL, "unsupported relocation type %u in .rela.text\n", type);
                 return false;
             }
 
@@ -435,7 +438,7 @@ static bool obj_apply_relocs(const Obj *o, uint8_t *out_text, uint8_t *out_data)
 
             if(type != R_EMEX64_ABS64)
             {
-                fprintf(stderr, "emex64ld: unsupported relocation type %u in .rela.data\n", type);
+                diag_error(NULL, "unsupported relocation type %u in .rela.data\n", type);
                 return false;
             }
 
@@ -463,7 +466,7 @@ static bool parse_linker_script(const char *path)
     FILE *f = fopen(path, "r");
     if(!f)
     {
-        fprintf(stderr, "emex64ld: cannot open linker script '%s': %s\n", path, strerror(errno));
+        diag_error(NULL, "cannot open linker script '%s': %s\n", path, strerror(errno));
         return false;
     }
 
@@ -510,7 +513,7 @@ static bool parse_linker_script(const char *path)
             size_t name_len = (size_t)(p - name_start);
             if(name_len == 0)
             {
-                fprintf(stderr, "emex64ld: %s:%d: expected symbol name after PROVIDE\n", path, lineno);
+                diag_error(NULL, "%s:%d: expected symbol name after PROVIDE\n", path, lineno);
                 fclose(f);
                 return false;
             }
@@ -524,8 +527,10 @@ static bool parse_linker_script(const char *path)
             }
             if(*p != '=')
             {
-                fprintf(stderr, "emex64ld: %s:%d: expected '=' after symbol name\n", path, lineno);
-                free(sym_name); fclose(f); return false;
+                diag_error(NULL, "%s:%d: expected '=' after symbol name\n", path, lineno);
+                free(sym_name);
+                fclose(f);
+                return false;
             }
             p++;
             while(*p == ' ' || *p == '\t')
@@ -547,7 +552,7 @@ static bool parse_linker_script(const char *path)
 
             if(!*expr_start)
             {
-                fprintf(stderr, "emex64ld: %s:%d: empty expression\n", path, lineno);
+                diag_error(NULL, "%s:%d: empty expression\n", path, lineno);
                 free(sym_name);
                 fclose(f);
                 return false;
@@ -560,7 +565,7 @@ static bool parse_linker_script(const char *path)
             continue;
         }
 
-        fprintf(stderr, "emex64ld: %s:%d: unrecognised linker script directive: '%s'\n", path, lineno, p);
+        diag_error(NULL, "%s:%d: unrecognised linker script directive: '%s'\n", path, lineno, p);
         fclose(f);
         return false;
     }
@@ -606,7 +611,7 @@ static bool apply_script_symbols(uint64_t image_end,
             value = (uint64_t)strtoull(expr, &endptr, 0);
             if(!endptr || *endptr != '\0')
             {
-                fprintf(stderr, "emex64ld: unknown expression '%s' in linker script\n", expr);
+                diag_error(NULL, "unknown expression '%s' in linker script\n", expr);
                 return false;
             }
         }
@@ -703,7 +708,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            fprintf(stderr, "emex64ld: unknown option '%s'\n", argv[i]);
+            diag_error(NULL, "unknown option '%s'\n", argv[i]);
             usage(argv[0]);
             return 1;
         }
@@ -711,7 +716,7 @@ int main(int argc, char *argv[])
 
     if(file_count == 0)
     {
-        fprintf(stderr, "emex64ld: no input files\n");
+        diag_error(NULL, "no input files\n");
         usage(argv[0]);
         return 1;
     }
@@ -814,7 +819,7 @@ int main(int argc, char *argv[])
     GlobSym *entry_sym = sym_lookup(entry_name);
     if(!entry_sym || !entry_sym->defined)
     {
-        fprintf(stderr, "emex64ld: entry symbol '%s' not found\n", entry_name);
+        diag_error(NULL, "entry symbol '%s' not found\n", entry_name);
         return 1;
     }
 
@@ -833,7 +838,7 @@ int main(int argc, char *argv[])
     ssize_t written = write(fd, image, image_size);
     if(written != (ssize_t)image_size)
     {
-        fprintf(stderr, "emex64ld: write error: %s\n", output_path);
+        diag_error(NULL, "write error: %s\n", output_path);
         close(fd);
         return 1;
     }
