@@ -33,4 +33,5 @@ _mc_lock_ktrr:
     mov r0, __data_start
     dec r0
     stq MCKTRR_SIZE, r0
+    stb MCKTRR_LOCKED, 1
     wret

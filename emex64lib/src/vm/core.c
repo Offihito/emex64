@@ -31,6 +31,7 @@
 
 #include <emex64lib/vm/core.h>
 #include <emex64lib/vm/memory.h>
+#include <emex64lib/vm/mmu.h>
 #include <emex64lib/vm/machine.h>
 
 #include <emex64lib/vm/device/interrupt.h>
@@ -142,8 +143,32 @@ void emex64_core_dealloc(emex64_core_t *core)
 
 static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
 {
+    uint64_t pc_addr = core->rl[kEmex64RegisterPC];
+    if(unlikely(!emex64_mmu_access(core, pc_addr, kEmex64MMUAccessRead, &pc_addr)))
+    {
+        /* MMU wrote exception */
+        return false;
+    }
+
+    /*
+     * check KTRR if kernel or secure monitor level
+     * to prevent execution from non KTRR memory.
+     */
+    if(core->rl[kEmex64RegisterCR0] >= kEmex64ElevationLevelKernel)
+    {
+        if(core->machine->memory->ktrr_locked &&
+           core->machine->memory->ktrr_size <= pc_addr)
+        {
+            printf("ktrr violated: %d (size = %llu | pc = %llu)\n", core->machine->memory->ktrr_size < pc_addr, core->machine->memory->ktrr_size, pc_addr);
+
+            /* a KTRR violation. OOB of KTRR region. */
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
+            return false;
+        }
+    }
+
     /* accessing memory */
-    void *iptr = emex64_memory_access(core, core->rl[kEmex64RegisterPC], 256);
+    void *iptr = emex64_memory_access(core, pc_addr, 256);
     if(unlikely(iptr == NULL))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;

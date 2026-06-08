@@ -130,15 +130,13 @@ bool emex64_memory_load_image(emex64_memory_t *memory,
 }
 
 void *emex64_memory_access(emex64_core_t *core,
-                         uint64_t addr,
-                         size_t size)
+                           uint64_t addr,
+                           size_t size)
 {
     assert(size != 0);
 
     uint64_t addr_end = addr + size;
-    
-    if(addr >= addr_end ||
-       core->machine->memory->memory_size < addr_end)
+    if(addr >= addr_end || core->machine->memory->memory_size < addr_end)
     {
         /* attempt to access memory is OOB. */
         return NULL;
