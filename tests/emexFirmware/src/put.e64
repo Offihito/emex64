@@ -39,6 +39,65 @@ section .data
     mem_unit_tb db "TB\0"
     mem_unit_ptrs dq mem_unit_b, mem_unit_kb, mem_unit_mb, mem_unit_gb, mem_unit_tb
 
+; raw logo!
+section .data
+    raw_logo df "./logo.raw"
+
+; i know this belongs into gui.e64
+_draw_scaled_logo:
+    ldw r4, FB_WIDTH
+    ldw r5, FB_HEIGHT
+    mov r6, 0
+.y_loop:
+    cmp r6, 20
+    bge .done
+    mul r7, r6, 22
+    add r7, raw_logo
+    mov r9, 0
+.x_loop:
+    cmp r9, 22
+    bge .x_done
+    ldb r11, r7
+    inc r7
+    bz r11, .skip_pixel
+    mov r12, 0
+.sy_loop:
+    cmp r12, r0
+    bge .sy_done
+    mul r13, r6, r0
+    add r13, r12
+    add r13, r2
+    cmp r13, r5
+    bge .sy_done
+    mov r14, 0
+.sx_loop:
+    cmp r14, r0
+    bge .sx_done
+    mul r15, r9, r0
+    add r15, r14
+    add r15, r1
+    cmp r15, r4
+    bge .sx_next
+    mul r16, r13, r4
+    add r16, r15
+    add r16, FB_FRAMEBUFFER
+    stb r16, r11
+.sx_next:
+    inc r14
+    b .sx_loop
+.sx_done:
+    inc r12
+    b .sy_loop
+.sy_done:
+.skip_pixel:
+    inc r9
+    b .x_loop
+.x_done:
+    inc r6
+    b .y_loop
+.done:
+    wret
+
 _putc:
     ldq r1, putc_sym
     b r1
@@ -52,7 +111,8 @@ _put_init:
     blw _puts, putc_copyright
     wret
 .end_gui:
-    stw gui_line, 10
+    blw _draw_scaled_logo, 6, 15, 15    
+    stw gui_line, 14
     blw _puts, putc_copyright
     wret
 

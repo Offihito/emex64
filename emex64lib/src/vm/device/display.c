@@ -413,69 +413,6 @@ void *display_start(void *arg)
 
 extern void *display_start(void *arg);
 
-bool logo[20][22] = {
-    { 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-    { 0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-    { 0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-    { 0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-    { 0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1 },
-    { 0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,0 },
-    { 0,0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,0,0 },
-    { 0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0 },
-    { 0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0 },
-    { 1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0 },
-    { 1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0 },
-    { 0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0 },
-    { 0,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0 },
-    { 0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-    { 0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0 },
-    { 0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0 },
-    { 0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-    { 0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-    { 0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },
-    { 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1 }
-};
-
-void emex64_display_draw_logo(emex64_display_t *display)
-{
-    if(!display || !display->fb)
-    {
-        return;
-    }
-
-    uint8_t color = 0xFF;
-    const int logo_w = 22;
-    const int logo_h = 20;
-    const int scale = 4;
-
-    int start_x = 8;
-    int start_y = 8;
-
-    for(int y = 0; y < logo_h; y++)
-    {
-        for(int x = 0; x < logo_w; x++)
-        {
-            if(logo[y][x])
-            {
-                for(int sy = 0; sy < scale; sy++)
-                {
-                    for(int sx = 0; sx < scale; sx++)
-                    {
-                        int px = start_x + x * scale + sx;
-                        int py = start_y + y * scale + sy;
-
-                        if(px >= 0 && px < EMEX64_FB_WIDTH && 
-                           py >= 0 && py < EMEX64_FB_HEIGHT)
-                        {
-                            display->fb[py * EMEX64_FB_WIDTH + px] = color;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 emex64_display_t *emex64_display_alloc(emex64_machine_t *machine)
 {
     emex64_display_t *display = malloc(sizeof(emex64_display_t));
@@ -525,7 +462,6 @@ emex64_display_t *emex64_display_alloc(emex64_machine_t *machine)
     display->emex8042 = machine->emex8042;
 
     #if EMEX64VM_DEVICE_DISPLAY
-    emex64_display_draw_logo(display);
     display->enabled = true;
     pthread_create(&(display->pthread), NULL, display_start, display);
     #endif /* EMEX64VM_DEVICE_DISPLAY */
