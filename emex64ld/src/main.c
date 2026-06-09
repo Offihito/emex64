@@ -39,6 +39,7 @@
 #include <emex64lib/support/diag.h>
 
 typedef struct {
+    const char  *object_path;
     uint8_t     *data;
     size_t      size;
 
@@ -62,9 +63,10 @@ typedef struct {
 #define SYMTAB_HASH 4096
 
 typedef struct GlobSym {
-    char        *name;
-    uint64_t    addr;
-    bool        defined;
+    char *name;
+    const char *object_path;
+    uint64_t addr;
+    bool defined;
     struct GlobSym *next;
 } GlobSym;
 
@@ -94,20 +96,22 @@ static GlobSym *sym_lookup(const char *name)
     return NULL;
 }
 
-static GlobSym *sym_define(const char *name, uint64_t addr)
+static GlobSym *sym_define(const char *name, const char *object_path, uint64_t addr)
 {
     GlobSym *g = sym_lookup(name);
     if(!g)
     {
         g = calloc(1, sizeof(GlobSym));
         g->name = strdup(name);
+        g->object_path = object_path;
         uint32_t h = sym_hash_fn(name);
         g->next = sym_hash[h];
         sym_hash[h] = g;
     }
     if(g->defined && g->addr != addr)
     {
-        diag_error(NULL, "duplicate symbol '%s'\n", name);
+        diag_error(NULL, "duplicate symbol '%s' in \"%s\"\n", name, object_path);
+        diag_note(NULL, "symbol '%s' also exists in \"%s\"\n", name, g->object_path);
         return NULL;
     }
     g->addr = addr;
@@ -158,6 +162,7 @@ static bool obj_load(Obj *o, const char *path)
     o->idx_text = o->idx_data = o->idx_bss =
     o->idx_rela_text = o->idx_rela_data = o->idx_symtab = o->idx_strtab = -1;
 
+    o->object_path = path;
     o->data = read_file(path, &o->size);
     if(!o->data)
     {
@@ -316,7 +321,10 @@ static bool obj_register_symbols(Obj *o)
             addr = sym->st_value;
         }
 
-        if (!sym_define(name, addr)) return false;
+        if(!sym_define(name, o->object_path, addr))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -449,6 +457,7 @@ static bool obj_apply_relocs(const Obj *o, uint8_t *out_text, uint8_t *out_data)
 }
 
 typedef struct {
+    const char *script_path;
     char *name;
     char *expr;
 } script_sym_t;
@@ -556,6 +565,7 @@ static bool parse_linker_script(const char *path)
             script_syms = realloc(script_syms, (script_sym_cnt + 1) * sizeof(script_sym_t));
             script_syms[script_sym_cnt].name = sym_name;
             script_syms[script_sym_cnt].expr = strdup(expr_start);
+            script_syms[script_sym_cnt].script_path = path;
             script_sym_cnt++;
             continue;
         }
@@ -611,7 +621,7 @@ static bool apply_script_symbols(uint64_t image_end,
             }
         }
 
-        if(!sym_define(script_syms[i].name, value))
+        if(!sym_define(script_syms[i].name, script_syms[i].script_path, value))
         {
             return false;
         }
