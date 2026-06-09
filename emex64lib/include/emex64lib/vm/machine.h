@@ -52,4 +52,16 @@ typedef struct emex64_machine {
 emex64_machine_t *emex64_machine_alloc(uint64_t memory_size);
 void emex64_machine_dealloc(emex64_machine_t *machine);
 
+static inline void *emex64_memory_access(emex64_core_t *core,
+                                         uint64_t addr,
+                                         size_t size)
+{
+    uint64_t addr_end = addr + size;
+    if(addr >= addr_end || core->machine->memory->memory_size < addr_end)
+    {
+        return NULL;
+    }
+    return core->machine->memory->memory + addr;
+}
+
 #endif /* EMEX64VM_MACHINE_H */
