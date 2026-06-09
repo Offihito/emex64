@@ -739,7 +739,7 @@ int main(int argc, char *argv[])
     const uint64_t BOOT_HEADER_SIZE = 10;
     uint64_t cur_text = BOOT_HEADER_SIZE;
     uint64_t cur_data = 0;
-    uint64_t cur_bss  = 0;
+    uint64_t cur_bss = 0;
 
     for(int i = 0; i < file_count; i++)
     {
