@@ -209,6 +209,51 @@ enum kEmex64Register: uint8_t {
     kEmex64RegisterMAX = kEmex64RegisterCR9
 };
 
+enum kEmex64FloatingRegister: uint8_t {
+    kEmex64FloatingRegisterFR0 = 0b00000,
+    kEmex64FloatingRegisterFR1 = 0b00001,
+    kEmex64FloatingRegisterFR2 = 0b00010,
+    kEmex64FloatingRegisterFR3 = 0b00011,
+    kEmex64FloatingRegisterFR4 = 0b00100,
+    kEmex64FloatingRegisterFR5 = 0b00101,
+    kEmex64FloatingRegisterFR6 = 0b00110,
+    kEmex64FloatingRegisterFR7 = 0b00111,
+    kEmex64FloatingRegisterFR8 = 0b01000,
+    kEmex64FloatingRegisterFR9 = 0b01001,
+    kEmex64FloatingRegisterFR10 = 0b01010,
+    kEmex64FloatingRegisterFR11 = 0b01011,
+    kEmex64FloatingRegisterFR12 = 0b01100,
+    kEmex64FloatingRegisterFR13 = 0b01101,
+    kEmex64FloatingRegisterFR14 = 0b01110,
+    kEmex64FloatingRegisterFR15 = 0b01111,
+    kEmex64FloatingRegisterFR16 = 0b10000,
+    kEmex64FloatingRegisterFR17 = 0b10001,
+    kEmex64FloatingRegisterFR18 = 0b10010,
+    kEmex64FloatingRegisterFR19 = 0b10011,
+    kEmex64FloatingRegisterFR20 = 0b10100,
+    kEmex64FloatingRegisterFR21 = 0b10101,
+    kEmex64FloatingRegisterFR22 = 0b10110,
+    kEmex64FloatingRegisterFR23 = 0b10111,
+    kEmex64FloatingRegisterFR24 = 0b11000,
+    kEmex64FloatingRegisterFR25 = 0b11001,
+    kEmex64FloatingRegisterFR26 = 0b11010,
+    kEmex64FloatingRegisterFR27 = 0b11011,
+    kEmex64FloatingRegisterFR28 = 0b11100,
+    kEmex64FloatingRegisterFR29 = 0b11101,
+    kEmex64FloatingRegisterFR30 = 0b11110,
+    kEmex64FloatingRegisterFR31 = 0b11111,
+    kEmex64FloatingRegisterMAX = kEmex64FloatingRegisterFR31
+};
+
+typedef union {
+    uint64_t u64;
+    uint32_t u32;
+    int64_t i64;
+    int32_t i32;
+    double f64;
+    float f32;
+} FPReg;
+
 enum kEmex64ElevationLevel: uint8_t {
     kEmex64ElevationLevelUser =             0b00,
     kEmex64ElevationLevelKernel =           0b01,
@@ -301,6 +346,7 @@ typedef struct emex64_core {
 
     /* a array of all (control) registers */
     uint64_t rl[kEmex64RegisterMAX + 1];
+    FPReg frl[kEmex64FloatingRegisterMAX + 1];
 
     /* data of currently decoding or decoded operation */
     struct emex64_operation {
