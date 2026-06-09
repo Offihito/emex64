@@ -27,7 +27,8 @@
 
 #include <stdint.h>
 
-#define EMEX64_RTC_BASE       0x0040000000000200
+#include <emex64lib/vm/device/base.h>
+
 #define EMEX64_RTC_SIZE       0x20
 
 #define RTC_REG_SECONDS     0x00

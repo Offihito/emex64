@@ -25,6 +25,12 @@
 #ifndef EMEX64VM_DEVICE_DISPLAY_H
 #define EMEX64VM_DEVICE_DISPLAY_H
 
+#include <stdint.h>
+#include <pthread.h>
+
+#include <emex64lib/vm/device/base.h>
+#include <emex64lib/vm/device/8042.h>
+
 /* the size of the screen/framebuffer */
 #define EMEX64_FB_WIDTH   640
 #define EMEX64_FB_HEIGHT  480
@@ -40,13 +46,7 @@
 #define EMEX64_FB_PALLETE     0x05
 #define EMEX64_FB_FRAMEBUFFER 0x305
 
-#define EMEX64_FB_BASE        0x0050000000000000
 #define EMEX64_FB_SIZE        EMEX64_FB_FRAMEBUFFER + (EMEX64_FB_WIDTH * EMEX64_FB_HEIGHT)
-
-#include <stdint.h>
-#include <pthread.h>
-
-#include <emex64lib/vm/device/8042.h>
 
 typedef struct emex64_core emex64_core_t;
 typedef struct emex64_machine emex64_machine_t;

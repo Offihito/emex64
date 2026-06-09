@@ -27,7 +27,8 @@
 
 #include <stdint.h>
 
-#define EMEX64_MC_BASE        0x0040000000000400
+#include <emex64lib/vm/device/base.h>
+
 #define EMEX64_MC_SIZE        0x10
 
 #define EMEX64_MC_REG_SIZE          0x00

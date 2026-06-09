@@ -42,14 +42,14 @@ _fw_8042_handler:
     ldq r3, putc_sym
     stq putc_sym, _uart_putc
 
-    ldd r0, 0x0040000000000608          ; STATUS port
+    ldd r0, 0x004000000000C008          ; STATUS port
     and r0, 0x01                        ; OBF (bit 0)?
     bz r0, .no_data
-    ldd r1, 0x0040000000000608
+    ldd r1, 0x004000000000C008
     and r1, 0x20
     bnz r1, .mouse_event
     
-    ldd r0, 0x0040000000000600
+    ldd r0, 0x004000000000C000
     blw _puts, fw_8042_msg
     blw _puts, fw_scancode_msg
     blw _putbase, r0, 16
@@ -57,7 +57,7 @@ _fw_8042_handler:
     b .done
     
 .mouse_event:
-    ldd r0, 0x0040000000000600
+    ldd r0, 0x004000000000C000
     blw _puts, fw_8042_mouse_msg
     blw _putbase, r0, 16
     blw _putc, '\n'

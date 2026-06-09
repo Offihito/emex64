@@ -28,7 +28,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define EMEX64_INTC_BASE      0x0040000000000000
+#include <emex64lib/vm/device/base.h>
+
 #define EMEX64_INTC_SIZE      0x30
 
 /* internal devices */

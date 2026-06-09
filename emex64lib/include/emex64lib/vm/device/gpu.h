@@ -25,4 +25,6 @@
 #ifndef EMEX64VM_GPU_H
 #define EMEX64VM_GPU_H
 
+#include <emex64lib/vm/device/base.h>
+
 #endif /* EMEX64VM_IGPU_H */

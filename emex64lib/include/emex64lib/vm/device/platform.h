@@ -27,7 +27,8 @@
 
 #include <stdint.h>
 
-#define EMEX64_PLATFORM_BASE  0x0040000000000500
+#include <emex64lib/vm/device/base.h>
+
 #define EMEX64_PLATFORM_SIZE  0x01
 
 #define PLATFORM_REG_PWR    0x00

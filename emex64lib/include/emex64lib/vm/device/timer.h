@@ -26,9 +26,10 @@
 #define EMEX64VM_DEVICE_TIMER_H
 
 #include <stdint.h>
-#include <emex64lib/vm/core.h>
 
-#define EMEX64_TIMER_BASE     0x0040000000000100
+#include <emex64lib/vm/core.h>
+#include <emex64lib/vm/device/base.h>
+
 #define EMEX64_TIMER_SIZE     0x28
 
 #define TIMER_REG_CTRL      0x00

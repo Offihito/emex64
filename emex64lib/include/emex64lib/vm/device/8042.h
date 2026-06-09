@@ -26,8 +26,8 @@
 #define EMEX64VM_DEVICE_8042_H
 
 #include <emex64lib/support/keyboard.h>
+#include <emex64lib/vm/device/base.h>
 
-#define EMEX64_8042_BASE    0x0040000000000600
 #define EMEX64_8042_SIZE    0x10
 
 typedef struct emex64_core emex64_core_t;

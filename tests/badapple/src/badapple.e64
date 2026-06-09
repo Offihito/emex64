@@ -28,12 +28,6 @@
 %define% VFB_WIDTH  256
 %define% VFB_SIZE   0x10000
 
-%define% TIMER_CTRL    0x0040000000000100
-%define% TIMER_COUNT   0x0040000000000108
-%define% TIMER_COMPARE 0x0040000000000110
-%define% TIMER_STATUS  0x0040000000000118
-%define% TIMER_FREQ    0x0040000000000120
-
 section .data
     badapple_bitmap df "../vid.bitmask"
 %ifdef% BENCHMARK
@@ -47,13 +41,13 @@ _timer_handler:
 
 _start:
     ; lol the first if not xD
-%ifdef% MINIMAL
-%else%
+;%ifdef% MINIMAL
+;%else%
     ; setup stack
     ldq r0, MCSIZE
     sub r0, 8
     mov sp, r0
-%endif%
+;%endif%
 
 %ifdef% BENCHMARK
     blw _put_init
