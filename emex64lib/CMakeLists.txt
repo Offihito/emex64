@@ -71,7 +71,7 @@ add_library(emex64 ${LIB_TYPE}
     src/asm/register.c
     src/asm/section.c
     src/asm/macro.c
-    src/asm/elf_emit.c
+    src/asm/elf.c
 
     # C Compiler
 
