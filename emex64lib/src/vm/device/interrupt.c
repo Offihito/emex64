@@ -111,7 +111,7 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     }
     
     /* check if were already servicing an interrupt (unless nesting allowed) */
-    if(core->machine->intc->current_irq >= 0 && !(core->machine->intc->ctrl & EMEX64_INTC_CTRL_NESTING) && core->op.opcode == kEmex64OpcodeIRET)
+    if((core->machine->intc->current_irq >= 0 && !(core->machine->intc->ctrl & EMEX64_INTC_CTRL_NESTING)) || core->op.opcode == kEmex64OpcodeIRET)
     {
         return false;
     }

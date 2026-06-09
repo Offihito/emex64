@@ -14,9 +14,9 @@ BUILDDIR = build
 TARGET = $(BUILDDIR)/emex64fw
 
 SRCS = $(wildcard $(SRCDIR)/*.e64)
-OBJS = $(patsubst $(SRCDIR)/%.e64,$(BUILDDIR)/%.e64o,$(SRCS))
+OBJS = $(patsubst $(SRCDIR)/%.e64,$(BUILDDIR)/%.o,$(SRCS))
 
-LINK_ORDER := $(BUILDDIR)/start.e64o
+LINK_ORDER := $(BUILDDIR)/start.o
 
 all: compile execute
 
@@ -25,7 +25,7 @@ compile: $(TARGET)
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 
-$(BUILDDIR)/%.e64o: $(SRCDIR)/%.e64 | $(BUILDDIR)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.e64 | $(BUILDDIR)
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
 $(TARGET): $(LINK_ORDER) $(LDSCRIPT)

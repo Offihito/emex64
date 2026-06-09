@@ -14,22 +14,22 @@ BUILDDIR = build
 TARGET = $(BUILDDIR)/emex64fw
 
 SRCS = $(wildcard $(SRCDIR)/*.e64)
-OBJS = $(patsubst $(SRCDIR)/%.e64,$(BUILDDIR)/%.e64o,$(SRCS))
+OBJS = $(patsubst $(SRCDIR)/%.e64,$(BUILDDIR)/%.o,$(SRCS))
 
 LINK_ORDER = \
-    $(BUILDDIR)/start.e64o    \
-    $(BUILDDIR)/exc.e64o      \
-    $(BUILDDIR)/interrupt.e64o \
-    $(BUILDDIR)/uart.e64o     \
-    $(BUILDDIR)/put.e64o      \
-    $(BUILDDIR)/mc.e64o       \
-    $(BUILDDIR)/mem.e64o      \
-    $(BUILDDIR)/pmm.e64o      \
-    $(BUILDDIR)/slab.e64o     \
-    $(BUILDDIR)/rtc.e64o      \
-    $(BUILDDIR)/gui.e64o      \
-    $(BUILDDIR)/font.e64o     \
-    $(BUILDDIR)/string.e64o
+    $(BUILDDIR)/start.o    \
+    $(BUILDDIR)/exc.o      \
+    $(BUILDDIR)/interrupt.o \
+    $(BUILDDIR)/uart.o     \
+    $(BUILDDIR)/put.o      \
+    $(BUILDDIR)/mc.o       \
+    $(BUILDDIR)/mem.o      \
+    $(BUILDDIR)/pmm.o      \
+    $(BUILDDIR)/slab.o     \
+    $(BUILDDIR)/rtc.o      \
+    $(BUILDDIR)/gui.o      \
+    $(BUILDDIR)/font.o     \
+    $(BUILDDIR)/string.o
 
 all: compile execute
 
@@ -38,7 +38,7 @@ compile: $(TARGET)
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 
-$(BUILDDIR)/%.e64o: $(SRCDIR)/%.e64 | $(BUILDDIR)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.e64 | $(BUILDDIR)
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
 $(TARGET): $(LINK_ORDER) $(LDSCRIPT)
