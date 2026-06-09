@@ -28,6 +28,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <emex64lib/asm/invocation.h>
+
 #define EM_EMEX64   0x0E64
 
 #define ELFMAG0 0x7f
