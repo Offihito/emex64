@@ -161,29 +161,34 @@ enum kEmex64Register: uint8_t {
     kEmex64RegisterCF =     0b00011,
 
     /*
+     * floating point control register: can be used in
+     * userspace.
+     */
+    kEmex64RegisterFPC =    0b00100,
+
+    /*
      * general purpose registers: these registers arent used
      * for anything other than the software, these registers
      * can be used for any purpose, thats why they are called
      * general purpose registers, because they got no fixed
      * purpose like pc, sp, fp, cf.
      */
-    kEmex64RegisterR0 =     0b00100,
-    kEmex64RegisterR1 =     0b00101,
-    kEmex64RegisterR2 =     0b00110,
-    kEmex64RegisterR3 =     0b00111,
-    kEmex64RegisterR4 =     0b01000,
-    kEmex64RegisterR5 =     0b01001,
-    kEmex64RegisterR6 =     0b01010,
-    kEmex64RegisterR7 =     0b01011,
-    kEmex64RegisterR8 =     0b01100,
-    kEmex64RegisterR9 =     0b01101,
-    kEmex64RegisterR10 =    0b01110,
-    kEmex64RegisterR11 =    0b01111,
-    kEmex64RegisterR12 =    0b10000,
-    kEmex64RegisterR13 =    0b10001,
-    kEmex64RegisterR14 =    0b10010,
-    kEmex64RegisterR15 =    0b10011,
-    kEmex64RegisterR16 =    0b10100,
+    kEmex64RegisterR0 =     0b00101,
+    kEmex64RegisterR1 =     0b00110,
+    kEmex64RegisterR2 =     0b00111,
+    kEmex64RegisterR3 =     0b01000,
+    kEmex64RegisterR4 =     0b01001,
+    kEmex64RegisterR5 =     0b01010,
+    kEmex64RegisterR6 =     0b01011,
+    kEmex64RegisterR7 =     0b01100,
+    kEmex64RegisterR8 =     0b01101,
+    kEmex64RegisterR9 =     0b01110,
+    kEmex64RegisterR10 =    0b01111,
+    kEmex64RegisterR11 =    0b10000,
+    kEmex64RegisterR12 =    0b10001,
+    kEmex64RegisterR13 =    0b10010,
+    kEmex64RegisterR14 =    0b10011,
+    kEmex64RegisterR15 =    0b10100,
 
     /*
      * return register: also a general purpose register but
@@ -200,7 +205,7 @@ enum kEmex64Register: uint8_t {
     kEmex64RegisterCR2 =    0b11000,    /* CREXC:   exception register (first 3bits for the exception) */
     kEmex64RegisterCR3 =    0b11001,    /* CRVEC:   cpu vector table */
     kEmex64RegisterCR4 =    0b11010,    /* CRPTB:   page table pointer (first 8bits are the flags and the rest is the physical address where the page table is) */
-    kEmex64RegisterCR5 =    0b11011,
+    kEmex64RegisterCR5 =    0b11011,    /* CRFPC:   kernel only floating point control register */
     kEmex64RegisterCR6 =    0b11100,
     kEmex64RegisterCR7 =    0b11101,
     kEmex64RegisterCR8 =    0b11110,

@@ -79,10 +79,12 @@ _draw_scaled_logo:
     add r15, r1
     cmp r15, r4
     bge .sx_next
-    mul r16, r13, r4
-    add r16, r15
-    add r16, FB_FRAMEBUFFER
-    stb r16, r11
+    push r14
+    mul r14, r13, r4
+    add r14, r15
+    add r14, FB_FRAMEBUFFER
+    stb r14, r11
+    pop r14
 .sx_next:
     inc r14
     b .sx_loop

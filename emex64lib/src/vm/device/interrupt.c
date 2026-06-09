@@ -167,6 +167,7 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     emex64_push_il(core, oldsp);
     emex64_push_il(core, core->rl[kEmex64RegisterFP]);
     emex64_push_il(core, core->rl[kEmex64RegisterCF]);
+    emex64_push_il(core, core->rl[kEmex64RegisterFPC]);
     emex64_push_il(core, core->rl[kEmex64RegisterR0]);
     emex64_push_il(core, core->rl[kEmex64RegisterR1]);
     emex64_push_il(core, core->rl[kEmex64RegisterR2]);
@@ -183,7 +184,6 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     emex64_push_il(core, core->rl[kEmex64RegisterR13]);
     emex64_push_il(core, core->rl[kEmex64RegisterR14]);
     emex64_push_il(core, core->rl[kEmex64RegisterR15]);
-    emex64_push_il(core, core->rl[kEmex64RegisterR16]);
 
     /* storing it as frame pointer  */
     core->rl[kEmex64RegisterFP] = core->rl[kEmex64RegisterSP];

@@ -31,8 +31,3 @@
 %include% <mm.e64inc>
 %include% <regs.e64inc>
 %include% <timer.e64inc>
-
-
-%define% MEOW   1
-%define% UWU    2
-%define% AWA    (MEOW + UWU)

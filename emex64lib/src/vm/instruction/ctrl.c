@@ -159,6 +159,7 @@ void emex64_op_blw(emex64_core_t *core)
     emex64_push_il(core, core->rl[kEmex64RegisterPC] + core->op.ilen);
     emex64_push_il(core, core->rl[kEmex64RegisterFP]);
     emex64_push_il(core, core->rl[kEmex64RegisterCF]);
+    emex64_push_il(core, core->rl[kEmex64RegisterFPC]);
     emex64_push_il(core, core->rl[kEmex64RegisterR0]);
     emex64_push_il(core, core->rl[kEmex64RegisterR1]);
     emex64_push_il(core, core->rl[kEmex64RegisterR2]);
@@ -175,10 +176,9 @@ void emex64_op_blw(emex64_core_t *core)
     emex64_push_il(core, core->rl[kEmex64RegisterR13]);
     emex64_push_il(core, core->rl[kEmex64RegisterR14]);
     emex64_push_il(core, core->rl[kEmex64RegisterR15]);
-    emex64_push_il(core, core->rl[kEmex64RegisterR16]);
 
     /* writing parameters */
-    for(uint8_t i = 1; i < core->op.param_cnt && i < (kEmex64RegisterR16 - 1); i++)
+    for(uint8_t i = 1; i < core->op.param_cnt && i < (kEmex64RegisterR15 - 1); i++)
     {
         core->rl[(kEmex64RegisterR0 - 1) + i] = param_imm[i];
     }
@@ -197,7 +197,6 @@ void emex64_op_wret(emex64_core_t *core)
 
     core->rl[kEmex64RegisterSP] = core->rl[kEmex64RegisterFP];
 
-    core->rl[kEmex64RegisterR16] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR15] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR14] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR13] = emex64_pop_il(core);
@@ -214,6 +213,7 @@ void emex64_op_wret(emex64_core_t *core)
     core->rl[kEmex64RegisterR2] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR1] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR0] = emex64_pop_il(core);
+    core->rl[kEmex64RegisterFPC] = emex64_pop_il(core);
     core->rl[kEmex64RegisterCF] = emex64_pop_il(core);
     core->rl[kEmex64RegisterFP] = emex64_pop_il(core);
     core->rl[kEmex64RegisterPC] = emex64_pop_il(core);
@@ -232,7 +232,6 @@ void emex64_op_iret(emex64_core_t *core)
 
     core->rl[kEmex64RegisterSP] = core->rl[kEmex64RegisterFP];
 
-    core->rl[kEmex64RegisterR16] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR15] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR14] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR13] = emex64_pop_il(core);
@@ -249,6 +248,7 @@ void emex64_op_iret(emex64_core_t *core)
     core->rl[kEmex64RegisterR2] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR1] = emex64_pop_il(core);
     core->rl[kEmex64RegisterR0] = emex64_pop_il(core);
+    core->rl[kEmex64RegisterFPC] = emex64_pop_il(core);
     core->rl[kEmex64RegisterCF] = emex64_pop_il(core);
     core->rl[kEmex64RegisterFP] = emex64_pop_il(core);
     uint64_t oldsp = emex64_pop_il(core);

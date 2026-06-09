@@ -33,6 +33,7 @@ register_entry_t register_table[] = {
     { .name = "sp", .reg = kEmex64RegisterSP },
     { .name = "fp", .reg = kEmex64RegisterFP },
     { .name = "cf", .reg = kEmex64RegisterCF },
+    { .name = "fpc", .reg = kEmex64RegisterFPC },
 
     /* general purpose register */
     { .name = "r0", .reg = kEmex64RegisterR0 },
@@ -51,7 +52,6 @@ register_entry_t register_table[] = {
     { .name = "r13", .reg = kEmex64RegisterR13 },
     { .name = "r14", .reg = kEmex64RegisterR14 },
     { .name = "r15", .reg = kEmex64RegisterR15 },
-    { .name = "r16", .reg = kEmex64RegisterR16 },
     { .name = "rr",  .reg = kEmex64RegisterRR },
     { .name = "cr0", .reg = kEmex64RegisterCR0 },
     { .name = "cr1", .reg = kEmex64RegisterCR1 },

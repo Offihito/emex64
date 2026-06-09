@@ -77,20 +77,20 @@ _gui_putc:
 
     blt .skip_pixel
 
-    ldw r15, FB_HEIGHT
-    ldw r16, FB_WIDTH
+    ldw r14, FB_HEIGHT
+    ldw r15, FB_WIDTH
     
-    cmp r11, r15
+    cmp r11, r14
     bge .skip_pixel
 
     add r12, r1, r8
     cmp r12, 0
-
+    
     blt .skip_pixel
-    cmp r12, r16
+    cmp r12, r15
     bge .skip_pixel
 
-    mul r13, r11, r16
+    mul r13, r11, r15
     add r13, r12
     add r13, FB_FRAMEBUFFER
     stb r13, FB_TEXT_COLOR
