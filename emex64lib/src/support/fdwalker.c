@@ -149,14 +149,15 @@ int fdwalker_write_buf(fdwalker_t *fw,
     return written;
 }
 
-int fdwalker_read_buf(fdwalker_t *fw, char *buf, size_t len)
+int fdwalker_read_buf(fdwalker_t *fw,
+                      char *buf,
+                      size_t len)
 {
-    /* s0n */
-    (void)fw;
-    (void)buf;
-    (void)len;
-
-    return 0;
+    fdwalker_align_byte(fw);
+    lseek(fw->fd, fw->byte_pos, SEEK_SET);
+    ssize_t reddit = read(fw->fd, buf, len);
+    fw->byte_pos += reddit;
+    return reddit;
 }
 
 void fdwalker_seek(fdwalker_t *fw,
