@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#ifndef EMEX64VM_IGPU_H
-#define EMEX64VM_IGPU_H
+#ifndef EMEX64VM_GPU_H
+#define EMEX64VM_GPU_H
 
 #endif /* EMEX64VM_IGPU_H */
