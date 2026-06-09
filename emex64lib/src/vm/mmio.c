@@ -27,6 +27,23 @@
 #include <assert.h>
 #include <emex64lib/vm/mmio.h>
 
+uint64_t emex64_mmio_fallback_read(emex64_core_t *core,
+                                   void *device,
+                                   uint64_t offset,
+                                   int size)
+{
+    return 0;
+}
+
+void emex64_mmio_fallback_write(emex64_core_t *core,
+                                void *device,
+                                uint64_t offset,
+                                uint64_t value,
+                                int size)
+{
+    return;
+}
+
 emex64_mmio_bus_t *emex64_mmio_alloc(void)
 {
     return calloc(1, sizeof(emex64_mmio_bus_t));
@@ -62,8 +79,8 @@ bool emex64_mmio_register(emex64_mmio_bus_t *bus,
     region->base_addr = base;
     region->size = size;
     region->device = device;
-    region->read = read;
-    region->write = write;
+    region->read = read ? read : emex64_mmio_fallback_read;
+    region->write = write ? write : emex64_mmio_fallback_write;
 
     /* check and set addresses */
     if(bus->start_addr > base)

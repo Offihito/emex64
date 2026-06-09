@@ -39,9 +39,6 @@ void emex64_op_bge(emex64_core_t *core);
 void emex64_op_bz(emex64_core_t *core);
 void emex64_op_bnz(emex64_core_t *core);
 
-void emex64_push(emex64_core_t *core, uint64_t value);
-uint64_t emex64_pop(emex64_core_t *core);
-
 void emex64_op_blw(emex64_core_t *core);
 void emex64_op_wret(emex64_core_t *core);
 void emex64_op_iret(emex64_core_t *core);
@@ -60,7 +57,7 @@ static inline uint64_t emex64_pop_il(emex64_core_t *core)
     core->rl[kEmex64RegisterSP] += 8;
 
     uint64_t value = 0;
-    emex64_memory_read(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), &value);
+    emex64_memory_action(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), &value, kEmex64MemoryActionRead);
     return value;
 }
 

@@ -121,10 +121,11 @@ bool emex64_memory_load_image(emex64_memory_t *memory,
     return true;
 }
 
-void emex64_memory_read(emex64_core_t *core,
-                        uint64_t addr,
-                        size_t size,
-                        uint64_t *value)
+void emex64_memory_action(emex64_core_t *core,
+                          uint64_t addr,
+                          size_t size,
+                          uint64_t *value,
+                          kEmex64MemoryAction action)
 {
     if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessRead, &addr)))
     {
@@ -143,7 +144,7 @@ void emex64_memory_read(emex64_core_t *core,
     if(addr >> 53)
     {
         emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, addr);
-        if(likely(mmio_region != NULL && mmio_region->read != NULL))
+        if(likely(mmio_region != NULL))
         {
             *value = mmio_region->read(core, mmio_region->device, addr - mmio_region->base_addr, (int)size);
             return;
@@ -187,7 +188,7 @@ void emex64_memory_write(emex64_core_t *core,
     if(addr >> 53)
     {
         emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, addr);
-        if(likely(mmio_region != NULL && mmio_region->write != NULL))
+        if(likely(mmio_region != NULL))
         {
             mmio_region->write(core, mmio_region->device, addr - mmio_region->base_addr, value, (int)size);
             return;

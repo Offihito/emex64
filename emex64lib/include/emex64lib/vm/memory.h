@@ -63,12 +63,17 @@ typedef struct emex64_memory {
     bool ktrr_locked;
 } emex64_memory_t;
 
+typedef enum: uint8_t {
+    kEmex64MemoryActionRead,
+    kEmex64MemoryActionWrite
+} kEmex64MemoryAction;
+
 emex64_memory_t *emex64_memory_alloc(uint64_t size);
 void emex64_memory_dealloc(emex64_memory_t *memory);
 
 bool emex64_memory_load_image(emex64_memory_t *memory, const char *image_path);
 
-void emex64_memory_read(emex64_core_t *core, uint64_t addr, size_t size, uint64_t *value);
+void emex64_memory_action(emex64_core_t *core, uint64_t addr, size_t size, uint64_t *value, kEmex64MemoryAction action);
 void emex64_memory_write(emex64_core_t *core, uint64_t addr, uint64_t value, size_t size);
 
 #endif /* EMEX64VM_MEMORY_H */

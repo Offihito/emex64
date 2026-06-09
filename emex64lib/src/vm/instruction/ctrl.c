@@ -143,21 +143,6 @@ void emex64_op_bnz(emex64_core_t *core)
     }
 }
 
-void emex64_push(emex64_core_t *core, uint64_t value)
-{
-    emex64_memory_write(core, core->rl[kEmex64RegisterSP], value, sizeof(uint64_t));
-    core->rl[kEmex64RegisterSP] -= 8;
-}
-
-uint64_t emex64_pop(emex64_core_t *core)
-{
-    core->rl[kEmex64RegisterSP] += 8;
-
-    uint64_t value = 0;
-    emex64_memory_read(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), &value);
-    return value;
-}
-
 /* call convention not needed, emex64 supports arguments directly in bl (biggest L ever, we gotta make a call convention) */
 void emex64_op_blw(emex64_core_t *core)
 {
