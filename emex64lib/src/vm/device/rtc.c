@@ -31,11 +31,9 @@ uint64_t emex64_rtc_read(emex64_core_t *core,
                        uint64_t offset,
                        int size)
 {
-    /* get current time */
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
 
-    /* perform read */
     switch(offset)
     {
         case RTC_REG_SECONDS:
@@ -49,7 +47,6 @@ uint64_t emex64_rtc_read(emex64_core_t *core,
         case RTC_REG_MONTH:
             return t->tm_mon + 1;
         case RTC_REG_YEAR:
-            /* only last two digits */
             return (uint64_t)((t->tm_year + 1900) % 100);
         case RTC_REG_WEEKDAY:
             return t->tm_wday;

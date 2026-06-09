@@ -186,10 +186,8 @@ uint64_t emex64_timer_read(emex64_core_t *core,
                          uint64_t offset,
                          int size)
 {
-    /* getting timer */
     emex64_timer_t *timer = (emex64_timer_t *)device;
 
-    /* perform read */
     switch(offset)
     {
         case TIMER_REG_CTRL:
@@ -213,10 +211,8 @@ void emex64_timer_write(emex64_core_t *core,
                       uint64_t value,
                       int size)
 {
-    /* getting timer */
     emex64_timer_t *timer = (emex64_timer_t *)device;
 
-    /* perform write */
     switch(offset)
     {
         case TIMER_REG_CTRL:
@@ -234,9 +230,6 @@ void emex64_timer_write(emex64_core_t *core,
             break;
         case TIMER_REG_STATUS:
             timer->status &= ~value;
-            break;
-        case TIMER_REG_FREQ:
-            /* Read-only */
             break;
         default:
             break;

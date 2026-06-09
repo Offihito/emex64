@@ -34,23 +34,18 @@
 
 emex64_intc_t *emex64_intc_alloc(emex64_machine_t *machine)
 {
-    /* allocate interrupt controller */
     emex64_intc_t *intc = malloc(sizeof(emex64_intc_t));
-
-    /* null pointer check */
     if(intc == NULL)
     {
         return NULL;
     }
 
-    /* register interrupt controller MMIO */
     if(!emex64_mmio_register(machine->mmio_bus, EMEX64_INTC_BASE, EMEX64_INTC_SIZE, intc, emex64_intc_read, emex64_intc_write))
     {
         free(intc);
         return NULL;
     }
 
-    /* setup interrupt controller */
     intc->current_irq = -1;
     intc->enabled = 0;
     intc->ctrl = 0;
@@ -67,43 +62,35 @@ void emex64_intc_dealloc(emex64_intc_t *intc)
 void emex64_raise_interrupt(emex64_machine_t *machine,
                           int irq_line)
 {
-    /* sanity checks */
     if(irq_line < 0 ||
        irq_line > EMEX64_IRQ_MAX)
     {
         return;
     }
     
-    /* setting pending bit for intc */
     machine->intc->pending |= (1ULL << irq_line);
 }
 
 void emex64_clear_interrupt(emex64_machine_t *machine,
                           int irq_line)
 {
-    /* sanity checks */
     if(irq_line < 0 ||
        irq_line > EMEX64_IRQ_MAX)
     {
         return;
     }
     
-    /* clear pending bit */
     machine->intc->pending &= ~(1ULL << irq_line);
 }
 
 static int find_pending_irq(emex64_intc_t *intc)
 {
-    /* get pending and enabled interrupts */
     uint64_t active = intc->pending & intc->enabled;
-
-    /* checking if interrupts are enabled */
     if(active == 0)
     {
         return -1;
     }
     
-    /* iterating for lowest set bit */
     for(int i = 0; i <= EMEX64_IRQ_MAX; i++)
     {
         if(active & (1ULL << i))
@@ -124,8 +111,7 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     }
     
     /* check if were already servicing an interrupt (unless nesting allowed) */
-    if(core->machine->intc->current_irq >= 0 &&
-       !(core->machine->intc->ctrl & EMEX64_INTC_CTRL_NESTING))
+    if(core->machine->intc->current_irq >= 0 && !(core->machine->intc->ctrl & EMEX64_INTC_CTRL_NESTING) && core->op.opcode == kEmex64OpcodeIRET)
     {
         return false;
     }

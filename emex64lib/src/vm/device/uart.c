@@ -36,7 +36,6 @@ static struct termios uart_orig_termios;
 
 static void uart_set_raw_mode(void)
 {
-    /* TODO: make this rawer, or make a GUI terminal */
     struct termios raw;
     tcgetattr(STDIN_FILENO, &uart_orig_termios);
     raw = uart_orig_termios;
@@ -154,21 +153,18 @@ static inline void emex64_uart_stop(emex64_uart_t *u)
 
 emex64_uart_t *emex64_uart_alloc(emex64_machine_t *machine)
 {
-    /* allocate uart */
     emex64_uart_t *u = malloc(sizeof(emex64_uart_t));
     if(u == NULL)
     {
         return NULL;
     }
 
-    /* registering uart on machine */
     if(!emex64_mmio_register(machine->mmio_bus, EMEX64_UART_BASE, EMEX64_UART_SIZE, u, emex64_uart_read, emex64_uart_write))
     {
         free(u);
         return NULL;
     }
 
-    /* setting up uart */
     u->machine = machine;
     u->status = UART_STATUS_TX_EMPTY;
     
@@ -189,13 +185,11 @@ void emex64_uart_dealloc(emex64_uart_t *u)
 
 uint64_t emex64_uart_read(emex64_core_t *core, void *device, uint64_t offset, int size)
 {
-    /* getting uart */
     emex64_uart_t *u = (emex64_uart_t *)device;
 
     pthread_mutex_lock(&u->mutex);
     uint64_t result = 0;
 
-    /* perform read */
     switch(offset)
     {
         case UART_REG_DATA:
@@ -227,12 +221,10 @@ uint64_t emex64_uart_read(emex64_core_t *core, void *device, uint64_t offset, in
 
 void emex64_uart_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size)
 {
-    /* getting uart */
     emex64_uart_t *u = (emex64_uart_t *)device;
 
     pthread_mutex_lock(&u->mutex);
 
-    /* perform write */
     switch(offset)
     {
         case UART_REG_DATA:

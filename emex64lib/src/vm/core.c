@@ -277,19 +277,11 @@ static void *emex64_core_execute_thread(void *arg)
         core->rl[kEmex64RegisterPC] += core->op.ilen;
 
         /*
-         * if we are in a interrupt then there is no reason
-         * to check if we shall serve another interrupt.
-         * if we dont check if the instruction executes was
-         * the return from interrupt controller then there is
-         * a potential for a hardware occuring TOCTOU vulnerability,
-         * because we would just immediately interrupt into another
-         * interrupt handler in the interrupt vector table.
+         * currently exceptions happening in a interrupt
+         * are ignored, this shall not be the case long
+         * term.
          */
-        if(core->in_interrupt || core->op.opcode == kEmex64OpcodeIRET)
-        {
-            goto tick_timer;
-        }
-        else
+        if(!core->in_interrupt)
         {
             /* handling exception if applicable */
             if(unlikely(core->rl[kEmex64RegisterCR2] != kEmex64ExceptionNone))
@@ -315,7 +307,6 @@ static void *emex64_core_execute_thread(void *arg)
          * we cannot just freeze the thread, otherwise the timer won't fire any
          * interrupts.
          */
-    tick_timer:
         emex64_timer_tick(core->machine->timer, emex64_get_host_cycles());
     }
 
