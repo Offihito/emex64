@@ -146,74 +146,43 @@ void emex64_memory_action(emex64_core_t *core,
         emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, addr);
         if(likely(mmio_region != NULL))
         {
-            *value = mmio_region->read(core, mmio_region->device, addr - mmio_region->base_addr, (int)size);
-            return;
+            uint64_t offset = addr - mmio_region->base_addr;
+            switch(action)
+            {
+                case kEmex64MemoryActionRead:
+                    *value = mmio_region->read(core, mmio_region->device, offset, (int)size);
+                    return;
+                case kEmex64MemoryActionWrite:
+                    mmio_region->write(core, mmio_region->device, offset, *value, (int)size);
+                    return;
+            }
         }
     }
     else
     {
-        void *ptr = emex64_memory_access(core, addr, size);
+        uint64_t *ptr = emex64_memory_access(core, addr, size);
         if(likely(ptr != NULL))
         {
-            /* ram read */
-            uint64_t raw = *(uint64_t *)ptr;
             uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
-            *value = raw & mask;
-            return;
-        }
-    }
+            switch(action)
+            {
+                case kEmex64MemoryActionRead:
+                    *value = *ptr & mask;
+                    return;
+                case kEmex64MemoryActionWrite:
+                    /*
+                     * preventing Kernel Text Read-Only Region
+                     * writes.
+                     */
+                    if(unlikely(core->machine->memory->ktrr_size >= addr))
+                    {
+                        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
+                        return;
+                    }
 
-    core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-}
-
-void emex64_memory_write(emex64_core_t *core,
-                         uint64_t addr,
-                         uint64_t value,
-                         size_t size)
-{
-    if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessWrite, &addr)))
-    {
-        /* MMU wrote exception, no need to write it our selves */
-        return;
-    }
-
-    /*
-     * MMIO starts at 0x0040000000000000 while the physical
-     * maximum memory size is 0x003FFFFFFFFFFFFF, that is so
-     * MMIO doesnt sit in middle of the memory, which is better
-     * for page memory management on the OS side and faster cuz
-     * we don't have to look it up in MMIO on every memory
-     * access.
-     */
-    if(addr >> 53)
-    {
-        emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, addr);
-        if(likely(mmio_region != NULL))
-        {
-            mmio_region->write(core, mmio_region->device, addr - mmio_region->base_addr, value, (int)size);
-            return;
-        }
-    }
-    else
-    {
-        /*
-         * preventing Kernel Text Read-Only Region
-         * writes.
-         */
-        if(unlikely(core->machine->memory->ktrr_size >= addr))
-        {
-            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
-            return;
-        }
-
-        void *ptr = emex64_memory_access(core, addr, size);
-        if(likely(ptr != NULL))
-        {
-            /* ram write */
-            uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
-            uint64_t raw = *(uint64_t *)ptr;
-            raw = (raw & ~mask) | (value & mask);
-            *(uint64_t *)ptr = raw;
+                    *ptr = (*ptr & ~mask) | (*value & mask);
+                    return;
+            }
             return;
         }
     }

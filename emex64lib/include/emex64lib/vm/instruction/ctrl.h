@@ -48,7 +48,7 @@ void emex64_op_ret(emex64_core_t *core);
 
 static inline void emex64_push_il(emex64_core_t *core, uint64_t value)
 {
-    emex64_memory_write(core, core->rl[kEmex64RegisterSP], value, sizeof(uint64_t));
+    emex64_memory_action(core, core->rl[kEmex64RegisterSP], sizeof(uint64_t), &value, kEmex64MemoryActionWrite);
     core->rl[kEmex64RegisterSP] -= 8;
 }
 
