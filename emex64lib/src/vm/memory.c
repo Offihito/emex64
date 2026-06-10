@@ -127,7 +127,7 @@ void emex64_memory_action(emex64_core_t *core,
                           uint64_t *value,
                           kEmex64MemoryAction action)
 {
-    if(unlikely(core->rl[kEmex64RegisterCR2] == kEmex64ExceptionBadAccess))
+    if(unlikely(core->rl[kEmex64RegisterCR2] == kEmex64ExceptionBadAccess || core->rl[kEmex64RegisterCR2] == kEmex64ExceptionKTRRViolation) && !core->in_interrupt)
     {
         return;
     }
@@ -147,8 +147,7 @@ void emex64_memory_action(emex64_core_t *core,
         uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
         if(((cr_pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
         {
-            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-            return;
+            goto bad_access;
         }
 
         paddr = addr;
@@ -157,7 +156,7 @@ void emex64_memory_action(emex64_core_t *core,
         if(likely(mmio_region != NULL))
         {
             uint64_t offset = paddr - mmio_region->base_addr;
-            switch (action)
+            switch(action)
             {
                 case kEmex64MemoryActionRead:
                     *value = mmio_region->read(core, mmio_region->device, offset, (int)size);
@@ -165,11 +164,10 @@ void emex64_memory_action(emex64_core_t *core,
                 case kEmex64MemoryActionWrite:
                     mmio_region->write(core, mmio_region->device, offset, *value, (int)size);
                     return;
+                default:
+                    goto bad_access;
             }
         }
-
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return;
     }
 
     uint64_t page_end = (addr & ~EMEX64_PAGE_MASK) + EMEX64_PAGE_SIZE;
@@ -205,6 +203,7 @@ void emex64_memory_action(emex64_core_t *core,
 
         switch(action)
         {
+            case kEmex64MemoryActionExecute:
             case kEmex64MemoryActionRead:
                 lo_val = 0;
                 hi_val = 0;
@@ -230,6 +229,7 @@ skip_to_rw:
         uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
         switch(action)
         {
+            case kEmex64MemoryActionExecute:
             case kEmex64MemoryActionRead:
                 *value = *ptr & mask;
                 return;
@@ -244,5 +244,6 @@ skip_to_rw:
         }
     }
 
+bad_access:
     core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
 }

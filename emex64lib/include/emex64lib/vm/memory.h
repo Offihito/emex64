@@ -68,7 +68,8 @@ typedef struct emex64_memory {
 
 typedef enum: uint8_t {
     kEmex64MemoryActionRead,
-    kEmex64MemoryActionWrite
+    kEmex64MemoryActionWrite,
+    kEmex64MemoryActionExecute,
 } kEmex64MemoryAction;
 
 emex64_memory_t *emex64_memory_alloc(uint64_t size);
