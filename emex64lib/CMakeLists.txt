@@ -22,6 +22,7 @@ if(EMEX64VM_DEVICE_DISPLAY)
 endif()
 
 option(EMEX64LIB_STATIC "Link statically against emex64lib" OFF)
+option(EMEX64_NATIVE_ARCH "Optimizations for the host CPU" OFF)
 
 if(EMEX64LIB_STATIC)
     set(LIB_TYPE STATIC)
@@ -91,9 +92,26 @@ target_include_directories(emex64
 target_compile_features(emex64 PUBLIC c_std_23)
 
 if (MSVC)
+    # Fuck MSVC nobody likes you
     target_compile_options(emex64 PRIVATE /W4)
 else()
-    target_compile_options(emex64 PRIVATE -Wall -Wextra -Wpedantic -Wno-unused-parameter)
+
+    # Setting up compiler flags
+    set(_EMEX64_WARN_FLAGS -Wall -Wextra -Wpedantic -Wno-unused-parameter)
+    set(_EMEX64_OPT_FLAGS -O3 -fomit-frame-pointer -fstrict-aliasing -ffast-math -funroll-loops)
+    
+    if(EMEX64_NATIVE_ARCH)
+        list(APPEND _EMEX64_OPT_FLAGS -march=native -mtune=native)
+    endif()
+
+
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        list(APPEND _EMEX64_OPT_FLAGS -fgraphite-identity -floop-nest-optimize -fipa-pta)
+    elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        list(APPEND _EMEX64_OPT_FLAGS -fvectorize -fslp-vectorize)
+    endif()
+
+    target_compile_options(emex64 PRIVATE ${_EMEX64_WARN_FLAGS} ${_EMEX64_OPT_FLAGS})
 endif()
 
 target_link_libraries(emex64
