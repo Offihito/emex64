@@ -134,8 +134,8 @@ void emex64_memory_action(emex64_core_t *core,
     }
 
     /*
-     * MMIO starts at 0x0040000000000000 while the physical
-     * maximum memory size is 0x003FFFFFFFFFFFFF, that is so
+     * MMIO starts at 0x0020000000000000 while the physical
+     * maximum memory size is 0x001FFFFFFFFFFFFF, that is so
      * MMIO doesnt sit in middle of the memory, which is better
      * for page memory management on the OS side and faster cuz
      * we don't have to look it up in MMIO on every memory
