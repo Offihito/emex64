@@ -90,17 +90,6 @@ const opcode_entry_t opcode_table[] = {
     { .name = "bl",     .opcode = kEmex64OpcodeBL,          .minargs = 1, .maxargs = 1, .argmask =  0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
     { .name = "ret",    .opcode = kEmex64OpcodeRET,         .minargs = 0, .maxargs = 0,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
 
-    /* compatibility stubs for older code */
-    { .name = "jmp",    .opcode = kEmex64OpcodeB,           .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"b\" instead", .handler = assembler_emit_instruction_generic },
-    { .name = "je",     .opcode = kEmex64OpcodeBE,          .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"be\" instead", .handler = assembler_emit_instruction_generic },
-    { .name = "jne",    .opcode = kEmex64OpcodeBNE,         .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"bne\" instead", .handler = assembler_emit_instruction_generic },
-    { .name = "jlt",    .opcode = kEmex64OpcodeBLT,         .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"blt\" instead", .handler = assembler_emit_instruction_generic },
-    { .name = "jgt",    .opcode = kEmex64OpcodeBGT,         .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"bgt\" instead", .handler = assembler_emit_instruction_generic },
-    { .name = "jle",    .opcode = kEmex64OpcodeBLE,         .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"ble\" instead", .handler = assembler_emit_instruction_generic },
-    { .name = "jge",    .opcode = kEmex64OpcodeBGE,         .minargs = 1, .maxargs = 1,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"bge\" instead", .handler = assembler_emit_instruction_generic },
-    { .name = "jz",     .opcode = kEmex64OpcodeBZ,          .minargs = 2, .maxargs = 2,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"bz\" instead", .handler = assembler_emit_instruction_generic },
-    { .name = "jnz",    .opcode = kEmex64OpcodeBNZ,         .minargs = 2, .maxargs = 2,  .argmask = 0b00000000000000000000000000000000, .dnstr = "use \"bnz\" instead", .handler = assembler_emit_instruction_generic },
-
     /* pseudo opcodes */
     { .name = "clr",    .opcode = kEmex64OpcodeHLT,         .minargs = 1, .maxargs = 32, .argmask = 0b11111111111111111111111111111111, .dnstr = NULL, .handler = assembler_emit_instruction_clr },
 };

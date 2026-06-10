@@ -89,6 +89,14 @@ void assembler_emit_imm64(assembler_invocation_t *inv,
     fdwalker_write(inv->fdwalker, imm, 64);
 }
 
+void assembler_emit_addr64(assembler_invocation_t *inv,
+                           uint64_t addr)
+{
+    fdwalker_write(inv->fdwalker, kEmex64ParameterCodingAddr64, 3);
+    fdwalker_align_byte(inv->fdwalker);
+    fdwalker_write(inv->fdwalker, addr, 64);
+}
+
 void assembler_emit_imm(assembler_invocation_t *inv,
                         uint64_t imm)
 {
@@ -238,8 +246,19 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
         }
         else
         {
-            /* its a intermediate */
-            assembler_emit_imm(al->inv, pr.value);
+            /* branches work different, they have offset branching */
+            if((i == 1 && (opce->opcode == kEmex64OpcodeB   || opce->opcode == kEmex64OpcodeBE  || opce->opcode == kEmex64OpcodeBNE   ||
+                           opce->opcode == kEmex64OpcodeBLE || opce->opcode == kEmex64OpcodeBGE || opce->opcode == kEmex64OpcodeBLT   ||
+                           opce->opcode == kEmex64OpcodeBGT || opce->opcode == kEmex64OpcodeBLW || opce->opcode == kEmex64OpcodeBLE)) ||
+               (i == 2 && (opce->opcode == kEmex64OpcodeBZ  || opce->opcode == kEmex64OpcodeBNZ)))
+            {
+                assembler_emit_addr64(al->inv, pr.value);
+            }
+            else
+            {
+                /* its a intermediate */
+                assembler_emit_imm(al->inv, pr.value);
+            }
         }
     }
 
