@@ -345,7 +345,7 @@ void *display_start(void *arg)
     GLuint texIndex, texPal;
     glGenTextures(1,&texIndex);
     glBindTexture(GL_TEXTURE_2D,texIndex);
-    glTexStorage2D(GL_TEXTURE_2D,1,GL_R8,EMEX64_FB_WIDTH,EMEX64_FB_HEIGHT);
+    glTexStorage2D(GL_TEXTURE_2D,1,GL_R8,display->width,display->height);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
@@ -361,7 +361,7 @@ void *display_start(void *arg)
     for(int i=0;i<2;i++)
     {
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER,pbo[i]);
-        glBufferData(GL_PIXEL_UNPACK_BUFFER,EMEX64_FB_SIZE,NULL,GL_STREAM_DRAW);
+        glBufferData(GL_PIXEL_UNPACK_BUFFER,display->fb_size,NULL,GL_STREAM_DRAW);
     }
 
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
