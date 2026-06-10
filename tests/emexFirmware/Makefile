@@ -45,7 +45,7 @@ $(TARGET): $(LINK_ORDER) $(LDSCRIPT)
 	$(LD) -T $(LDSCRIPT) -o $@ $(LINK_ORDER)
 
 execute:
-	$(VM) --firmware $(TARGET) --memory 1
+	$(VM) --firmware $(TARGET) --memory 1 --display on
 
 clean:
 	rm -rf $(BUILDDIR)

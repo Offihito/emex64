@@ -57,7 +57,7 @@ $(TARGET): $(LINK_ORDER) $(LDSCRIPT)
 	$(LD) -T $(LDSCRIPT) -o $@ $(LINK_ORDER)
 
 execute:
-	$(VM) --firmware $(TARGET)
+	$(VM) --firmware $(TARGET) --display required
 
 clean:
 	rm -rf $(BUILDDIR)

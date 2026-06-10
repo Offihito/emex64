@@ -496,6 +496,15 @@ void emex64_display_dealloc(emex64_display_t *display)
     }
 }
 
+bool emex64_display_supported(void)
+{
+    #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
+    return true;
+    #else
+    return false;
+    #endif /* EMEX64VM_DEVICE_DISPLAY */
+}
+
 uint64_t emex64_fb_read(emex64_core_t *core,
                       void *device,
                       uint64_t offset,

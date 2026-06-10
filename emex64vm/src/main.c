@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     const char *firmware_image_path = NULL;
     uint64_t memsize = 100 * 1024 * 1024;   /* standard is 100MB */
     bool display = false;
+    bool display_supported = emex64_display_supported();
 
     /* parse arguments */
     for(int i = 1; i < argc; i++)
@@ -50,15 +51,16 @@ int main(int argc, char *argv[])
         {
         usage:
             fprintf(stderr, "%s [options]\n", argv[0]);
-            fprintf(stderr, "\t--help                   : showing help menu\n");
-            fprintf(stderr, "\t--firmware <image path>  : providing firmware image\n");
-            fprintf(stderr, "\t--memory <memory size>   : providing memory size in megabyte\n");
-            #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
-            fprintf(stderr, "\t--display [on|off]       : enables or disables display\n");
-            #endif /* EMEX64VM_DEVICE_DISPLAY */
+            fprintf(stderr, "\t--help                           : showing help menu\n");
+            fprintf(stderr, "\t--firmware <image path>          : providing firmware image\n");
+            fprintf(stderr, "\t--memory <memory size>           : providing memory size in megabyte\n");
+            if(display_supported)
+            {
+                fprintf(stderr, "\t--display [on|off|required]  : enables or disables display\n");
+            }
             return 1;
         }
-        else if(strcmp(argv[i], "--firmware") == 0 && i + 1 < argc || strcmp(argv[i], "--bios") == 0 && i + 1 < argc)
+        else if(strcmp(argv[i], "--firmware") == 0 && i + 1 < argc)
         {
             firmware_image_path = argv[++i];
         }
@@ -79,11 +81,24 @@ int main(int argc, char *argv[])
         {
             if(strcmp(argv[i + 1], "on") == 0)
             {
+                if(!display_supported)
+                {
+                    diag_warn(NULL, "display support is not available in this distribution of the emex64 toolchain\n");
+                }
                 display = true;
             }
             else if(strcmp(argv[i + 1], "off") == 0)
             {
                 display = false;
+            }
+            else if(strcmp(argv[i + 1], "required") == 0)
+            {
+                if(!display_supported)
+                {
+                    diag_error(NULL, "display support is not available in this distribution of the emex64 toolchain\n");
+                    return 1;
+                }
+                display = true;
             }
             else
             {
@@ -98,13 +113,6 @@ int main(int argc, char *argv[])
             return 1;
         }
     }
-
-    #if !(EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__)))
-    if(display)
-    {
-        diag_warn(NULL, "display support is not available in this distribution of the emex64 toolchain\n");
-    }
-    #endif /* !EMEX64VM_DEVICE_DISPLAY */
 
     /* creating new emex64 virtual machine */
     emex64_machine_t *machine = emex64_machine_alloc(memsize, display);
