@@ -241,12 +241,10 @@ void emex64_memory_action(emex64_core_t *core,
             goto bad_access;
         }
 
-        paddr = addr;
-
-        emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, paddr);
+        emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, addr);
         if(likely(mmio_region != NULL))
         {
-            uint64_t offset = paddr - mmio_region->base_addr;
+            uint64_t offset = addr - mmio_region->base_addr;
             switch(action)
             {
                 case kEmex64MemoryActionRead:
@@ -352,8 +350,6 @@ mmu_user_access:
             case kEmex64MemoryActionPageDirectory:
             case kEmex64MemoryActionExecute:
             case kEmex64MemoryActionRead:
-                lo_val = 0;
-                hi_val = 0;
                 emex64_memory_action(core, addr, lo_size, &lo_val, action);
                 emex64_memory_action(core, page_end, hi_size, &hi_val, action);
                 *value = lo_val | (hi_val << hi_shift);
