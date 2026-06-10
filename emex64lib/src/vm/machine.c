@@ -74,21 +74,6 @@ emex64_machine_t *emex64_machine_alloc(uint64_t memory_size)
         goto out_release_timer;
     }
 
-    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_RTC_BASE, EMEX64_RTC_SIZE, NULL, emex64_rtc_read, NULL))
-    {
-        goto out_release_uart;
-    }
-
-    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_MC_BASE, EMEX64_MC_SIZE, NULL, emex64_mc_read, emex64_mc_write))
-    {
-        goto out_release_uart;
-    }
-
-    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_PLATFORM_BASE, EMEX64_PLATFORM_SIZE, NULL, emex64_platform_read, emex64_platform_write))
-    {
-        goto out_release_uart;
-    }
-
     machine->emex8042 = emex64_8042_alloc(machine);
     if(machine->emex8042 == NULL)
     {
@@ -97,6 +82,13 @@ emex64_machine_t *emex64_machine_alloc(uint64_t memory_size)
 
     machine->display = emex64_display_alloc(machine);
     if(machine->display == NULL)
+    {
+        goto out_release_8042;
+    }
+
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_RTC_BASE, EMEX64_RTC_SIZE, NULL, emex64_rtc_read, NULL) ||
+       !emex64_mmio_register(machine->mmio_bus, EMEX64_MC_BASE, EMEX64_MC_SIZE, NULL, emex64_mc_read, emex64_mc_write) ||
+       !emex64_mmio_register(machine->mmio_bus, EMEX64_PLATFORM_BASE, EMEX64_PLATFORM_SIZE, NULL, emex64_platform_read, emex64_platform_write))
     {
         goto out_release_8042;
     }
