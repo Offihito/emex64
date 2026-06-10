@@ -28,7 +28,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
 
+#include <emex64lib/support/bitwalker.h>
 #include <emex64lib/vm/core.h>
 
 #define EMEX64_PAGE_SIZE 0x2000

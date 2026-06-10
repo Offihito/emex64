@@ -127,13 +127,13 @@ void emex64_memory_action(emex64_core_t *core,
                           uint64_t *value,
                           kEmex64MemoryAction action)
 {
-    uint64_t paddr;
-    if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessRead, &paddr)))
+    if(unlikely(core->rl[kEmex64RegisterCR2] == kEmex64ExceptionBadAccess))
     {
-        /* MMU wrote exception, no need to write it our selves */
         return;
     }
 
+    uint64_t paddr;
+    
     /*
      * MMIO starts at 0x0020000000000000 while the physical
      * maximum memory size is 0x001FFFFFFFFFFFFF, that is so
@@ -144,11 +144,20 @@ void emex64_memory_action(emex64_core_t *core,
      */
     if(addr >> 53)
     {
+        uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
+        if(((cr_pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
+        {
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
+            return;
+        }
+
+        paddr = addr;
+
         emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, paddr);
         if(likely(mmio_region != NULL))
         {
             uint64_t offset = paddr - mmio_region->base_addr;
-            switch(action)
+            switch (action)
             {
                 case kEmex64MemoryActionRead:
                     *value = mmio_region->read(core, mmio_region->device, offset, (int)size);
@@ -158,32 +167,80 @@ void emex64_memory_action(emex64_core_t *core,
                     return;
             }
         }
-    }
-    else
-    {
-        if(likely(emex64_memory_access(core, paddr, size)))
-        {
-            uint64_t *ptr = (uint64_t*)(core->machine->memory->memory + paddr);
-            uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
-            switch(action)
-            {
-                case kEmex64MemoryActionRead:
-                    *value = *ptr & mask;
-                    return;
-                case kEmex64MemoryActionWrite:
-                    /*
-                     * preventing Kernel Text Read-Only Region
-                     * writes.
-                     */
-                    if(unlikely(core->machine->memory->ktrr_size >= paddr))
-                    {
-                        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
-                        return;
-                    }
 
-                    *ptr = (*ptr & ~mask) | (*value & mask);
+        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
+        return;
+    }
+
+    uint64_t page_end = (addr & ~EMEX64_PAGE_MASK) + EMEX64_PAGE_SIZE;
+    size_t lo_size = (size_t)(page_end - addr);
+
+    /*
+     * find out if paging is enabled, if not write vaddr to paddr,
+     * because that means paddr is vaddr because virtual addressing
+     * is already off.
+     *
+     * we read it as if it was a 5th level entry, but its just a
+     * control register.. for simplicity we do that hahaha.
+     */
+    uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
+    if(!((cr_pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) || core->in_interrupt)
+    {
+        /* incase paging is disabled */
+        paddr = addr;
+        goto skip_to_rw;
+    }
+
+    if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessRead, &paddr)))
+    {
+        /* MMU wrote exception */
+        return;
+    }
+
+    if(lo_size < size)
+    {
+        size_t hi_size = size - lo_size;
+        uint64_t hi_shift = lo_size * 8;
+        uint64_t lo_val, hi_val, lo_mask;
+
+        switch(action)
+        {
+            case kEmex64MemoryActionRead:
+                lo_val = 0;
+                hi_val = 0;
+                emex64_memory_action(core, addr, lo_size, &lo_val, action);
+                emex64_memory_action(core, page_end, hi_size, &hi_val, action);
+                *value = lo_val | (hi_val << hi_shift);
+                return;
+            case kEmex64MemoryActionWrite:
+                lo_mask = (lo_size == 8) ? ~0ULL : (1ULL << hi_shift) - 1;
+                lo_val = *value & lo_mask;
+                hi_val = *value >> hi_shift;
+                emex64_memory_action(core, addr, lo_size, &lo_val, action);
+                emex64_memory_action(core, page_end, hi_size, &hi_val, action);
+                return;
+        }
+        return;
+    }
+
+skip_to_rw:
+    if(likely(emex64_memory_access(core, paddr, size)))
+    {
+        uint64_t *ptr  = (uint64_t *)(core->machine->memory->memory + paddr);
+        uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
+        switch(action)
+        {
+            case kEmex64MemoryActionRead:
+                *value = *ptr & mask;
+                return;
+            case kEmex64MemoryActionWrite:
+                if(unlikely(core->machine->memory->ktrr_size >= paddr))
+                {
+                    core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
                     return;
-            }
+                }
+                *ptr = (*ptr & ~mask) | (*value & mask);
+                return;
         }
     }
 

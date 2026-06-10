@@ -127,22 +127,6 @@ bool emex64_mmu_access(emex64_core_t *core,
                        kEmex64MMUAccess acc,
                        uint64_t *paddr)
 {
-    /*
-     * find out if paging is enabled, if not write vaddr to paddr,
-     * because that means paddr is vaddr because virtual addressing
-     * is already off.
-     *
-     * we read it as if it was a 5th level entry, but its just a
-     * control register.. for simplicity we do that hahaha.
-     */
-    uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
-    if(!((cr_pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) || core->in_interrupt)
-    {
-        /* incase paging is disabled virtual addresses are physical ones */
-        *paddr = vaddr;
-        return true;
-    }
-
     /* vaddr cannot be bigger than 53bits */
     if(unlikely(vaddr >> 53))
     {
@@ -152,6 +136,7 @@ bool emex64_mmu_access(emex64_core_t *core,
     }
 
     /* get pfn of control register */
+    uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
     uint64_t cr_pfn = (cr_pte & EMEX64_MMU_MASK_PFN) >> 8;
 
     /* precalculating all indexes */
