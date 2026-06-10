@@ -218,7 +218,7 @@ void emex64_memory_action(emex64_core_t *core,
                           uint64_t *value,
                           kEmex64MemoryAction action)
 {
-    if(unlikely(core->rl[kEmex64RegisterCR2] == kEmex64ExceptionBadAccess || core->rl[kEmex64RegisterCR2] == kEmex64ExceptionKTRRViolation) && !core->in_interrupt)
+    if(unlikely((core->rl[kEmex64RegisterCR2] == kEmex64ExceptionBadAccess || core->rl[kEmex64RegisterCR2] == kEmex64ExceptionKTRRViolation) && !core->in_interrupt))
     {
         return;
     }
