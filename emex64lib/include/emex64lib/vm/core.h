@@ -329,7 +329,7 @@ enum kEmex64Exception {
     /*
      * KTRR exception!?
      */
-    kEmex64ExceptionKTRRViolation =         0b110,
+    kEmex64ExceptionKTRRViolation =     0b110,
 };
 
 typedef struct emex64_core emex64_core_t;

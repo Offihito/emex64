@@ -176,8 +176,8 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
         return false;
     }
 
-    bitwalker_t bw;
-    bitwalker_init_read(&bw, core->machine->memory->memory + pc_addr, 256, BW_LITTLE_ENDIAN);
+    bitwalker_t bw = emex64_memory_bitwalker_template;
+    bw.buffer = core->machine->memory->memory + pc_addr;
 
     enum kEmex64Opcode opcode = (uint8_t)bitwalker_read(&bw, 8);
     if(unlikely(opcode > kEmex64OpcodeMAX))
