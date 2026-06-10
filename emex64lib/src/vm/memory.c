@@ -160,9 +160,9 @@ void emex64_memory_action(emex64_core_t *core,
     }
     else
     {
-        uint64_t *ptr = emex64_memory_access(core, addr, size);
-        if(likely(ptr != NULL))
+        if(likely(emex64_memory_access(core, addr, size)))
         {
+            uint64_t *ptr = (uint64_t*)(core->machine->memory->memory + addr);
             uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
             switch(action)
             {

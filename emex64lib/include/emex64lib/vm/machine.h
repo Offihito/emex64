@@ -37,6 +37,7 @@
 #include <emex64lib/vm/device/display.h>
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct emex64_machine {
     emex64_core_t *core;
@@ -55,16 +56,16 @@ void emex64_machine_dealloc(emex64_machine_t *machine);
 emex64_machine_support_t emex64_machine_support_get(void);
 emex64_machine_options_t emex64_machine_options_default(void);
 
-static inline void *emex64_memory_access(emex64_core_t *core,
-                                         uint64_t addr,
-                                         size_t size)
+static inline bool emex64_memory_access(emex64_core_t *core,
+                                        uint64_t addr,
+                                        size_t size)
 {
     uint64_t addr_end = addr + size;
     if(addr >= addr_end || core->machine->memory->memory_size < addr_end)
     {
-        return NULL;
+        return false;
     }
-    return core->machine->memory->memory + addr;
+    return true;
 }
 
 #endif /* EMEX64VM_MACHINE_H */

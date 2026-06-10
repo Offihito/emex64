@@ -128,16 +128,15 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     
     /* clear pending bit (edge-triggered style) */
     core->machine->intc->pending &= ~(1ULL << irq);
-
-    uint64_t vector_addr = core->machine->intc->vector_base + (irq * 8);
     
     /* read handler address from vector table */
-    void *vector_ptr = emex64_memory_access(core, vector_addr, 8);
-    if(vector_ptr == NULL)
+    uint64_t vector_addr = core->machine->intc->vector_base + (irq * 8);
+    if(!emex64_memory_access(core, vector_addr, 8))
     {
         core->machine->intc->current_irq = -1;
         return false;
     }
+    void *vector_ptr = core->machine->memory + vector_addr;
 
     uint64_t handler_addr = *(uint64_t *)vector_ptr;
 

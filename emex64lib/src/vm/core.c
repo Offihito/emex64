@@ -170,15 +170,14 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
         }
     }
 
-    void *iptr = emex64_memory_access(core, pc_addr, 256);
-    if(unlikely(iptr == NULL))
+    if(unlikely(!emex64_memory_access(core, pc_addr, 256)))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return false;
     }
 
     bitwalker_t bw;
-    bitwalker_init_read(&bw, iptr, 256, BW_LITTLE_ENDIAN);
+    bitwalker_init_read(&bw, core->machine->memory->memory + pc_addr, 256, BW_LITTLE_ENDIAN);
 
     enum kEmex64Opcode opcode = (uint8_t)bitwalker_read(&bw, 8);
     if(unlikely(opcode > kEmex64OpcodeMAX))
