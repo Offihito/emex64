@@ -57,7 +57,7 @@ $(TARGET): $(LINK_ORDER) $(LDSCRIPT)
 	$(LD) -T $(LDSCRIPT) -o $@ $(LINK_ORDER)
 
 execute:
-	$(VM) --firmware $(TARGET) --display required
+	$(VM) --firmware $(TARGET) --display required --display:resolution 256 256
 
 clean:
 	rm -rf $(BUILDDIR)
