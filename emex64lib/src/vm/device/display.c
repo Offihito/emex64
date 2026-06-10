@@ -411,7 +411,7 @@ void *display_start(void *arg)
 
 extern void *display_start(void *arg);
 
-emex64_display_t *emex64_display_alloc(emex64_machine_t *machine)
+emex64_display_t *emex64_display_alloc(emex64_machine_t *machine, bool install)
 {
     emex64_display_t *display = malloc(sizeof(emex64_display_t));
 
@@ -460,8 +460,11 @@ emex64_display_t *emex64_display_alloc(emex64_machine_t *machine)
     display->emex8042 = machine->emex8042;
 
     #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
-    display->enabled = true;
-    pthread_create(&(display->pthread), NULL, display_start, display);
+    if(install)
+    {
+        display->enabled = true;
+        pthread_create(&(display->pthread), NULL, display_start, display);
+    }
     #endif /* EMEX64VM_DEVICE_DISPLAY */
 
     return display;
@@ -501,26 +504,32 @@ uint64_t emex64_fb_read(emex64_core_t *core,
 
     #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
     emex64_display_t *display = (emex64_display_t*)device;
-
-    if(offset >= EMEX64_FB_FRAMEBUFFER)
+    if(display->enabled)
     {
-        uint64_t outvalue;
-        EMEX64_MEMORY_READ_HELPER(display->fb, offset - EMEX64_FB_FRAMEBUFFER, size, outvalue);
-        return outvalue;
-    }
-    else if(offset >= EMEX64_FB_PALLETE)
-    {
-        uint64_t outvalue;
-        EMEX64_MEMORY_READ_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, outvalue);
-        return outvalue;
-    }
-    else if(offset == EMEX64_FB_REG_HEIGHT)
-    {
-        return EMEX64_FB_HEIGHT;
+        if(offset >= EMEX64_FB_FRAMEBUFFER)
+        {
+            uint64_t outvalue;
+            EMEX64_MEMORY_READ_HELPER(display->fb, offset - EMEX64_FB_FRAMEBUFFER, size, outvalue);
+            return outvalue;
+        }
+        else if(offset >= EMEX64_FB_PALLETE)
+        {
+            uint64_t outvalue;
+            EMEX64_MEMORY_READ_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, outvalue);
+            return outvalue;
+        }
+        else if(offset == EMEX64_FB_REG_HEIGHT)
+        {
+            return EMEX64_FB_HEIGHT;
+        }
+        else
+        {
+            return EMEX64_FB_WIDTH;
+        }
     }
     else
     {
-        return EMEX64_FB_WIDTH;
+        return 0;
     }
     #else
     return 0;
@@ -536,19 +545,22 @@ void emex64_fb_write(emex64_core_t *core,
     #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
     emex64_display_t *display = (emex64_display_t*)device;
 
-    if(offset >= EMEX64_FB_FRAMEBUFFER)
+    if(display->enabled)
     {
-        EMEX64_MEMORY_WRITE_HELPER(display->fb, offset - EMEX64_FB_FRAMEBUFFER, size, value);
-        return;
-    }
-    else if(offset >= EMEX64_FB_PALLETE)
-    {
-        EMEX64_MEMORY_WRITE_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, value);
-        return;
-    }
-    else
-    {
-        display->enabled = (uint8_t)value;
+        if(offset >= EMEX64_FB_FRAMEBUFFER)
+        {
+            EMEX64_MEMORY_WRITE_HELPER(display->fb, offset - EMEX64_FB_FRAMEBUFFER, size, value);
+            return;
+        }
+        else if(offset >= EMEX64_FB_PALLETE)
+        {
+            EMEX64_MEMORY_WRITE_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, value);
+            return;
+        }
+        else
+        {
+            display->enabled = (uint8_t)value;
+        }
     }
     #endif /* EMEX64VM_DEVICE_DISPLAY */
 }

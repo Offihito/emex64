@@ -49,7 +49,7 @@ typedef struct emex64_machine {
     emex64_8042_t *emex8042;
 } emex64_machine_t;
 
-emex64_machine_t *emex64_machine_alloc(uint64_t memory_size);
+emex64_machine_t *emex64_machine_alloc(uint64_t memory_size, bool display);
 void emex64_machine_dealloc(emex64_machine_t *machine);
 
 static inline void *emex64_memory_access(emex64_core_t *core,

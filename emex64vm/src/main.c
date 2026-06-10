@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
@@ -40,6 +41,7 @@ int main(int argc, char *argv[])
     int opt;
     const char *firmware_image_path = NULL;
     uint64_t memsize = 100 * 1024 * 1024;   /* standard is 100MB */
+    bool display = false;
 
     /* parse arguments */
     for(int i = 1; i < argc; i++)
@@ -51,6 +53,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "\t--help                   : showing help menu\n");
             fprintf(stderr, "\t--firmware <image path>  : providing firmware image\n");
             fprintf(stderr, "\t--memory <memory size>   : providing memory size in megabyte\n");
+            fprintf(stderr, "\t--display [on|off]       : enables or disables display\n");
             return 1;
         }
         else if(strcmp(argv[i], "--firmware") == 0 && i + 1 < argc || strcmp(argv[i], "--bios") == 0 && i + 1 < argc)
@@ -70,6 +73,23 @@ int main(int argc, char *argv[])
                 return 1;
             }
         }
+        else if(strcmp(argv[i], "--display") == 0 && i + 1 < argc)
+        {
+            if(strcmp(argv[i + 1], "on") == 0)
+            {
+                display = true;
+            }
+            else if(strcmp(argv[i + 1], "off") == 0)
+            {
+                display = false;
+            }
+            else
+            {
+                diag_error(NULL, "unknown argument supplied to '--display': '%s'\n", argv[i + 1]);
+                return 1;
+            }
+            i++;
+        }
         else
         {
             diag_error(NULL, "unknown option '%s'\n", argv[i]);
@@ -78,7 +98,7 @@ int main(int argc, char *argv[])
     }
 
     /* creating new emex64 virtual machine */
-    emex64_machine_t *machine = emex64_machine_alloc(memsize);
+    emex64_machine_t *machine = emex64_machine_alloc(memsize, display);
     if(machine == NULL)
     {
         diag_error(NULL, "failed to allocated machine\n");

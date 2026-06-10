@@ -29,7 +29,7 @@
 #include <emex64lib/vm/device/platform.h>
 #include <emex64lib/vm/device/mc.h>
 
-emex64_machine_t *emex64_machine_alloc(uint64_t memory_size)
+emex64_machine_t *emex64_machine_alloc(uint64_t memory_size, bool display)
 {
     emex64_machine_t *machine = calloc(1, sizeof(emex64_machine_t));
     if(machine == NULL)
@@ -80,7 +80,7 @@ emex64_machine_t *emex64_machine_alloc(uint64_t memory_size)
         goto out_release_uart;
     }
 
-    machine->display = emex64_display_alloc(machine);
+    machine->display = emex64_display_alloc(machine, display);
     if(machine->display == NULL)
     {
         goto out_release_8042;

@@ -59,7 +59,7 @@ typedef struct {
     emex64_8042_t *emex8042;
 } emex64_display_t;
 
-emex64_display_t *emex64_display_alloc(emex64_machine_t *machine);
+emex64_display_t *emex64_display_alloc(emex64_machine_t *machine, bool install);
 void emex64_display_dealloc(emex64_display_t *display);
 
 void *display_start(void *arg);
