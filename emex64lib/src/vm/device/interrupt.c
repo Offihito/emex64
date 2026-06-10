@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <emex64lib/support/likely.h>
+
 #include <emex64lib/vm/device/interrupt.h>
 #include <emex64lib/vm/core.h>
 #include <emex64lib/vm/machine.h>
@@ -128,17 +130,15 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     
     /* clear pending bit (edge-triggered style) */
     core->machine->intc->pending &= ~(1ULL << irq);
-    
+
     /* read handler address from vector table */
     uint64_t vector_addr = core->machine->intc->vector_base + (irq * 8);
-    if(!emex64_memory_access(core, vector_addr, 8))
+    if(unlikely(!emex64_memory_access(core, vector_addr, 8)))
     {
         core->machine->intc->current_irq = -1;
         return false;
     }
-    void *vector_ptr = core->machine->memory + vector_addr;
-
-    uint64_t handler_addr = *(uint64_t *)vector_ptr;
+    uint64_t handler_addr = *(uint64_t*)(core->machine->memory->memory + vector_addr);
 
     /* jump to handler */
     uint64_t oldsp = core->rl[kEmex64RegisterSP];

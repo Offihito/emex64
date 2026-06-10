@@ -127,7 +127,8 @@ void emex64_memory_action(emex64_core_t *core,
                           uint64_t *value,
                           kEmex64MemoryAction action)
 {
-    if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessRead, &addr)))
+    uint64_t paddr;
+    if(unlikely(!emex64_mmu_access(core, addr, kEmex64MMUAccessRead, &paddr)))
     {
         /* MMU wrote exception, no need to write it our selves */
         return;
@@ -143,10 +144,10 @@ void emex64_memory_action(emex64_core_t *core,
      */
     if(addr >> 53)
     {
-        emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, addr);
+        emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, paddr);
         if(likely(mmio_region != NULL))
         {
-            uint64_t offset = addr - mmio_region->base_addr;
+            uint64_t offset = paddr - mmio_region->base_addr;
             switch(action)
             {
                 case kEmex64MemoryActionRead:
@@ -160,9 +161,9 @@ void emex64_memory_action(emex64_core_t *core,
     }
     else
     {
-        if(likely(emex64_memory_access(core, addr, size)))
+        if(likely(emex64_memory_access(core, paddr, size)))
         {
-            uint64_t *ptr = (uint64_t*)(core->machine->memory->memory + addr);
+            uint64_t *ptr = (uint64_t*)(core->machine->memory->memory + paddr);
             uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
             switch(action)
             {
@@ -174,7 +175,7 @@ void emex64_memory_action(emex64_core_t *core,
                      * preventing Kernel Text Read-Only Region
                      * writes.
                      */
-                    if(unlikely(core->machine->memory->ktrr_size >= addr))
+                    if(unlikely(core->machine->memory->ktrr_size >= paddr))
                     {
                         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
                         return;
@@ -183,7 +184,6 @@ void emex64_memory_action(emex64_core_t *core,
                     *ptr = (*ptr & ~mask) | (*value & mask);
                     return;
             }
-            return;
         }
     }
 
