@@ -59,6 +59,9 @@
         out_value = raw & mask;                                         \
     }
 
+#define EMEX64_MEMORY_MMU_MASK_FLAGS    0b0000000000000000000000000000000000000000000000000000000011111111
+#define EMEX64_MEMORY_MMU_MASK_PFN      0b1111111111111111111111111111111111111111111111111111111100000000
+
 typedef struct emex64_memory {
     uint8_t *memory;
     uint64_t memory_size;
@@ -66,10 +69,22 @@ typedef struct emex64_memory {
     bool ktrr_locked;
 } emex64_memory_t;
 
+/* page table entry bit flags */
 typedef enum: uint8_t {
-    kEmex64MemoryActionRead,
-    kEmex64MemoryActionWrite,
-    kEmex64MemoryActionExecute,
+    kEmex64MMUPTPresent =   0b00000001, /* marks a PTE or PXD as present */
+    kEmex64MMUPTUser =      0b00000010, /* marks a PTE as user accessible, meaning user mode can access that page */
+    kEmex64MMUPTDirty =     0b00000100, /* marks a PTE as dirty, writes on it cause a page fault TODO: to be implemented */
+    kEmex64MMUPTRead =      0b00001000, /* marks a PTE as readable */
+    kEmex64MMUPTWrite =     0b00010000, /* marks a PTE as writable (most MMU's don't have that, but this one does) */
+    kEmex64MMUPTExec =      0b00100000, /* marks a PTE as executable (means the CPU core can fetch instructions from it and execute them) */
+    kEmex64MMUPTAccessed =  0b01000000, /* marks a PTE as accessed (MMU sets this bit when this has been accessed) */
+} kEmex64MMUPT;
+
+typedef enum: uint8_t {
+    kEmex64MemoryActionRead =           kEmex64MMUPTRead,
+    kEmex64MemoryActionWrite =          kEmex64MMUPTWrite,
+    kEmex64MemoryActionExecute =        kEmex64MMUPTExec,
+    kEmex64MemoryActionPageDirectory,
 } kEmex64MemoryAction;
 
 emex64_memory_t *emex64_memory_alloc(uint64_t size);
