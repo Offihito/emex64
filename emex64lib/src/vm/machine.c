@@ -29,7 +29,7 @@
 #include <emex64lib/vm/device/platform.h>
 #include <emex64lib/vm/device/mc.h>
 
-emex64_machine_t *emex64_machine_alloc(uint64_t memory_size, bool display)
+emex64_machine_t *emex64_machine_alloc(emex64_machine_options_t options)
 {
     emex64_machine_t *machine = calloc(1, sizeof(emex64_machine_t));
     if(machine == NULL)
@@ -37,7 +37,7 @@ emex64_machine_t *emex64_machine_alloc(uint64_t memory_size, bool display)
         return NULL;
     }
 
-    machine->memory = emex64_memory_alloc(memory_size);
+    machine->memory = emex64_memory_alloc(options.memory_size);
     if(machine->memory == NULL)
     {
         goto out_release_machine;
@@ -80,7 +80,7 @@ emex64_machine_t *emex64_machine_alloc(uint64_t memory_size, bool display)
         goto out_release_uart;
     }
 
-    machine->display = emex64_display_alloc(machine, display);
+    machine->display = emex64_display_alloc(machine, options.display.enabled, options.display.width, options.display.height);
     if(machine->display == NULL)
     {
         goto out_release_8042;
@@ -125,4 +125,29 @@ void emex64_machine_dealloc(emex64_machine_t *machine)
     emex64_mmio_dealloc(machine->mmio_bus);
     emex64_memory_dealloc(machine->memory);
     free(machine);
+}
+
+emex64_machine_support_t emex64_machine_support_get(void)
+{
+    emex64_machine_support_t support;
+    #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
+    support.display = true;
+    #else
+    support.display = false;
+    #endif /* EMEX64VM_DEVICE_DISPLAY */
+    return support;
+}
+
+emex64_machine_options_t emex64_machine_options_default(void)
+{
+    emex64_machine_options_t options;
+    #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
+    options.display.enabled = true;
+    options.display.width = 640;
+    options.display.height = 480;
+    #else
+    options.display.enabled = false;
+    #endif /* EMEX64VM_DEVICE_DISPLAY */
+    options.memory_size = 100 * 1024 * 1024;
+    return options;
 }

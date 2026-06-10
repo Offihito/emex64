@@ -31,10 +31,6 @@
 #include <emex64lib/vm/device/base.h>
 #include <emex64lib/vm/device/8042.h>
 
-/* the size of the screen/framebuffer */
-#define EMEX64_FB_WIDTH   640
-#define EMEX64_FB_HEIGHT  480
-
 /* the freequency of the framebuffer */
 #define EMEX64_FB_TICK_HZ 60.0
 #define EMEX64_FB_TICK_DT (1.0 / EMEX64_FB_TICK_HZ)
@@ -46,8 +42,6 @@
 #define EMEX64_FB_PALLETE     0x05
 #define EMEX64_FB_FRAMEBUFFER 0x305
 
-#define EMEX64_FB_SIZE        EMEX64_FB_FRAMEBUFFER + (EMEX64_FB_WIDTH * EMEX64_FB_HEIGHT)
-
 typedef struct emex64_core emex64_core_t;
 typedef struct emex64_machine emex64_machine_t;
 
@@ -57,11 +51,14 @@ typedef struct {
     uint8_t *fb;
     pthread_t pthread;
     emex64_8042_t *emex8042;
+
+    uint16_t width;
+    uint16_t height;
+    uint64_t fb_size;
 } emex64_display_t;
 
-emex64_display_t *emex64_display_alloc(emex64_machine_t *machine, bool install);
+emex64_display_t *emex64_display_alloc(emex64_machine_t *machine, bool install, uint16_t width, uint16_t height);
 void emex64_display_dealloc(emex64_display_t *display);
-bool emex64_display_supported(void);
 
 void *display_start(void *arg);
 

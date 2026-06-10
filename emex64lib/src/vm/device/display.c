@@ -31,7 +31,7 @@
 #include <stdatomic.h>
 #include <unistd.h>
 
-#include <emex64lib/support/bitwalker.h>
+#include <emex64lib/support/diag.h>
 
 #include <emex64lib/vm/machine.h>
 #include <emex64lib/vm/device/display.h>
@@ -268,14 +268,14 @@ void *display_start(void *arg)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
 
-    GLFWwindow* win = glfwCreateWindow(EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT, "EMEX64LCD @ 60Hz", NULL, NULL);
+    GLFWwindow* win = glfwCreateWindow(display->width, display->height, "EMEX64LCD @ 60Hz", NULL, NULL);
     if(!win) die("glfwCreateWindow failed");
     glfwSetWindowCloseCallback(win, display_close_callback);
     glfwSetWindowUserPointer(win, display);
     glfwSetKeyCallback(win, key_callback);
     glfwSetWindowMaximizeCallback(win, maximize_callback);
-    glfwSetWindowAspectRatio(win, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT);
-    glfwSetWindowSizeLimits(win, EMEX64_FB_WIDTH, EMEX64_FB_HEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
+    glfwSetWindowAspectRatio(win, display->width, display->height);
+    glfwSetWindowSizeLimits(win, display->width, display->height, GLFW_DONT_CARE, GLFW_DONT_CARE);
     glfwMakeContextCurrent(win);
     glfwSwapInterval(1);
 
@@ -377,13 +377,13 @@ void *display_start(void *arg)
         glfwPollEvents();
 
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER,pbo[pboIdx]);
-        uint8_t* ptr = (uint8_t*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER,0,EMEX64_FB_SIZE, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-        memcpy(ptr, display->fb, EMEX64_FB_SIZE);
+        uint8_t* ptr = (uint8_t*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER,0,display->fb_size, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+        memcpy(ptr, display->fb, display->fb_size);
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 
         glBindTexture(GL_TEXTURE_2D,texIndex);
         glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,EMEX64_FB_WIDTH,EMEX64_FB_HEIGHT,GL_RED,GL_UNSIGNED_BYTE,NULL);
+        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,display->width,display->height,GL_RED,GL_UNSIGNED_BYTE,NULL);
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
         pboIdx ^= 1;
 
@@ -411,17 +411,33 @@ void *display_start(void *arg)
 
 extern void *display_start(void *arg);
 
-emex64_display_t *emex64_display_alloc(emex64_machine_t *machine, bool install)
+emex64_display_t *emex64_display_alloc(emex64_machine_t *machine,
+                                       bool install,
+                                       uint16_t width,
+                                       uint16_t height)
 {
-    emex64_display_t *display = malloc(sizeof(emex64_display_t));
+    if(width > 1920 || height > 1920)
+    {
+        diag_error(NULL, "display dimensions are too big\n");
+        return NULL;
+    }
+    else if(width < 256 || height < 256)
+    {
+        diag_error(NULL, "display dimensions are too small\n");
+        return NULL;
+    }
 
-    /* null pointer check */
+    emex64_display_t *display = malloc(sizeof(emex64_display_t));
     if(display == NULL)
     {
         return NULL;
     }
 
-    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_FB_BASE, EMEX64_FB_SIZE, display, emex64_fb_read, emex64_fb_write))
+    display->width = width;
+    display->height = height;
+    display->fb_size = width * height;
+
+    if(!emex64_mmio_register(machine->mmio_bus, EMEX64_FB_BASE, EMEX64_FB_FRAMEBUFFER + display->fb_size, display, emex64_fb_read, emex64_fb_write))
     {
         free(display);
         return NULL;
@@ -429,8 +445,6 @@ emex64_display_t *emex64_display_alloc(emex64_machine_t *machine, bool install)
 
     /* allocate palette */
     display->palette = calloc(3, 256);
-
-    /* null pointer check */
     if(display->palette == NULL)
     {
         free(display);
@@ -447,9 +461,7 @@ emex64_display_t *emex64_display_alloc(emex64_machine_t *machine, bool install)
         display->palette[i*3 + 2] = gray;
     }
 
-    display->fb = calloc(1, EMEX64_FB_SIZE);
-
-    /* null pointer check */
+    display->fb = calloc(1, display->fb_size);
     if(display->fb == NULL)
     {
         free(display->palette);
@@ -496,15 +508,6 @@ void emex64_display_dealloc(emex64_display_t *display)
     }
 }
 
-bool emex64_display_supported(void)
-{
-    #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
-    return true;
-    #else
-    return false;
-    #endif /* EMEX64VM_DEVICE_DISPLAY */
-}
-
 uint64_t emex64_fb_read(emex64_core_t *core,
                       void *device,
                       uint64_t offset,
@@ -529,11 +532,11 @@ uint64_t emex64_fb_read(emex64_core_t *core,
         }
         else if(offset == EMEX64_FB_REG_HEIGHT)
         {
-            return EMEX64_FB_HEIGHT;
+            return display->height;
         }
         else
         {
-            return EMEX64_FB_WIDTH;
+            return display->width;
         }
     }
     else

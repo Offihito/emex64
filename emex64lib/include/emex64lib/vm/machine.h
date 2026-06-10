@@ -25,6 +25,7 @@
 #ifndef EMEX64VM_MACHINE_H
 #define EMEX64VM_MACHINE_H
 
+#include <emex64lib/vm/options.h>
 #include <emex64lib/vm/core.h>
 #include <emex64lib/vm/memory.h>
 #include <emex64lib/vm/mmio.h>
@@ -33,7 +34,6 @@
 #include <emex64lib/vm/device/interrupt.h>
 #include <emex64lib/vm/device/uart.h>
 #include <emex64lib/vm/device/8042.h>
-
 #include <emex64lib/vm/device/display.h>
 
 #include <stdint.h>
@@ -49,8 +49,11 @@ typedef struct emex64_machine {
     emex64_8042_t *emex8042;
 } emex64_machine_t;
 
-emex64_machine_t *emex64_machine_alloc(uint64_t memory_size, bool display);
+emex64_machine_t *emex64_machine_alloc(emex64_machine_options_t options);
 void emex64_machine_dealloc(emex64_machine_t *machine);
+
+emex64_machine_support_t emex64_machine_support_get(void);
+emex64_machine_options_t emex64_machine_options_default(void);
 
 static inline void *emex64_memory_access(emex64_core_t *core,
                                          uint64_t addr,

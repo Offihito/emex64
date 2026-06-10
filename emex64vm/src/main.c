@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
 {
     int opt;
     const char *firmware_image_path = NULL;
-    uint64_t memsize = 100 * 1024 * 1024;   /* standard is 100MB */
-    bool display = false;
-    bool display_supported = emex64_display_supported();
+
+    emex64_machine_options_t machine_options = emex64_machine_options_default();
+    emex64_machine_support_t machine_support = emex64_machine_support_get();
 
     /* parse arguments */
     for(int i = 1; i < argc; i++)
@@ -51,12 +51,13 @@ int main(int argc, char *argv[])
         {
         usage:
             fprintf(stderr, "%s [options]\n", argv[0]);
-            fprintf(stderr, "\t--help                           : showing help menu\n");
-            fprintf(stderr, "\t--firmware <image path>          : providing firmware image\n");
-            fprintf(stderr, "\t--memory <memory size>           : providing memory size in megabyte\n");
-            if(display_supported)
+            fprintf(stderr, "\t--help                                       : showing help menu\n");
+            fprintf(stderr, "\t--firmware <image path>                      : providing firmware image\n");
+            fprintf(stderr, "\t--memory <memory size>                       : providing memory size in megabyte\n");
+            if(machine_support.display)
             {
-                fprintf(stderr, "\t--display [on|off|required]  : enables or disables display\n");
+                fprintf(stderr, "\t--display [on|off|required]                  : enables or disables display\n");
+                fprintf(stderr, "\t--display:resolution [on|off|required]       : enables or disables display\n");
             }
             return 1;
         }
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
             parser_return_t pr = parse_value_from_string(argv[++i]);
             if(pr.type == emexParserValueTypeNumber)
             {
-                memsize = pr.value * 1024 * 1024;
+                machine_options.memory_size = pr.value * 1024 * 1024;
             }
             else
             {
@@ -81,28 +82,46 @@ int main(int argc, char *argv[])
         {
             if(strcmp(argv[i + 1], "on") == 0)
             {
-                if(!display_supported)
+                if(!machine_support.display)
                 {
                     diag_warn(NULL, "display support is not available in this distribution of the emex64 toolchain\n");
                 }
-                display = true;
+                machine_options.display.enabled = true;
             }
             else if(strcmp(argv[i + 1], "off") == 0)
             {
-                display = false;
+                machine_options.display.enabled = false;
             }
             else if(strcmp(argv[i + 1], "required") == 0)
             {
-                if(!display_supported)
+                if(!machine_support.display)
                 {
                     diag_error(NULL, "display support is not available in this distribution of the emex64 toolchain\n");
                     return 1;
                 }
-                display = true;
+                machine_options.display.enabled = true;
             }
             else
             {
                 diag_error(NULL, "unknown argument supplied to '--display': '%s'\n", argv[i + 1]);
+                return 1;
+            }
+            i++;
+        }
+        else if(strcmp(argv[i], "--display:resolution") == 0 && i + 2 < argc)
+        {
+            parser_return_t pr_width = parse_value_from_string(argv[++i]);
+            parser_return_t pr_height = parse_value_from_string(argv[++i]);
+
+            if(pr_width.type == emexParserValueTypeNumber && 
+               pr_height.type == emexParserValueTypeNumber)
+            {
+                machine_options.display.width = pr_width.value;
+                machine_options.display.height = pr_height.value;
+            }
+            else
+            {
+                diag_error(NULL, "illegal arguments supplied to '--display:resolution': '%s' and '%s'\n", argv[i - 1], argv[i - 2]);
                 return 1;
             }
             i++;
@@ -115,7 +134,7 @@ int main(int argc, char *argv[])
     }
 
     /* creating new emex64 virtual machine */
-    emex64_machine_t *machine = emex64_machine_alloc(memsize, display);
+    emex64_machine_t *machine = emex64_machine_alloc(machine_options);
     if(machine == NULL)
     {
         diag_error(NULL, "failed to allocated machine\n");
