@@ -45,9 +45,7 @@ int main(int argc, char *argv[])
     char **files = calloc(argc, sizeof(char *));
 
     /* invocation settings */
-    bool page_align = true;
-    bool warning_deprecated = true;
-    bool offset_branch = true;
+    assembler_options_t options = assembler_options_default();
 
     /* include search paths */
     size_t inc_dir_cnt = 0;
@@ -83,19 +81,19 @@ int main(int argc, char *argv[])
 
             if(strcmp(flag, "page_align") == 0)
             {
-                page_align = true;
+                options.page_align = true;
             }
             else if(strcmp(flag, "no_page_align") == 0)
             {
-                page_align = false;
+                options.page_align = false;
             }
             else if(strcmp(flag, "offset_branch") == 0)
             {
-                offset_branch = true;
+                options.offset_branch = true;
             }
             else if(strcmp(flag, "no_offset_branch") == 0)
             {
-                offset_branch = false;
+                options.offset_branch = false;
             }
             else
             {
@@ -130,11 +128,11 @@ int main(int argc, char *argv[])
             }
             else if(strcmp(flag, "deprecated") == 0)
             {
-                warning_deprecated = true;
+                options.warning_deprecated = true;
             }
             else if(strcmp(flag, "no_deprecated") == 0)
             {
-                warning_deprecated = false;
+                options.warning_deprecated = false;
             }
             else
             {
@@ -244,12 +242,6 @@ int main(int argc, char *argv[])
         diag_warn(NULL, "no output binary specified, falling back to a.o\n");
         output_path = "a.o";
     }
-
-    assembler_options_t options = assembler_options_default();
-    options.page_align = page_align;
-    options.offset_branch = offset_branch;
-    options.warning_error = warning_error;
-    options.warning_deprecated = warning_deprecated;
 
     /* allocating compiler invocation */
     assembler_invocation_t *inv = assembler_invocation_alloc_with_options(output_path, options);
