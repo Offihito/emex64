@@ -354,8 +354,7 @@ typedef struct emex64_core {
     FPReg frl[kEmex64FloatingRegisterMAX + 1];
 
     /* data of currently decoding or decoded operation */
-    struct emex64_operation {
-
+    struct {
         /*
          * lenght of decoded instruction so that the cpu
          * can correctly increment the program counter.
@@ -386,6 +385,43 @@ typedef struct emex64_core {
         uint64_t *param[32];
         enum kEmex64ParameterCoding param_coding[32];
     } op;
+
+    /*
+     * control state is a optimization to minimize
+     * usage of packed register reading.
+     */
+    struct {
+        struct {
+            enum kEmex64ElevationLevel level;
+        } crel;
+
+        struct {
+            uint64_t address;
+        } crksp;
+
+        struct {
+            enum kEmex64Exception exception;
+        } crexc;
+
+        /*
+         * to be created
+         * struct {
+         *
+         * } crvec;
+        */
+
+        struct {
+            bool enabled;
+            uint64_t pgd_addr;
+        } crptb;
+
+        /*
+         * to be created
+         * struct {
+         *
+         * } crfpc;
+        */
+    } cr_state;
 
     /*
      * cpu halting status (will later be in the same
