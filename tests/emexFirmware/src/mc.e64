@@ -30,8 +30,7 @@ _mc_get_mem_size:
 
 _mc_lock_ktrr:
     ; data start sits right after the text region ends
-    mov r0, __data_start
-    dec r0
+    sub r0, __data_start, 1
     stq MCKTRR_SIZE, r0
     stb MCKTRR_LOCKED, 1
     wret
