@@ -36,7 +36,7 @@
 %define% AUDIO_BDL_ENTRIES    32
 %define% AUDIO_BDL_FILL       31          ; slots to fill per refill (32-1 gap)
 %define% AUDIO_BDL_MASK       0x1F
-%define% AUDIO_TOTAL_CHUNKS   3261        ; ceil(6520 frames / 2)
+%define% AUDIO_TOTAL_CHUNKS   3260        ; ceil(6520 frames / 2)
 
 section .data
     badapple_bitmap df "../vid.bitmask"
@@ -55,15 +55,15 @@ section .bss
 _ac97_lvbi_handler:
     ldq  r0, audio_chunk_idx
 
-    ; if all audio consumed, just ack and return
+    ; if all audio consumed, stop the DMA cleanly and bail
     mov  r1, AUDIO_TOTAL_CHUNKS
     cmp  r0, r1
-    bge  .ack
+    bge  .stop
 
     ; refill 31 slots starting at slot (audio_lvi+1)&MASK
     ldq  r6, audio_lvi
     inc  r6
-    and  r6, AUDIO_BDL_MASK        ; r6 = first slot to write eh :/
+    and  r6, AUDIO_BDL_MASK        ; r6 = first slot to write
 
     ldq  r7, audio_bdl_base
     mov  r8, 0                      ; loop counter (0..30)
@@ -111,19 +111,27 @@ _ac97_lvbi_handler:
     and  r6, AUDIO_BDL_MASK
     stq  audio_lvi, r6
 
-    ; clear LVBCI and DCH (W1C on LVBCI, then restart by writing LVI + RUN)
-    mov  r0, AC97_BM_STATUS_LVBCI
-    stw  AC97_BM_PCMOUT_STATUS, r0
-
+    ; advance LVI first, restart DMA, then clear LVBCI last so the tick
+    ; cannot re-arm LVBCI in the window between the status clear and LVI write
     stb  AC97_BM_PCMOUT_LVI, r6
 
     mov  r0, AC97_BM_CTRL_RUN
     or   r0, AC97_BM_CTRL_LVBIE
     stb  AC97_BM_PCMOUT_CTRL, r0
 
+    ; clear LVBCI (W1C) after DMA is already running
+    mov  r0, AC97_BM_STATUS_LVBCI
+    stw  AC97_BM_PCMOUT_STATUS, r0
+
+    b    .ack
+
+.stop:
+    ; all audio chunks played — reset the channel to silence the DMA engine
+    ; so the tick stops firing LVBCI and starving the timer interrupt
+    mov  r0, AC97_BM_CTRL_RESET
+    stb  AC97_BM_PCMOUT_CTRL, r0
+
 .ack:
-    mov  r0, IRQ_AC97
-    stq  INTC_REG_ACK, r0
     iret
 
 _audio_init:
@@ -169,6 +177,51 @@ _audio_init:
     blw  _interrupt_register_handler, IRQ_AC97, _ac97_lvbi_handler
 
     ; start DMA: LVI=30, RUN | LVBIE (no IOCE — no IOC flags in entries)
+    ldq  r0, audio_bdl_base
+    mov  r1, 30
+    blw  _ac97_play_lvbie, r0, r1
+
+    wret
+
+_audio_restart:
+    ; reset chunk index and lvi to initial state
+    mov  r0, AUDIO_BDL_FILL
+    stq  audio_chunk_idx, r0        ; chunk_idx = 31 (slots 0..30 about to be filled)
+
+    mov  r0, 30
+    stq  audio_lvi, r0
+
+    ; stop any running DMA first
+    mov  r0, AC97_BM_CTRL_RESET
+    stb  AC97_BM_PCMOUT_CTRL, r0
+
+    ; refill slots 0..30 with audio from the start
+    ldq  r8, audio_bdl_base
+    mov  r9, 0
+
+.restart_fill_loop:
+    mov  r10, AUDIO_BDL_FILL
+    cmp  r9, r10
+    bge  .restart_fill_done
+
+    mul  r2, r9, 8
+    add  r2, r8
+
+    mov  r0, r9
+    mul  r0, AUDIO_CHUNK_BYTES
+    mov  r1, badapple_audio
+    add  r1, r0
+
+    std  r2, r1
+    add  r2, 4
+    mov  r3, AUDIO_CHUNK_SAMPLES
+    std  r2, r3
+
+    inc  r9
+    b    .restart_fill_loop
+
+.restart_fill_done:
+    ; restart DMA from slot 0, LVI=30
     ldq  r0, audio_bdl_base
     mov  r1, 30
     blw  _ac97_play_lvbie, r0, r1
@@ -225,7 +278,7 @@ _start:
     ldb r0, FB_ENABLED
     bz r0, .end
 
-    ldd r10, FB_WIDTH
+    ldw r10, FB_WIDTH
 
 .video_entry:
     add r1, FB_FRAMEBUFFER, VFB_SIZE
@@ -233,6 +286,9 @@ _start:
 .video_playback:
     mov r2, badapple_bitmap
     mov r5, 0
+%ifdef% FULL
+    blw _audio_restart
+%endif%
 
 .video_frame_next:
 %ifdef% FULL
