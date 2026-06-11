@@ -127,46 +127,6 @@ void assembler_emit_end(assembler_invocation_t *inv)
     fdwalker_write(inv->fdwalker, kEmex64ParameterCodingEnd, 3);
 }
 
-bool assembler_emit_instruction_clr(const opcode_entry_t *opce,
-                                    assembler_line_t *al)
-{
-    /*
-     * people would argue to emit XOR but XOR 
-     * has a end marker while MOV doesnt, so
-     * using MOV with 0 Is better for code density
-     * than using XOR REG, REG... basically we will
-     * emit...
-     *
-     * MOV REG, 0
-     *
-     * over
-     *
-     * XOR REG, REG, END
-     *
-     */
-    for(uint64_t i = 1; i < al->token_cnt; i++)
-    {
-        /* increment means each parameter, one opcode */
-        assembler_emit_opcode(al->inv, kEmex64OpcodeMOV);
-
-        /* it must be a register */
-        register_entry_t *reg = register_from_string(al->token[i]->str);
-
-        if(reg == NULL)
-        {
-            diag_error(al->token[i], "expected register, got intermediate or label \"%s\"\n", al->token[i]->str);
-            return false;
-        }
-
-        /* emit parameters */
-        assembler_emit_register(al->inv, reg->reg);
-        assembler_emit_imm(al->inv, 0);
-        fdwalker_align_byte(al->inv->fdwalker);
-    }
-
-    return true;
-}
-
 bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
                                         assembler_line_t *al)
 {

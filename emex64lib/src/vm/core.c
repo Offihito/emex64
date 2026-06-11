@@ -110,6 +110,9 @@ static emex64_opfunc_entry_t kOpfuncTable[] = {
     [kEmex64OpcodeIRET] = { .func = emex64_op_iret, .maxargs = 0 },
     [kEmex64OpcodeBL] = { .func = emex64_op_bl, .maxargs = 1 },
     [kEmex64OpcodeRET] = { .func = emex64_op_ret, .maxargs = 0 },
+
+    /* arithmetic operations v2 */
+    [kEmex64OpcodeCLR] = { .func = emex64_op_clr, .maxargs = 32 },
 };
 
 static const uint8_t kImmBits[] = {

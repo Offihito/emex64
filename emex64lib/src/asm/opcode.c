@@ -90,8 +90,8 @@ const opcode_entry_t opcode_table[] = {
     { .name = "bl",     .opcode = kEmex64OpcodeBL,          .minargs = 1, .maxargs = 1, .argmask =  0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
     { .name = "ret",    .opcode = kEmex64OpcodeRET,         .minargs = 0, .maxargs = 0,  .argmask = 0b00000000000000000000000000000000, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
 
-    /* pseudo opcodes */
-    { .name = "clr",    .opcode = kEmex64OpcodeHLT,         .minargs = 1, .maxargs = 32, .argmask = 0b11111111111111111111111111111111, .dnstr = NULL, .handler = assembler_emit_instruction_clr },
+    /* alu operations v2 */
+    { .name = "clr",    .opcode = kEmex64OpcodeCLR,         .minargs = 1, .maxargs = 32, .argmask = 0b11111111111111111111111111111111, .dnstr = NULL, .handler = assembler_emit_instruction_generic },
 };
 
 const opcode_entry_t *opcode_from_string(const char *name)

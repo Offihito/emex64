@@ -91,7 +91,10 @@ enum kEmex64Opcode: uint8_t {
     kEmex64OpcodeBL =       0b00110011,
     kEmex64OpcodeRET =      0b00110100,
 
-    kEmex64OpcodeMAX = kEmex64OpcodeRET,
+    /* alu operations v2 */
+    kEmex64OpcodeCLR =      0b00110101,
+
+    kEmex64OpcodeMAX = kEmex64OpcodeCLR,
 };
 
 enum kEmex64ParameterCoding: uint8_t {

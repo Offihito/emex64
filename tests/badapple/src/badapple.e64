@@ -28,7 +28,7 @@
 %define% VFB_WIDTH  	256
 %define% VFB_SIZE   	0x10000
 
-%define% VFB_ENABLED 	0
+%define% VFB_ENABLED 	1
 
 section .data
     badapple_bitmap df "../vid.bitmask"
