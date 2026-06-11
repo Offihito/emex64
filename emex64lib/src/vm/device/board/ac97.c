@@ -188,9 +188,7 @@ static void *ac97_audio_thread(void *arg)
 
 #endif /* EMEX64VM_DEVICE_AUDIO && __linux__ */
 
-/*
- * macOS AudioQueue — OS pulls samples from the ring via a fill callback.
- */
+/* * macOS AudioQueue — OS pulls samples from the ring via a fill callback. */
 #if EMEX64VM_DEVICE_AUDIO && defined(__APPLE__)
 
 #define AC97_AQ_NBUFFERS   3u
@@ -572,13 +570,20 @@ void emex64_ac97_tick(emex64_ac97_t *ac97, emex64_core_t *core)
             {
                 ac97->bm_status |= AC97_BM_STATUS_DCH | AC97_BM_STATUS_CELV;
 
-                if(ac97->bm_ctrl & AC97_BM_CTRL_LVBIE)
+                /* only fire LVBCI if it isn't already pending — prevents re-entrant
+                 * handler invocations when the tick runs between the LVI write and
+                 * the STATUS clear inside the guest LVBCI handler */
+                if((ac97->bm_ctrl & AC97_BM_CTRL_LVBIE) &&
+                   !(ac97->bm_status & AC97_BM_STATUS_LVBCI))
                 {
                     ac97->bm_status |= AC97_BM_STATUS_LVBCI;
                     emex64_raise_interrupt(ac97->machine, EMEX64_IRQ_AC97);
                 }
                 return;
             }
+
+            /* CIV is no longer equal to LVI+1, clear CELV */
+            ac97->bm_status &= ~AC97_BM_STATUS_CELV;
 
             if(!ac97_fetch_bdle(ac97, ac97->bm_civ))
             {
@@ -644,13 +649,14 @@ void emex64_ac97_tick(emex64_ac97_t *ac97, emex64_core_t *core)
             {
                 ac97->bm_status |= AC97_BM_STATUS_CELV | AC97_BM_STATUS_DCH;
 
-                if(ac97->bm_ctrl & AC97_BM_CTRL_LVBIE)
+                if((ac97->bm_ctrl & AC97_BM_CTRL_LVBIE) &&
+                   !(ac97->bm_status & AC97_BM_STATUS_LVBCI))
                 {
                     ac97->bm_status |= AC97_BM_STATUS_LVBCI;
                     emex64_raise_interrupt(ac97->machine, EMEX64_IRQ_AC97);
                 }
 
-                ac97->bm_ctrl &= ~AC97_BM_CTRL_RUN;
+                /* PLEASE DONT CLEAN RUN HERE — DCH ALREADY GATES TO DMA. */
             }
 
             if(has_ioc)
