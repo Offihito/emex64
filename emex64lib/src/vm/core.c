@@ -153,19 +153,16 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
 {
     uint64_t pc_addr = core->rl[kEmex64RegisterPC];
     uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
-    if(!((cr_pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) || core->in_interrupt)
+    if(((cr_pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
     {
         /* incase paging is disabled */
-        goto skip_to_rw;
+        if(unlikely(!emex64_mmu_access(core, pc_addr, kEmex64MMUAccessExec, &pc_addr)))
+        {
+            /* MMU wrote exception, not needed to fill in our own */
+            return false;
+        }
     }
 
-    if(unlikely(!emex64_mmu_access(core, pc_addr, kEmex64MMUAccessExec, &pc_addr)))
-    {
-        /* MMU wrote exception, not needed to fill in our own */
-        return false;
-    }
-
-skip_to_rw:
     /*
      * check KTRR if kernel or secure monitor level
      * to prevent execution from non KTRR memory.
