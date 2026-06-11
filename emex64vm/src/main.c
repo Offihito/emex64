@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "%s [options]\n", argv[0]);
             fprintf(stderr, "\t--help                                       : showing help menu\n");
             fprintf(stderr, "\t--firmware <image path>                      : providing firmware image\n");
-            fprintf(stderr, "\t--memory <memory size>                       : providing memory size in megabyte\n");
+            fprintf(stderr, "\t--memory:[kb|mb|gb] <memory size>            : providing memory size in megabyte\n");
             if(machine_support.display)
             {
                 fprintf(stderr, "\t--display [on|off|required]                  : enables or disables display\n");
@@ -63,12 +63,38 @@ int main(int argc, char *argv[])
         {
             firmware_image_path = argv[++i];
         }
-        else if(strcmp(argv[i], "--memory") == 0 && i + 1 < argc)
+        else if(strcmp(argv[i], "--memory:kb") == 0 && i + 1 < argc)
+        {
+            parser_return_t pr = parse_value_from_string(argv[++i]);
+            if(pr.type == emexParserValueTypeNumber)
+            {
+                machine_options.memory_size = pr.value * 1024;
+            }
+            else
+            {
+                diag_error(NULL, "illegal value type used\n", argv[i]);
+                return 1;
+            }
+        }
+        else if((strcmp(argv[i], "--memory:mb") == 0 || strcmp(argv[i], "--memory") == 0) && i + 1 < argc)
         {
             parser_return_t pr = parse_value_from_string(argv[++i]);
             if(pr.type == emexParserValueTypeNumber)
             {
                 machine_options.memory_size = pr.value * 1024 * 1024;
+            }
+            else
+            {
+                diag_error(NULL, "illegal value type used\n", argv[i]);
+                return 1;
+            }
+        }
+        else if(strcmp(argv[i], "--memory:gb") == 0 && i + 1 < argc)
+        {
+            parser_return_t pr = parse_value_from_string(argv[++i]);
+            if(pr.type == emexParserValueTypeNumber)
+            {
+                machine_options.memory_size = pr.value * 1024 * 1024 * 1024;
             }
             else
             {
