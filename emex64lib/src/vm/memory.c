@@ -222,8 +222,6 @@ void emex64_memory_action(emex64_core_t *core,
     {
         return;
     }
-
-    uint64_t paddr;
     
     /*
      * MMIO starts at 0x0020000000000000 while the physical
@@ -267,6 +265,7 @@ void emex64_memory_action(emex64_core_t *core,
      * we read it as if it was a 5th level entry, but its just a
      * control register.. for simplicity we do that hahaha.
      */
+    uint64_t paddr;
     uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
     if(((cr_pte & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
     {
