@@ -131,6 +131,34 @@ static inline bool emex64_mmu_access_pxd(emex64_core_t *core,
     return true;
 }
 
+static inline bool emex64_mmu_translate(emex64_core_t *core,
+                                        uint64_t vaddr,
+                                        kEmex64MemoryAction action,
+                                        uint64_t *paddr)
+{
+    /*
+     * getting page global directory from physical frame number
+     * stored in the 5th level (yk the control register x3).
+     */
+    uint64_t pgd_addr = ((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_PFN) >> 8) << 13;
+
+    /* still unknown page directory addresses */
+    uint64_t pud_addr, pmd_addr, pte_addr, phys_page_base_addr;
+
+    /* now access each table */
+    if(!emex64_mmu_access_pxd(core, pgd_addr, ((vaddr >> 43) & 0x3FF), kEmex64MemoryActionPageDirectory, &pud_addr) ||   /* 10 bits for each level index  */
+       !emex64_mmu_access_pxd(core, pud_addr, ((vaddr >> 33) & 0x3FF), kEmex64MemoryActionPageDirectory, &pmd_addr) ||
+       !emex64_mmu_access_pxd(core, pmd_addr, ((vaddr >> 23) & 0x3FF), kEmex64MemoryActionPageDirectory, &pte_addr) ||
+       !emex64_mmu_access_pxd(core, pte_addr, ((vaddr >> 13) & 0x3FF), action, &phys_page_base_addr))
+    {
+        return false;
+    }
+
+    *paddr = phys_page_base_addr + (vaddr & 0x1FFF); /* 13bit offset (addressing within a page) */
+
+    return true;
+}
+
 emex64_memory_t *emex64_memory_alloc(uint64_t size)
 {
     /*
@@ -233,7 +261,7 @@ void emex64_memory_action(emex64_core_t *core,
      */
     if(addr >> 53)
     {
-        if(((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
+        if(unlikely(((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt))
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
             return;
@@ -268,26 +296,11 @@ void emex64_memory_action(emex64_core_t *core,
      */
     if(((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
     {
-        /*
-         * getting page global directory from physical frame number
-         * stored in the 5th level (yk the control register x3).
-         */
-        uint64_t pgd_addr = ((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_PFN) >> 8) << 13;
-
-        /* still unknown page directory addresses */
-        uint64_t pud_addr, pmd_addr, pte_addr, phys_page_base_addr;
-
-        /* now access each table */
-        if(!emex64_mmu_access_pxd(core, pgd_addr, ((addr >> 43) & 0x3FF), kEmex64MemoryActionPageDirectory, &pud_addr) ||   /* 10 bits for each level index  */
-           !emex64_mmu_access_pxd(core, pud_addr, ((addr >> 33) & 0x3FF), kEmex64MemoryActionPageDirectory, &pmd_addr) ||
-           !emex64_mmu_access_pxd(core, pmd_addr, ((addr >> 23) & 0x3FF), kEmex64MemoryActionPageDirectory, &pte_addr) ||
-           !emex64_mmu_access_pxd(core, pte_addr, ((addr >> 13) & 0x3FF), action, &phys_page_base_addr))
+        if(!emex64_mmu_translate(core, addr, action, &addr))
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionPageFault;
             return;
         }
-
-        addr = phys_page_base_addr + (addr & 0x1FFF); /* 13bit offset (addressing within a page) */
     }
     else
     {
@@ -365,15 +378,52 @@ bool emex64_memory_cpy(emex64_core_t *core,
         return false;
     }
 
-    /* copy the code (LSB only ;w;) */
-    for(size_t i = 0; i < len; i += 8)
+    if(unlikely((core->rl[kEmex64RegisterCR2] == kEmex64ExceptionBadAccess || core->rl[kEmex64RegisterCR2] == kEmex64ExceptionKTRRViolation) && !core->in_interrupt))
     {
-        uint64_t value;
+        return false;
+    }
 
-        /* very inefficiently copy that shit every 8 bytes */
-        emex64_memory_action(core, addr + i, 8, &value, action);
+    /* there will never be a buffer copy out on the MMIO regions */
+    if(unlikely((addr >> 53) || ((addr + len - 1) >> 53)))
+    {
+        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
+        return false;
+    }
 
-        *(uint64_t*)(&dst[i]) = (uint64_t)value;
+    bool paging = ((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt;
+
+    /* walking the MMU once per page */
+    while(len > 0)
+    {
+        uint64_t paddr = addr;
+        size_t chunk = len;
+
+        if(paging)
+        {
+            if(unlikely(!emex64_mmu_translate(core, addr, action, &paddr)))
+            {
+                core->rl[kEmex64RegisterCR2] = kEmex64ExceptionPageFault;
+                return false;
+            }
+
+            size_t page_left = (size_t)(EMEX64_PAGE_SIZE - (addr & EMEX64_PAGE_MASK));
+            if(chunk > page_left)
+            {
+                chunk = page_left;
+            }
+        }
+
+        if(unlikely(!emex64_memory_access(core, paddr, chunk)))
+        {
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
+            return false;
+        }
+
+        memcpy(dst, &core->machine->memory->memory[paddr], chunk);
+
+        dst += chunk;
+        addr += chunk;
+        len -= chunk;
     }
 
     return true;

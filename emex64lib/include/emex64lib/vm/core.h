@@ -358,12 +358,10 @@ typedef struct emex64_core {
 
     /* data of currently decoding or decoded operation */
     struct {
-        #if EMEX64VM_USE_INSCACHE
         /*
-         * 256 bytes cache
+         * 256 bytes instruction cache
          */
         uint8_t inscache[256];
-        #endif /* EMEX64VM_USE_INSCACHE */
 
         /*
          * lenght of decoded instruction so that the cpu
