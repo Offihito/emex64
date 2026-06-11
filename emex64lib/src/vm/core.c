@@ -149,7 +149,7 @@ void emex64_core_dealloc(emex64_core_t *core)
     free(core);
 }
 
-static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
+static inline void emex64_core_execute_instruction_at_pc(emex64_core_t *core)
 {
     #if !EMEX64VM_USE_INSCACHE
     uint64_t pc_addr = core->rl[kEmex64RegisterPC];
@@ -158,7 +158,7 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
         unlikely(!emex64_mmu_access(core, pc_addr, kEmex64MMUAccessExec, &pc_addr)))
     {
         /* MMU wrote exception, not needed to fill in our own */
-        return false;
+        return;
     }
 
     /*
@@ -172,14 +172,14 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
         {
             /* a KTRR violation. OOB of KTRR region. */
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
-            return false;
+            return;
         }
     }
 
     if(unlikely(!emex64_memory_access(core, pc_addr, 256)))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return false;
+        return;
     }
 
     bitwalker_t bw = emex64_memory_bitwalker_template;
@@ -188,7 +188,7 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
     if(unlikely(!emex64_memory_cpy(core, core->op.inscache,  core->rl[kEmex64RegisterPC], 256, kEmex64MemoryActionExecute)))
     {
         /* callee wrote exception already */
-        return false;
+        return;
     }
 
     bitwalker_t bw = emex64_memory_bitwalker_template;
@@ -199,7 +199,7 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
     if(unlikely(opcode > kEmex64OpcodeMAX))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadInstruction;
-        return false;
+        return;
     }
 
     core->op.opcode = opcode;
@@ -238,7 +238,7 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
                 if(unlikely(rcnt > kEmex64RegisterRR && core->rl[kEmex64RegisterCR0] < kEmex64ElevationLevelKernel))
                 {
                     core->rl[kEmex64RegisterCR2] = kEmex64ExceptionPermission;
-                    return false;
+                    return;
                 }
 
                 core->op.param[i] = &(core->rl[rcnt]);
@@ -271,7 +271,11 @@ escape_from_la:
     core->op.param_cnt = i;
     core->op.ilen = bitwalker_bytes_used(&bw);
 
-    return true;
+    /* the part of executing the instruction */
+    core->op.op.func(core);
+    core->rl[kEmex64RegisterPC] += core->op.ilen;
+
+    return;
 }
 
 static void *emex64_core_execute_thread(void *arg)
@@ -282,14 +286,7 @@ static void *emex64_core_execute_thread(void *arg)
     emex64_core_t *core = arg;
     for(;;)
     {
-        if(unlikely(!emex64_core_decode_instruction_at_pc(core)))
-        {
-            continue;
-        }
-
-        /* the part of executing the instruction */
-        core->op.op.func(core);
-        core->rl[kEmex64RegisterPC] += core->op.ilen;
+        emex64_core_execute_instruction_at_pc(core);
 
         /*
          * currently exceptions happening in a interrupt
