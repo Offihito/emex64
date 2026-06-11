@@ -236,7 +236,8 @@ void emex64_memory_action(emex64_core_t *core,
         uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
         if(((cr_pte & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
         {
-            goto bad_access;
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
+            return;
         }
 
         emex64_mmio_region_t *mmio_region = emex64_mmio_find(core->machine->mmio_bus, addr);
@@ -252,7 +253,8 @@ void emex64_memory_action(emex64_core_t *core,
                     mmio_region->write(core, mmio_region->device, offset, *value, (int)size);
                     return;
                 default:
-                    goto bad_access;
+                    core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
+                    return;
             }
         }
     }
@@ -338,31 +340,31 @@ void emex64_memory_action(emex64_core_t *core,
     else
 rw_fastpath:
     {
-        if(likely(emex64_memory_access(core, paddr, size)))
+        if(likely(!emex64_memory_access(core, paddr, size)))
         {
-            uint64_t *ptr  = (uint64_t *)(core->machine->memory->memory + paddr);
-            uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
-            switch(action)
-            {
-                case kEmex64MemoryActionPageDirectory:
-                case kEmex64MemoryActionExecute:
-                case kEmex64MemoryActionRead:
-                    *value = *ptr & mask;
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
+            return;
+        }
+
+        uint64_t *ptr = (uint64_t *)(core->machine->memory->memory + paddr);
+        uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
+        switch(action)
+        {
+            case kEmex64MemoryActionPageDirectory:
+            case kEmex64MemoryActionExecute:
+            case kEmex64MemoryActionRead:
+                *value = *ptr & mask;
+                return;
+            case kEmex64MemoryActionWrite:
+                if(unlikely(core->machine->memory->ktrr_size > paddr))
+                {
+                    core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
                     return;
-                case kEmex64MemoryActionWrite:
-                    if(unlikely(core->machine->memory->ktrr_size > paddr))
-                    {
-                        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
-                        return;
-                    }
-                    *ptr = (*ptr & ~mask) | (*value & mask);
-                    return;
-            }
+                }
+                *ptr = (*ptr & ~mask) | (*value & mask);
+                return;
         }
     }
-
-bad_access:
-    core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
 }
 
 bool emex64_memory_cpy(emex64_core_t *core,
