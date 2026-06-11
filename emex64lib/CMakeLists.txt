@@ -7,6 +7,21 @@ project(emex64
 
 find_package(Threads REQUIRED)
 
+option(EMEX64VM_DEVICE_AUDIO "Enable AC97 audio output (PulseAudio on Linux)" ON)
+
+if(EMEX64VM_DEVICE_AUDIO)
+    if(UNIX AND NOT APPLE)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(PULSEAUDIO libpulse-simple libpulse)
+        if(NOT PULSEAUDIO_FOUND)
+            message(WARNING "PulseAudio not found — EMEX64VM_DEVICE_AUDIO disabled")
+            set(EMEX64VM_DEVICE_AUDIO OFF CACHE BOOL "" FORCE)
+        endif()
+    elseif(APPLE)
+        # macOS uses AudioQueue (CoreAudio), no extra find_package needed
+    endif()
+endif()
+
 option(EMEX64VM_DEVICE_DISPLAY "Enable display device support" ON)
 
 if(EMEX64VM_DEVICE_DISPLAY)
@@ -62,6 +77,7 @@ add_library(emex64 ${LIB_TYPE}
     src/vm/device/board/gfx/vimmio.c
     src/vm/device/board/display.c
     src/vm/device/board/uart.c
+    src/vm/device/board/ac97.c
 
     # Assembler
 
@@ -84,6 +100,7 @@ add_library(emex64 ${LIB_TYPE}
 
 target_compile_definitions(emex64 PRIVATE
     EMEX64VM_DEVICE_DISPLAY=$<BOOL:${EMEX64VM_DEVICE_DISPLAY}>
+    EMEX64VM_DEVICE_AUDIO=$<BOOL:${EMEX64VM_DEVICE_AUDIO}>
 )
 
 target_include_directories(emex64
@@ -156,6 +173,16 @@ if(EMEX64VM_DEVICE_DISPLAY)
         set_source_files_properties(src/vm/device/board/display.m PROPERTIES
             COMPILE_FLAGS "-fobjc-arc"
         )
+    endif()
+endif()
+
+if(EMEX64VM_DEVICE_AUDIO)
+    if(UNIX AND NOT APPLE)
+        target_include_directories(emex64 PRIVATE ${PULSEAUDIO_INCLUDE_DIRS})
+        target_link_libraries(emex64 PRIVATE ${PULSEAUDIO_LIBRARIES})
+    elseif(APPLE)
+        find_library(AUDIOTOOLBOX_FRAMEWORK AudioToolbox REQUIRED)
+        target_link_libraries(emex64 PRIVATE ${AUDIOTOOLBOX_FRAMEWORK})
     endif()
 endif()
 

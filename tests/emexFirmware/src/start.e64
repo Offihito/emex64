@@ -24,6 +24,8 @@
 
 %include% <emex64.e64inc>
 
+%define% FW_TONE_RATE   48000
+
 section .data
     fw_font_test_msg db "[fw] firmware font test\n     ABCDEFGHIJKLMNOPQRSTUVWXYZ\n     abcdefghijklmnopqrstuvwxyz\n     0123456789\n     @#%^&*()!<>?:;\n\0"
     fw_display_msg db "[fw] display resolution: \0"
@@ -102,6 +104,8 @@ _fw_start:
 
     blw _mc_lock_ktrr
     blw _puts, fw_ktrr_msg
+
+    blw _ac97_init, FW_TONE_RATE
 
 .hang:
     hlt

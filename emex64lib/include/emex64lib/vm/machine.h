@@ -35,6 +35,7 @@
 #include <emex64lib/vm/device/board/uart.h>
 #include <emex64lib/vm/device/board/controller/8042.h>
 #include <emex64lib/vm/device/board/display.h>
+#include <emex64lib/vm/device/board/ac97.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -48,6 +49,7 @@ typedef struct emex64_machine {
     emex64_uart_t *uart;
     emex64_display_t *display;
     emex64_8042_t *emex8042;
+    emex64_ac97_t *ac97;
 } emex64_machine_t;
 
 emex64_machine_t *emex64_machine_alloc(emex64_machine_options_t options);

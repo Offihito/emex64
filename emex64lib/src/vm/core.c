@@ -35,6 +35,7 @@
 
 #include <emex64lib/vm/device/internal/controller/interrupt.h>
 #include <emex64lib/vm/device/internal/timer.h>
+#include <emex64lib/vm/device/board/ac97.h>
 
 #include <emex64lib/vm/instruction/core.h>
 #include <emex64lib/vm/instruction/data.h>
@@ -285,6 +286,10 @@ static void *emex64_core_execute_thread(void *arg)
          * interrupts.
          */
         emex64_timer_tick(core->machine->timer, emex64_get_host_cycles());
+        if(core->machine->ac97 != NULL)
+        {
+            emex64_ac97_tick(core->machine->ac97, core);
+        }
     }
 
     return NULL;
