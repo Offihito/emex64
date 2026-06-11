@@ -291,7 +291,7 @@ back_to_rw:
                 *value = *ptr & mask;
                 return;
             case kEmex64MemoryActionWrite:
-                if(unlikely(core->machine->memory->ktrr_size >= paddr))
+                if(unlikely(core->machine->memory->ktrr_size > paddr))
                 {
                     core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
                     return;
