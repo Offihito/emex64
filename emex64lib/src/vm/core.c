@@ -210,8 +210,8 @@ static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
      * all parameters the instruction defines.
      */
     uint8_t maxarg = core->op.op.maxargs;
-    uint8_t i;
-    for(i = 0; i < maxarg; i++)
+    uint8_t i = 0;
+    for(; i < maxarg; i++)
     {
         enum kEmex64ParameterCoding coding = (uint8_t)bitwalker_read(&bw, 3);
         core->op.param_coding[i] = coding;
@@ -331,7 +331,7 @@ static void *emex64_core_execute_thread(void *arg)
 
 void emex64_core_execute(emex64_core_t *core)
 {
-    assert(core != NULL || core->pthread != 0);
+    assert(core != NULL && core->pthread == 0);
 
     pthread_create(&(core->pthread), NULL, emex64_core_execute_thread, (void*)core);
 
@@ -350,7 +350,7 @@ void emex64_core_execute(emex64_core_t *core)
 
 void emex64_core_terminate(emex64_core_t *core)
 {
-    assert(core != NULL || core->pthread != 0);
+    assert(core != NULL && core->pthread != 0);
 
     #if EMEX64VM_DEVICE_DISPLAY
     #if defined(__APPLE__)
