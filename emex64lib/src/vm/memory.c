@@ -379,7 +379,7 @@ bool emex64_memory_cpy(emex64_core_t *core,
                        size_t len,
                        kEmex64MemoryAction action)
 {
-    /* do not allow other actions that rx */
+    /* do not allow other actions than rx */
     if(action == kEmex64MemoryActionWrite)
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
