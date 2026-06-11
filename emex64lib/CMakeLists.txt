@@ -45,21 +45,24 @@ add_library(emex64 ${LIB_TYPE}
     src/vm/memory.c
     src/vm/mmio.c
     src/vm/mmu.c
-
-    src/vm/device/timer.c
-    src/vm/device/interrupt.c
-    src/vm/device/uart.c
-    src/vm/device/rtc.c
-    src/vm/device/mc.c
-    src/vm/device/platform.c
-    src/vm/device/display.c
-    src/vm/device/8042.c
-    src/vm/device/vimmiogfx.c
-
     src/vm/instruction/core.c
     src/vm/instruction/data.c
     src/vm/instruction/alu.c
     src/vm/instruction/ctrl.c
+
+    # Virtual Machine Devices
+
+    src/vm/device/internal/controller/interrupt.c
+    src/vm/device/internal/controller/mem.c
+    src/vm/device/internal/timer.c
+    src/vm/device/internal/rtc.c
+
+    src/vm/device/board/controller/power.c
+    src/vm/device/board/controller/8042.c
+    src/vm/device/board/controller/gfx.c
+    src/vm/device/board/gfx/vimmio.c
+    src/vm/device/board/display.c
+    src/vm/device/board/uart.c
 
     # Assembler
 
@@ -142,7 +145,7 @@ if(EMEX64VM_DEVICE_DISPLAY)
     elseif(APPLE)
         target_sources(emex64
             PRIVATE
-                src/vm/device/display.m
+                src/vm/device/board/display.m
         )
 
         find_library(COCOA_FRAMEWORK Cocoa REQUIRED)
@@ -154,7 +157,7 @@ if(EMEX64VM_DEVICE_DISPLAY)
                 ${OPENGL_FRAMEWORK}
         )
 
-        set_source_files_properties(src/vm/device/display.m PROPERTIES
+        set_source_files_properties(src/vm/device/board/display.m PROPERTIES
             COMPILE_FLAGS "-fobjc-arc"
         )
     endif()

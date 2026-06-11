@@ -28,11 +28,12 @@
 
 #include <emex64lib/support/likely.h>
 
-#include <emex64lib/vm/device/interrupt.h>
 #include <emex64lib/vm/core.h>
 #include <emex64lib/vm/machine.h>
 #include <emex64lib/vm/memory.h>
 #include <emex64lib/vm/instruction/ctrl.h>
+
+#include <emex64lib/vm/device/internal/controller/interrupt.h>
 
 emex64_intc_t *emex64_intc_alloc(emex64_machine_t *machine)
 {

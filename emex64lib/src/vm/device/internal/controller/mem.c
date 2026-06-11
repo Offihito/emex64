@@ -25,22 +25,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <emex64lib/vm/device/platform.h>
 #include <emex64lib/vm/machine.h>
+#include <emex64lib/vm/device/internal/controller/mem.h>
 
-#if defined(__APPLE__)
-#include <CoreFoundation/CFRunLoop.h>
-#endif /* __APPLE__ */
-
-uint64_t emex64_platform_read(emex64_core_t *core, void *device, uint64_t offset, int size)
+uint64_t emex64_mc_read(emex64_core_t *core,
+                        void *device,
+                        uint64_t offset,
+                        int size)
 {
-    return 1;
+    if(offset == EMEX64_MC_REG_SIZE)
+    {
+        return core->machine->memory->memory_size;
+    }
+    else if(offset == EMEX64_MC_REG_KTRR_SIZE)
+    {
+        return core->machine->memory->ktrr_size;
+    }
+    
+    return core->machine->memory->ktrr_locked;
 }
 
-void emex64_platform_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size)
+void emex64_mc_write(emex64_core_t *core,
+                     void *device,
+                     uint64_t offset,
+                     uint64_t value,
+                     int size)
 {
-    if(value == 0)
+    if(offset == EMEX64_MC_REG_KTRR_SIZE)
     {
-        emex64_core_terminate(core->machine->core);
+        if(core->machine->memory->ktrr_locked)
+        {
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
+            return;
+        }
+
+        core->machine->memory->ktrr_size = value;
     }
+    else if(offset == EMEX64_MC_REG_KTRR_LOCKED)
+    {
+        if(core->machine->memory->ktrr_locked)
+        {
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
+            return;
+        }
+
+        core->machine->memory->ktrr_locked = value;
+    }
+
+    return;
 }

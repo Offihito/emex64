@@ -29,7 +29,7 @@
 #include <pthread.h>
 
 #include <emex64lib/vm/device/base.h>
-#include <emex64lib/vm/device/8042.h>
+#include <emex64lib/vm/device/board/controller/8042.h>
 
 /* the freequency of the framebuffer */
 #define EMEX64_FB_TICK_HZ 60.0

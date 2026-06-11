@@ -30,11 +30,11 @@
 #include <emex64lib/vm/memory.h>
 #include <emex64lib/vm/mmio.h>
 
-#include <emex64lib/vm/device/timer.h>
-#include <emex64lib/vm/device/interrupt.h>
-#include <emex64lib/vm/device/uart.h>
-#include <emex64lib/vm/device/8042.h>
-#include <emex64lib/vm/device/display.h>
+#include <emex64lib/vm/device/internal/timer.h>
+#include <emex64lib/vm/device/internal/controller/interrupt.h>
+#include <emex64lib/vm/device/board/uart.h>
+#include <emex64lib/vm/device/board/controller/8042.h>
+#include <emex64lib/vm/device/board/display.h>
 
 #include <stdint.h>
 #include <stdbool.h>

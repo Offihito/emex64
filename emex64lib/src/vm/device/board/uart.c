@@ -23,8 +23,8 @@
  */
 
 #include <emex64lib/vm/machine.h>
-#include <emex64lib/vm/device/uart.h>
-#include <emex64lib/vm/device/interrupt.h>
+#include <emex64lib/vm/device/board/uart.h>
+#include <emex64lib/vm/device/internal/controller/interrupt.h>
 #include <sys/select.h>
 #include <stdlib.h>
 #include <stdio.h>

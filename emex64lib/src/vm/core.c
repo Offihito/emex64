@@ -34,8 +34,8 @@
 #include <emex64lib/vm/mmu.h>
 #include <emex64lib/vm/machine.h>
 
-#include <emex64lib/vm/device/interrupt.h>
-#include <emex64lib/vm/device/timer.h>
+#include <emex64lib/vm/device/internal/controller/interrupt.h>
+#include <emex64lib/vm/device/internal/timer.h>
 
 #include <emex64lib/vm/instruction/core.h>
 #include <emex64lib/vm/instruction/data.h>

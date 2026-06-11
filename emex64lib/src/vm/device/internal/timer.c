@@ -29,8 +29,8 @@
 
 #include <emex64lib/vm/machine.h>
 
-#include <emex64lib/vm/device/timer.h>
-#include <emex64lib/vm/device/interrupt.h>
+#include <emex64lib/vm/device/internal/timer.h>
+#include <emex64lib/vm/device/internal/controller/interrupt.h>
 
 uint64_t emex64_get_host_cycles(void)
 {

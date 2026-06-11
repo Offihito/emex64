@@ -29,12 +29,10 @@
 #include <string.h>
 #include <pthread.h>
 
-#include <emex64lib/support/bitwalker.h>
 #include <emex64lib/support/diag.h>
 #include <emex64lib/support/parser.h>
 
 #include <emex64lib/vm/machine.h>
-#include <emex64lib/vm/device/display.h>
 
 int main(int argc, char *argv[])
 {

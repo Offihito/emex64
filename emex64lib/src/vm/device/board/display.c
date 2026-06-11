@@ -34,7 +34,7 @@
 #include <emex64lib/support/diag.h>
 
 #include <emex64lib/vm/machine.h>
-#include <emex64lib/vm/device/display.h>
+#include <emex64lib/vm/device/board/display.h>
 
 #if defined(__linux__) && EMEX64VM_DEVICE_DISPLAY
 

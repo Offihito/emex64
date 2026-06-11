@@ -24,7 +24,7 @@
 
 #include <emex64lib/vm/machine.h>
 #include <emex64lib/vm/core.h>
-#include <emex64lib/vm/device/8042.h>
+#include <emex64lib/vm/device/board/controller/8042.h>
 #include <string.h>
 #include <pthread.h>
 
