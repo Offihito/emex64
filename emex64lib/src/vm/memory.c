@@ -233,8 +233,7 @@ void emex64_memory_action(emex64_core_t *core,
      */
     if(addr >> 53)
     {
-        uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
-        if(((cr_pte & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
+        if(((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
             return;
@@ -267,45 +266,31 @@ void emex64_memory_action(emex64_core_t *core,
      * we read it as if it was a 5th level entry, but its just a
      * control register.. for simplicity we do that hahaha.
      */
-    uint64_t paddr;
-    uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
-    if(((cr_pte & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
+    if(((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)
     {
-        /* get pfn of control register */
-        uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
-        uint64_t cr_pfn = (cr_pte & EMEX64_MEMORY_MMU_MASK_PFN) >> 8;
-
-        /* precalculating all indexes */
-        uint16_t pgd_index = (addr >> 43) & 0x3FF;     /* 10 bits for each level index  */
-        uint16_t pud_index = (addr >> 33) & 0x3FF;
-        uint16_t pmd_index = (addr >> 23) & 0x3FF;
-        uint16_t pte_index = (addr >> 13) & 0x3FF;
-        uint16_t offset = addr & 0x1FFF;               /* 13bit offset (addressing within a page) */
-
         /*
          * getting page global directory from physical frame number
          * stored in the 5th level (yk the control register x3).
          */
-        uint64_t pgd_addr = cr_pfn << 13;
+        uint64_t pgd_addr = ((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_PFN) >> 8) << 13;
 
         /* still unknown page directory addresses */
         uint64_t pud_addr, pmd_addr, pte_addr, phys_page_base_addr;
 
         /* now access each table */
-        if(!emex64_mmu_access_pxd(core, pgd_addr, pgd_index, kEmex64MemoryActionPageDirectory, &pud_addr) ||
-           !emex64_mmu_access_pxd(core, pud_addr, pud_index, kEmex64MemoryActionPageDirectory, &pmd_addr) ||
-           !emex64_mmu_access_pxd(core, pmd_addr, pmd_index, kEmex64MemoryActionPageDirectory, &pte_addr) ||
-           !emex64_mmu_access_pxd(core, pte_addr, pte_index, action, &phys_page_base_addr))
+        if(!emex64_mmu_access_pxd(core, pgd_addr, ((addr >> 43) & 0x3FF), kEmex64MemoryActionPageDirectory, &pud_addr) ||   /* 10 bits for each level index  */
+           !emex64_mmu_access_pxd(core, pud_addr, ((addr >> 33) & 0x3FF), kEmex64MemoryActionPageDirectory, &pmd_addr) ||
+           !emex64_mmu_access_pxd(core, pmd_addr, ((addr >> 23) & 0x3FF), kEmex64MemoryActionPageDirectory, &pte_addr) ||
+           !emex64_mmu_access_pxd(core, pte_addr, ((addr >> 13) & 0x3FF), action, &phys_page_base_addr))
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionPageFault;
             return;
         }
 
-        paddr = phys_page_base_addr + offset;
+        addr = phys_page_base_addr + (addr & 0x1FFF); /* 13bit offset (addressing within a page) */
     }
     else
     {
-        paddr = addr;
         goto rw_fastpath;
     }
 
@@ -340,13 +325,13 @@ void emex64_memory_action(emex64_core_t *core,
     else
 rw_fastpath:
     {
-        if(likely(!emex64_memory_access(core, paddr, size)))
+        if(likely(!emex64_memory_access(core, addr, size)))
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
             return;
         }
 
-        uint64_t *ptr = (uint64_t *)(core->machine->memory->memory + paddr);
+        uint64_t *ptr = (uint64_t *)(core->machine->memory->memory + addr);
         uint64_t mask = (size == 8) ? ~0ULL : (1ULL << (size * 8)) - 1;
         switch(action)
         {
@@ -356,7 +341,7 @@ rw_fastpath:
                 *value = *ptr & mask;
                 return;
             case kEmex64MemoryActionWrite:
-                if(unlikely(core->machine->memory->ktrr_size > paddr))
+                if(unlikely(core->machine->memory->ktrr_size > addr))
                 {
                     core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
                     return;
