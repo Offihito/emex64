@@ -146,4 +146,4 @@ _pmm_init:
 .end:
     stb pmm_init_once, 1                            ; mark as initilized
 .return:
-    wret
+    ret

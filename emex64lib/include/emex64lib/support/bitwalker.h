@@ -49,15 +49,6 @@ typedef struct {
     bw_endian_t endian;
 } bitwalker_t;
 
-/* temporary template for core */
-static bitwalker_t emex64_memory_bitwalker_template = {
-    .buffer = NULL,
-    .byte_pos = 0,
-    .bit_idx = 0,
-    .capacity = 256,
-    .endian = BW_LITTLE_ENDIAN,
-};
-
 static inline uint64_t bw_swap_n(uint64_t v,
                                  uint8_t num_bytes)
 {

@@ -123,7 +123,7 @@ _put_init:
     stw gui_line, 14
     blw _puts, putc_copyright
 %endif%
-    wret
+    ret
 
 _puts:
 .start:

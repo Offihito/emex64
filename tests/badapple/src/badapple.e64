@@ -201,7 +201,7 @@ _start:
     mov sp, r0
 
 %ifdef% BENCHMARK
-    blw _put_init
+    bl _put_init
     stw gui_line, 0
 
     stq TIMER_COMPARE, 0xFFFFFFFFFFFFFFFF
@@ -209,8 +209,8 @@ _start:
 %endif%
 
 %ifdef% FULL
-    blw _pmm_init
-    blw _interrupt_init
+    bl _pmm_init
+    bl _interrupt_init
     blw _interrupt_register_handler, IRQ_TIMER, _timer_handler
 
     ldq r0, TIMER_FREQ

@@ -58,8 +58,8 @@ static emex64_opfunc_entry_t kOpfuncTable[] = {
     [kEmex64OpcodeMOV] = { .func = emex64_op_mov, .maxargs = 2 },
     [kEmex64OpcodeSWP] = { .func = emex64_op_swp, .maxargs = 2 },
     [kEmex64OpcodeSWPZ] = { .func = emex64_op_swpz, .maxargs = 2 },
-    [kEmex64OpcodePUSH] = { .func = emex64_op_push, .maxargs = 32 },
-    [kEmex64OpcodePOP] = { .func = emex64_op_pop, .maxargs = 32 },
+    [kEmex64OpcodePUSH] = { .func = emex64_op_push, .maxargs = EMEX64_MAX_ARGS },
+    [kEmex64OpcodePOP] = { .func = emex64_op_pop, .maxargs = EMEX64_MAX_ARGS },
     [kEmex64OpcodeLDB] = { .func = emex64_op_ldb, .maxargs = 2 },
     [kEmex64OpcodeLDW] = { .func = emex64_op_ldw, .maxargs = 2 },
     [kEmex64OpcodeLDD] = { .func = emex64_op_ldd, .maxargs = 2 },
@@ -76,8 +76,8 @@ static emex64_opfunc_entry_t kOpfuncTable[] = {
     [kEmex64OpcodeDIV] = { .func = emex64_op_div, .maxargs = 3 },
     [kEmex64OpcodeIDIV] = { .func = emex64_op_idiv, .maxargs = 3 },
     [kEmex64OpcodeMOD] = { .func = emex64_op_mod, .maxargs = 3 },
-    [kEmex64OpcodeNOT] = { .func = emex64_op_not, .maxargs = 32 },
-    [kEmex64OpcodeNEG] = { .func = emex64_op_neg, .maxargs = 32 },
+    [kEmex64OpcodeNOT] = { .func = emex64_op_not, .maxargs = EMEX64_MAX_ARGS },
+    [kEmex64OpcodeNEG] = { .func = emex64_op_neg, .maxargs = EMEX64_MAX_ARGS },
     [kEmex64OpcodeAND] = { .func = emex64_op_and, .maxargs = 3 },
     [kEmex64OpcodeOR] = { .func = emex64_op_or, .maxargs = 3 },
     [kEmex64OpcodeXOR] = { .func = emex64_op_xor, .maxargs = 3 },
@@ -91,8 +91,8 @@ static emex64_opfunc_entry_t kOpfuncTable[] = {
     [kEmex64OpcodeBSWAPW] = { .func = emex64_op_bswapw, .maxargs = 1 },
     [kEmex64OpcodeBSWAPD] = { .func = emex64_op_bswapd, .maxargs = 1 },
     [kEmex64OpcodeBSWAPQ] = { .func = emex64_op_bswapq, .maxargs = 1 },
-    [kEmex64OpcodeINC] = { .func = emex64_op_inc, .maxargs = 32 },
-    [kEmex64OpcodeDEC] = { .func = emex64_op_dec, .maxargs = 32 },
+    [kEmex64OpcodeINC] = { .func = emex64_op_inc, .maxargs = EMEX64_MAX_ARGS },
+    [kEmex64OpcodeDEC] = { .func = emex64_op_dec, .maxargs = EMEX64_MAX_ARGS },
 
     /* control flow operations */
     [kEmex64OpcodeB] = { .func = emex64_op_b, .maxargs = 1 },
@@ -105,14 +105,14 @@ static emex64_opfunc_entry_t kOpfuncTable[] = {
     [kEmex64OpcodeBGE] = { .func = emex64_op_bge, .maxargs = 1 },
     [kEmex64OpcodeBZ] = { .func = emex64_op_bz, .maxargs = 2 },
     [kEmex64OpcodeBNZ] = { .func = emex64_op_bnz, .maxargs = 2 },
-    [kEmex64OpcodeBLW] = { .func = emex64_op_blw, .maxargs = 32 },
+    [kEmex64OpcodeBLW] = { .func = emex64_op_blw, .maxargs = EMEX64_MAX_ARGS },
     [kEmex64OpcodeWRET] = { .func = emex64_op_wret, .maxargs = 0 },
     [kEmex64OpcodeIRET] = { .func = emex64_op_iret, .maxargs = 0 },
     [kEmex64OpcodeBL] = { .func = emex64_op_bl, .maxargs = 1 },
     [kEmex64OpcodeRET] = { .func = emex64_op_ret, .maxargs = 0 },
 
     /* arithmetic operations v2 */
-    [kEmex64OpcodeCLR] = { .func = emex64_op_clr, .maxargs = 32 },
+    [kEmex64OpcodeCLR] = { .func = emex64_op_clr, .maxargs = EMEX64_MAX_ARGS },
 };
 
 static const uint8_t kImmBits[] = {
@@ -152,15 +152,19 @@ void emex64_core_dealloc(emex64_core_t *core)
 static inline void emex64_core_execute_instruction_at_pc(emex64_core_t *core)
 {
     /* TODO: KTRR check is missing */
-    if(unlikely(!emex64_memory_cpy(core, core->op.inscache,  core->rl[kEmex64RegisterPC], 256, kEmex64MemoryActionExecute)))
+    if(unlikely(!emex64_memory_cpy(core, core->op.inscache,  core->rl[kEmex64RegisterPC], EMEX64_MAX_ILEN, kEmex64MemoryActionExecute)))
     {
         /* callee wrote exception already */
         return;
     }
 
-    bitwalker_t bw = emex64_memory_bitwalker_template;
-    bw.buffer = core->op.inscache;
-
+    bitwalker_t bw = {
+        .buffer = core->op.inscache,
+        .byte_pos = 0,
+        .bit_idx = 0,
+        .capacity = EMEX64_MAX_ILEN,
+        .endian = BW_LITTLE_ENDIAN,
+    };
     enum kEmex64Opcode opcode = (uint8_t)bitwalker_read(&bw, 8);
     if(unlikely(opcode > kEmex64OpcodeMAX))
     {

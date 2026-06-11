@@ -37,7 +37,7 @@ _interrupt_init:
     stq INTC_REG_VECTOR, ivec
     stb INTC_REG_ENABLED, 0x0
     stq INTC_REG_CTRL, 1
-    wret
+    ret
 
 _interrupt_register_handler:
     ; calculate interrupt vector handler slot address

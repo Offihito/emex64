@@ -86,7 +86,7 @@ _slab_init:
     add r1, CACHE_STRUCT_SIZE
     b .loop
 .done:
-    wret
+    ret
 
 _find_size_class:
     clr r1

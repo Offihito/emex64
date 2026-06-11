@@ -335,6 +335,9 @@ enum kEmex64Exception {
     kEmex64ExceptionKTRRViolation =     0b110,
 };
 
+#define EMEX64_MAX_ARGS 16
+#define EMEX64_MAX_ILEN (1 + EMEX64_MAX_ARGS * 9)
+
 typedef struct emex64_core emex64_core_t;
 
 /* definition of the handler of each operation */
@@ -359,9 +362,9 @@ typedef struct emex64_core {
     /* data of currently decoding or decoded operation */
     struct {
         /*
-         * 256 bytes instruction cache
+         * 145 bytes instruction cache
          */
-        uint8_t inscache[256];
+        uint8_t inscache[EMEX64_MAX_ILEN];
 
         /*
          * lenght of decoded instruction so that the cpu

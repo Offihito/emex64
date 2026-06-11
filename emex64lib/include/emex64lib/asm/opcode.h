@@ -45,7 +45,7 @@ typedef struct opcode_entry {
     uint8_t opcode;                     /* opcode in machine code */
     uint8_t minargs;                    /* minimum arguments count */
     uint8_t maxargs;                    /* maximum arguments count */
-    uint32_t argmask;                   /* argument mask (0 means it doesnt matter what the operand is, 1 means it must be a register) */
+    uint16_t argmask;                   /* argument mask (0 means it doesnt matter what the operand is, 1 means it must be a register) */
     const char *dnstr;                  /* deprecation string if deprecated */
     instruction_emit_handler handler;   /* handler for emitting code */
 } opcode_entry_t;
