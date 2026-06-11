@@ -151,45 +151,49 @@ void emex64_core_dealloc(emex64_core_t *core)
 
 static inline bool emex64_core_decode_instruction_at_pc(emex64_core_t *core)
 {
-    /*uint64_t pc_addr = core->rl[kEmex64RegisterPC];
+    #if !EMEX64VM_USE_INSCACHE
+    uint64_t pc_addr = core->rl[kEmex64RegisterPC];
     uint64_t cr_pte = core->rl[kEmex64RegisterCR4];
     if((((cr_pte & EMEX64_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt) &&
         unlikely(!emex64_mmu_access(core, pc_addr, kEmex64MMUAccessExec, &pc_addr)))
     {
         /* MMU wrote exception, not needed to fill in our own */
-        /*return false;
-    }*/
+        return false;
+    }
 
     /*
      * check KTRR if kernel or secure monitor level
      * to prevent execution from non KTRR memory.
      */
-    /*if(core->rl[kEmex64RegisterCR0] >= kEmex64ElevationLevelKernel)
+    if(core->rl[kEmex64RegisterCR0] >= kEmex64ElevationLevelKernel)
     {
         if(core->machine->memory->ktrr_locked &&
            core->machine->memory->ktrr_size < pc_addr)
-        {*/
+        {
             /* a KTRR violation. OOB of KTRR region. */
-            /*core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
+            core->rl[kEmex64RegisterCR2] = kEmex64ExceptionKTRRViolation;
             return false;
         }
-    }*/
+    }
 
-    /*if(unlikely(!emex64_memory_access(core, pc_addr, 256)))
+    if(unlikely(!emex64_memory_access(core, pc_addr, 256)))
     {
         core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
         return false;
-    }*/
+    }
 
+    bitwalker_t bw = emex64_memory_bitwalker_template;
+    bw.buffer = core->machine->memory->memory + pc_addr;
+    #else
     if(unlikely(!emex64_memory_cpy(core, core->op.inscache,  core->rl[kEmex64RegisterPC], 256, kEmex64MemoryActionExecute)))
     {
         /* callee wrote exception already */
         return false;
     }
 
-
     bitwalker_t bw = emex64_memory_bitwalker_template;
     bw.buffer = core->op.inscache;
+    #endif /* EMEX64VM_USE_INSCACHE */
 
     enum kEmex64Opcode opcode = (uint8_t)bitwalker_read(&bw, 8);
     if(unlikely(opcode > kEmex64OpcodeMAX))

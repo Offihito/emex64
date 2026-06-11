@@ -79,8 +79,11 @@ add_library(emex64 ${LIB_TYPE}
     src/c/ASTUnit.c
 )
 
+option(EMEX64VM_USE_INSCACHE "Copies instruction into a cache before fetching it, for more correct emulation, it is noticably slower" ON)
+
 target_compile_definitions(emex64 PRIVATE
     EMEX64VM_DEVICE_DISPLAY=$<BOOL:${EMEX64VM_DEVICE_DISPLAY}>
+    EMEX64VM_USE_INSCACHE=$<BOOL:${EMEX64VM_USE_INSCACHE}>
 )
 
 target_include_directories(emex64
