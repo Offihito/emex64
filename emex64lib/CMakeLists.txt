@@ -54,6 +54,7 @@ add_library(emex64 ${LIB_TYPE}
     src/vm/device/platform.c
     src/vm/device/display.c
     src/vm/device/8042.c
+    src/vm/device/vimmiogfx.c
 
     src/vm/instruction/core.c
     src/vm/instruction/data.c

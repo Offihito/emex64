@@ -22,4 +22,9 @@
  * SOFTWARE.
  */
 
-#include <emex64lib/vm/device/iGPU.h>
+#ifndef EMEX64VM_VIMMIOGFX_H
+#define EMEX64VM_VIMMIOGFX_H
+
+#include <emex64lib/vm/device/base.h>
+
+#endif /* EMEX64VM_VIMMIOGFX_H */
