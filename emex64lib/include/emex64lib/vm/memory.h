@@ -93,5 +93,6 @@ void emex64_memory_dealloc(emex64_memory_t *memory);
 bool emex64_memory_load_image(emex64_memory_t *memory, const char *image_path);
 
 void emex64_memory_action(emex64_core_t *core, uint64_t addr, size_t size, uint64_t *value, kEmex64MemoryAction action);
+bool emex64_memory_cpy(emex64_core_t *core, uint8_t *dst, uint64_t addr, size_t len, kEmex64MemoryAction action);
 
 #endif /* EMEX64VM_MEMORY_H */

@@ -372,3 +372,30 @@ mmu_user_access:
 bad_access:
     core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
 }
+
+bool emex64_memory_cpy(emex64_core_t *core,
+                       uint8_t *dst,
+                       uint64_t addr,
+                       size_t len,
+                       kEmex64MemoryAction action)
+{
+    /* do not allow other actions that rx */
+    if(action == kEmex64MemoryActionWrite)
+    {
+        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
+        return false;
+    }
+
+    /* copy the code (LSB only ;w;) */
+    for(size_t i = 0; i < len; i += 8)
+    {
+        uint64_t value;
+
+        /* very inefficiently copy that shit every 8 bytes */
+        emex64_memory_action(core, addr + i, 8, &value, action);
+
+        *(uint64_t*)(&dst[i]) = (uint64_t)value;
+    }
+
+    return true;
+}

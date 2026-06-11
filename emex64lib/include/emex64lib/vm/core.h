@@ -358,6 +358,8 @@ typedef struct emex64_core {
 
     /* data of currently decoding or decoded operation */
     struct {
+        uint8_t inscache[256];
+
         /*
          * lenght of decoded instruction so that the cpu
          * can correctly increment the program counter.
