@@ -189,7 +189,12 @@ bool assembler_emit_instruction(assembler_line_t *al)
          *       relocations work perfectly fine.
          */
         parser_return_t pr = parse_value_from_string(al->token[i]->str);
-        if(pr.type == emexParserValueTypeString)
+        if(pr.type == emexParserValueTypeOverflow)
+        {
+            diag_error(al->token[i], "integer literal '%s' overflows 64bit lenght\n", al->token[i]->str);
+            return false;
+        }
+        else if(pr.type == emexParserValueTypeString)
         {
             /* the label is either local or global */
             char *label = NULL;

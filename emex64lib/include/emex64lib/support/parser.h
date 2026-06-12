@@ -27,18 +27,19 @@
 
 #include <stdint.h>
 
-typedef enum emexParserTypeValue {
-    emexParserValueTypeString         = 0x0,
-    emexParserValueTypeNumber         = 0x2,
-    emexParserValueTypeBuffer         = 0x3
+typedef enum emexParserTypeValue: uint8_t {
+    emexParserValueTypeString,
+    emexParserValueTypeNumber,
+    emexParserValueTypeBuffer,
+    emexParserValueTypeOverflow
 } parser_value_type_t;
 
 typedef struct parsed_type_return {
+    parser_value_type_t type;
     uint64_t value;
     uint64_t len;
-    parser_value_type_t type;
 } parser_return_t;
 
-parser_return_t parse_value_from_string(const char *s);
+parser_return_t parse_value_from_string(const char *str);
 
 #endif /* EMEXUTILS_PARSER_H */

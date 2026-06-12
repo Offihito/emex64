@@ -125,6 +125,11 @@ bool assembler_section_parse(assembler_invocation_t *inv)
                         {
                             /* using low level type parser */
                             parser_return_t pr = parse_value_from_string(inv->line[i]->token[a]->str);
+                            if(pr.type == emexParserValueTypeOverflow)
+                            {
+                                diag_error(inv->line[i]->token[a], "integer literal '%s' overflows 64bit lenght\n", inv->line[i]->token[a]->str);
+                                return false;
+                            }
 
                             /* checking type */
                             if(pr.type == emexParserValueTypeBuffer)

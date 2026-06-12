@@ -27,8 +27,29 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
+#include <setjmp.h>
 
 #include <emex64lib/support/parser.h>
+
+static _Thread_local jmp_buf overflow_jmp;
+
+static bool parse_base(const char *digits,
+                       int base,
+                       uint64_t *num)
+{
+    errno = 0;
+    uint64_t v = strtoull(digits, NULL, base);
+    if(errno == ERANGE)
+    {
+        return false;
+    }
+    if(num != NULL)
+    {
+        *num = v;
+    }
+    return true;
+}
 
 static bool parse_type_is_hex(const char *line,
                               uint64_t *num)
@@ -36,14 +57,14 @@ static bool parse_type_is_hex(const char *line,
     /* checking if user specified it as type hexadecimal  */
     if(line[0] != '0' || (line[1] != 'x' && line[1] != 'X')) return false;
 
-    /* nect check is to make sure if the string really is a hexadecimal  */
+    /* next check is to make sure if the string really is a hexadecimal  */
     for(uint64_t i = 2;; i++)
     {
         if(line[i] == '\0')
         {
-            if(num != NULL)
+            if(!parse_base(line + 2, 16, num))
             {
-                *num = strtoul(line + 2, NULL, 16);
+                longjmp(overflow_jmp, 1);
             }
             return true;
         }
@@ -70,9 +91,9 @@ static bool parse_type_is_bin(const char *line,
     {
         if(line[i] == '\0')
         {
-            if(num != NULL)
+            if(!parse_base(line + 2, 2, num))
             {
-                *num = strtoul(line + 2, NULL, 2);
+                longjmp(overflow_jmp, 1);
             }
             return true;
         }
@@ -94,9 +115,9 @@ static bool parse_type_is_dec(const char *line,
     {
         if(line[i] == '\0')
         {
-            if(num != NULL)
+            if(!parse_base(line, 10, num))
             {
-                *num = strtoul(line, NULL, 10);
+                longjmp(overflow_jmp, 1);
             }
             return true;
         }
@@ -237,30 +258,26 @@ static bool parse_type_is_buffer(const char *line,
     return true;
 }
 
-/*
- * Main parser
- */
-inline static parser_value_type_t parse_type(const char *line,
-                                             uint64_t *fastdec,
-                                             uint64_t *len)
+parser_return_t parse_value_from_string(const char *str)
 {
-    if(parse_type_is_hex(line, fastdec) ||
-       parse_type_is_bin(line, fastdec) ||
-       parse_type_is_dec(line, fastdec) ||
-       parse_type_is_char(line, fastdec))
+    if(setjmp(overflow_jmp) != 0)
     {
-        return emexParserValueTypeNumber;
+        return (parser_return_t){ .type = emexParserValueTypeOverflow };
     }
-    else if(parse_type_is_buffer(line, fastdec, len))
-    {
-        return emexParserValueTypeBuffer;
-    }
-    return emexParserValueTypeString;
-}
 
-parser_return_t parse_value_from_string(const char *s)
-{
-    parser_return_t pr;
-    pr.type = parse_type(s, &(pr.value), &(pr.len));
-    return pr;
+    uint64_t num = 0, len = 0;
+
+    if(parse_type_is_hex(str, &num) ||
+       parse_type_is_bin(str, &num) ||
+       parse_type_is_dec(str, &num) ||
+       parse_type_is_char(str, &num))
+    {
+        return (parser_return_t){ .type = emexParserValueTypeNumber, .value = num, .len = len };
+    }
+    else if(parse_type_is_buffer(str, &num, &len))
+    {
+        return (parser_return_t){ .type = emexParserValueTypeBuffer, .value = num, .len = len };
+    }
+
+    return (parser_return_t){ .type = emexParserValueTypeString };
 }
