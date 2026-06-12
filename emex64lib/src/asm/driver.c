@@ -22,4 +22,73 @@
  * SOFTWARE.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include <emex64lib/asm/driver.h>
+
+assembler_job_t *job_alloc(assembler_job_t *prev,
+                           kAssemblerJobType type,
+                           const char *command,
+                           const char **argv,
+                           int argc)
+{
+    /* whitelisting job types */
+    switch(type)
+    {
+        case kAssemblerJobTypeAssembler:
+        case kAssemblerJobTypeLinker:
+            break;
+        default:
+            /* illegal job type */
+            return NULL;
+    }
+
+    /* allocating job (definetly AI generated btw xD I definetly didn't wrote this comments, cuz it is wayyyyy to generic right) */
+    assembler_job_t *job = malloc(sizeof(assembler_job_t));
+    if(job == NULL)
+    {
+        return NULL;
+    }
+
+    job->type = type;
+
+    /* copy command */
+    job->command = strdup(command);
+    if(job->command == NULL)
+    {
+        free(job);
+        return NULL;
+    }
+
+    /* copy arguments */
+    job->argc = argc;
+    job->argv = calloc(argc, sizeof(char*));
+    if(job->argv == NULL)
+    {
+        free(job->command);
+        free(job);
+        return NULL;
+    }
+
+    for(int i = 0; i < argc; i++)
+    {
+        job->argv[i] = strdup(argv[i]);
+        if(job->argv[i] == NULL)
+        {
+            i--;
+            while(i < 0)
+            {
+                free(job->argv[--i]);
+            }
+
+            free(job->command);
+            free(job);
+            return NULL;
+        }
+    }
+
+    job->next = NULL;
+
+    return job;
+}

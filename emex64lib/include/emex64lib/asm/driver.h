@@ -33,16 +33,18 @@ typedef enum: uint8_t {
     kAssemblerJobTypeLinker
 } kAssemblerJobType;
 
-typedef struct {
+typedef struct assembler_job {
+    kAssemblerJobType type;
+    char *command;
+    char **argv;
+    int argc;
+    struct assembler_job *next;
+} assembler_job_t;
 
+typedef struct {
+    assembler_job_t *job;
 } assembler_driver_t;
 
-typedef struct {
-    kAssemblerJobType type;
-    const char *command;
-    const char **argv;
-    int argc;
-    bool posix_spawnp;
-} assembler_job_t;
+assembler_job_t *job_alloc(assembler_job_t *prev, kAssemblerJobType type, const char *command, const char **argv, int argc);
 
 #endif /* EMEX64ASM_DRIVER_H */

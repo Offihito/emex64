@@ -81,6 +81,7 @@ add_library(emex64 ${LIB_TYPE}
 
     # Assembler
 
+    src/asm/driver.c
     src/asm/cmptok.c
     src/asm/code.c
     src/asm/emit.c
