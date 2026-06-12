@@ -43,13 +43,6 @@ typedef struct assembler_job {
     int argc;
     struct assembler_job *prev;
     struct assembler_job *next;
-
-    union {
-        struct {
-            assembler_options_t options;
-            bool emit_object;
-        } assembler_job;
-    };
 } assembler_job_t;
 
 typedef struct {

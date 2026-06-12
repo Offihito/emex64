@@ -22,14 +22,42 @@
  * SOFTWARE.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
+#include <emex64lib/support/diag.h>
+
 #include <emex64lib/asm/options.h>
 
-assembler_options_t assembler_options_default(void)
+assembler_options_t *assembler_options_alloc(void)
 {
-    return (assembler_options_t){
-        .page_align = true,
-        .offset_branch = true,
-        .warning_error = false,
-        .warning_deprecated = true
-    };
+    assembler_options_t *options = malloc(sizeof(assembler_options_t));
+    if(options == NULL)
+    {
+        return NULL;
+    }
+
+    options->page_align = true;
+    options->warning_error = false;
+    options->warning_deprecated = true;
+
+    return options;
+}
+
+void assembler_options_dealloc(assembler_options_t *options)
+{
+    if(options->output_path != NULL)
+    {
+        free(options->output_path);
+    }
+}
+
+const char *assembler_options_get_output_path(assembler_options_t *options)
+{
+    if(options->output_path == NULL)
+    {
+        diag_warn(NULL, "no output binary specified, falling back to a.o\n");
+        options->output_path = strdup("a.o");
+    }
+    return options->output_path;
 }

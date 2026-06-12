@@ -51,7 +51,7 @@ typedef struct assembler_invocation {
     reloc_table_entry_t *rtbe;                  /* relocation table root entry */
     fdwalker_t *fdwalker;
 
-    assembler_options_t options;
+    assembler_options_t *options;
 
     uint64_t definition_cnt;
     assembler_macro_definition_t *definition;   /* array of definitions*/
@@ -67,8 +67,7 @@ typedef struct assembler_invocation {
     uint64_t bss_section_size;
 } assembler_invocation_t;
 
-assembler_invocation_t *assembler_invocation_alloc(const char *output_path);
-assembler_invocation_t *assembler_invocation_alloc_with_options(const char *output_path, assembler_options_t options);
+assembler_invocation_t *assembler_invocation_alloc(assembler_options_t *options);
 void assembler_invocation_dealloc(assembler_invocation_t *inv);
 
 bool assembler_invocation_emit(assembler_invocation_t *inv, int filec, char **filev);

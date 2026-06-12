@@ -38,10 +38,13 @@
 #include <emex64lib/asm/macro.h>
 #include <emex64lib/asm/elf.h>
 
-assembler_invocation_t *assembler_invocation_alloc(const char *output_path)
+assembler_invocation_t *assembler_invocation_alloc(assembler_options_t *options)
 {
+    /* apply warning_error local thread variable */
+    warning_error = options->warning_error;
+
     /* open file */
-    int fd = open(output_path, O_RDWR | O_CREAT | O_TRUNC, 0777);
+    int fd = open(assembler_options_get_output_path(options), O_RDWR | O_CREAT | O_TRUNC, 0777);
     if(fd < 0)
     {
         return NULL;
@@ -72,21 +75,7 @@ assembler_invocation_t *assembler_invocation_alloc(const char *output_path)
     inv->bss_section_start = UINT64_MAX;
     inv->bss_section_size = 0;
 
-    /* setting default values */
-    inv->options = assembler_options_default();
-    
-    return inv;
-}
-
-assembler_invocation_t *assembler_invocation_alloc_with_options(const char *output_path,
-                                                                assembler_options_t options)
-{
-    assembler_invocation_t *inv = assembler_invocation_alloc(output_path);
-    if(inv == NULL)
-    {
-        return NULL;
-    }
-
+    /* setting options */
     inv->options = options;
 
     return inv;

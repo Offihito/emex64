@@ -40,12 +40,11 @@
 int main(int argc, char *argv[])
 {
     int opt;
-    const char *output_path = NULL;
     int file_count = 0;
     char **files = calloc(argc, sizeof(char *));
 
     /* invocation settings */
-    assembler_options_t options = assembler_options_default();
+    assembler_options_t *options = assembler_options_alloc();
 
     /* include search paths */
     size_t inc_dir_cnt = 0;
@@ -60,7 +59,7 @@ int main(int argc, char *argv[])
     {
         if(strcmp(argv[i], "-o") == 0 && i + 1 < argc)
         {
-            output_path = argv[++i];
+            options->output_path = strdup(argv[++i]);
         }
         else if(strncmp(argv[i], "-f", 2) == 0)
         {
@@ -81,19 +80,11 @@ int main(int argc, char *argv[])
 
             if(strcmp(flag, "page_align") == 0)
             {
-                options.page_align = true;
+                options->page_align = true;
             }
             else if(strcmp(flag, "no_page_align") == 0)
             {
-                options.page_align = false;
-            }
-            else if(strcmp(flag, "offset_branch") == 0)
-            {
-                options.offset_branch = true;
-            }
-            else if(strcmp(flag, "no_offset_branch") == 0)
-            {
-                options.offset_branch = false;
+                options->page_align = false;
             }
             else
             {
@@ -120,19 +111,19 @@ int main(int argc, char *argv[])
 
             if(strcmp(flag, "error") == 0)
             {
-                warning_error = true;
+                options->warning_error = true;
             }
             else if(strcmp(flag, "no_error") == 0)
             {
-                warning_error = false;
+                options->warning_error = false;
             }
             else if(strcmp(flag, "deprecated") == 0)
             {
-                options.warning_deprecated = true;
+                options->warning_deprecated = true;
             }
             else if(strcmp(flag, "no_deprecated") == 0)
             {
-                options.warning_deprecated = false;
+                options->warning_deprecated = false;
             }
             else
             {
@@ -236,15 +227,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* checking for output path */
-    if(!output_path)
-    {
-        diag_warn(NULL, "no output binary specified, falling back to a.o\n");
-        output_path = "a.o";
-    }
-
     /* allocating compiler invocation */
-    assembler_invocation_t *inv = assembler_invocation_alloc_with_options(output_path, options);
+    assembler_invocation_t *inv = assembler_invocation_alloc(options);
     if(inv == NULL)
     {
         diag_error(NULL, "something went terribly wrong\n");
@@ -257,6 +241,7 @@ int main(int argc, char *argv[])
     inv->include_dir_cnt = inc_dir_cnt;
 
     bool succeeded = assembler_invocation_emit(inv, file_count, files);
+    assembler_options_dealloc(options);
     for(int i = 0; i < file_count; i++)
     {
         free(files[i]);
@@ -270,6 +255,6 @@ int main(int argc, char *argv[])
     return 0;
 
 failed:
-    unlink(output_path);
+    unlink(assembler_options_get_output_path(options));
     return 1;
 }
