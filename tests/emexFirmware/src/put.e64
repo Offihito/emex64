@@ -116,7 +116,7 @@ _put_init:
     blw _puts, putc_uart_logo
     blw _puts, putc_copyright
 %endif%
-    wret
+    ret
 .end_gui:
 %if% PUT_DRAW_LOGO
     blw _draw_scaled_logo, 6, 15, 15    

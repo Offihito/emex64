@@ -28,10 +28,6 @@
 #include <emex64lib/vm/device/board/controller/power.h>
 #include <emex64lib/vm/machine.h>
 
-#if defined(__APPLE__)
-#include <CoreFoundation/CFRunLoop.h>
-#endif /* __APPLE__ */
-
 uint64_t emex64_platform_read(emex64_core_t *core, void *device, uint64_t offset, int size)
 {
     return 1;

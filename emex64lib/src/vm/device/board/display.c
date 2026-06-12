@@ -43,7 +43,7 @@
 
 kEmexKeyPhys glfw_key_to_kEmexKeyPhys(int key)
 {
-    switch (key)
+    switch(key)
     {
         case GLFW_KEY_A: return kEmexKeyPhysA;
         case GLFW_KEY_B: return kEmexKeyPhysB;
