@@ -596,6 +596,10 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
 
 void assembler_driver_dealloc(assembler_driver_t *driver)
 {
+    for(uint64_t i = 0; i < driver->tmp_path_cnt; i++)
+    {
+        unlink(driver->tmp_paths[i]);
+    }
     free(driver);
 }
 
@@ -674,11 +678,6 @@ bool assembler_driver_drive_the_fucking_car(assembler_driver_t *driver)
             }
 
             job = job->next;
-        }
-
-        for(uint64_t i = 0; i < driver->tmp_path_cnt; i++)
-        {
-            unlink(driver->tmp_paths[i]);
         }
 
         return true;
