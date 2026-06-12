@@ -222,7 +222,7 @@ bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
         }
     }
 
-    if(opce->maxargs == EMEX64_MAX_ARGS || opce->maxargs != (al->token_cnt - 1))
+    if(opce->maxargs != (al->token_cnt - 1))
     {
         assembler_emit_end(al->inv);
     }
