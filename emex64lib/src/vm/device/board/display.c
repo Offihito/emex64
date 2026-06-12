@@ -573,10 +573,6 @@ void emex64_fb_write(emex64_core_t *core,
             EMEX64_MEMORY_WRITE_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, value);
             return;
         }
-        else
-        {
-            display->enabled = (uint8_t)value;
-        }
     }
     #endif /* EMEX64VM_DEVICE_DISPLAY */
 }
