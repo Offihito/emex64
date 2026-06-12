@@ -27,11 +27,11 @@
 
 #include <emex64lib/asm/driver.h>
 
-assembler_job_t *job_alloc(assembler_job_t *prev,
-                           kAssemblerJobType type,
-                           const char *command,
-                           const char **argv,
-                           int argc)
+assembler_job_t *assembler_job_alloc(assembler_job_t *prev,
+                                     kAssemblerJobType type,
+                                     const char *command,
+                                     const char **argv,
+                                     int argc)
 {
     /* whitelisting job types */
     switch(type)
@@ -99,7 +99,7 @@ assembler_job_t *job_alloc(assembler_job_t *prev,
     return job;
 }
 
-void job_dealloc(assembler_job_t *job)
+void assembler_job_dealloc(assembler_job_t *job)
 {
     for(int i = 0; i < job->argc; i++)
     {
