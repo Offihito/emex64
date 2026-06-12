@@ -127,8 +127,8 @@ void assembler_emit_end(assembler_invocation_t *inv)
     fdwalker_write(inv->fdwalker, kEmex64ParameterCodingEnd, 3);
 }
 
-bool assembler_emit_instruction_generic(const opcode_entry_t *opce,
-                                        assembler_line_t *al)
+bool assembler_emit_instruction(const opcode_entry_t *opce,
+                                assembler_line_t *al)
 {
     /*
      * every instruction starts with a
@@ -254,12 +254,6 @@ bool assembler_emit_line(assembler_line_t *al)
         return false;
     }
 
-    /* checking for deprecation */
-    if(opce->dnstr != NULL && al->inv->options.warning_deprecated)
-    {
-        diag_warn(al->token[al->token_cnt - 1], "opcode \"%s\" is deprecated: %s\n", opce->name, opce->dnstr);
-    }
-
     /* checking argument count */
     if((al->token_cnt - 1) > opce->maxargs)
     {
@@ -272,9 +266,7 @@ bool assembler_emit_line(assembler_line_t *al)
         return false;
     }
 
-    assert(opce->handler != NULL);
-
-    return opce->handler(opce, al);
+    return assembler_emit_instruction(opce, al);
 }
 
 bool assembler_emit(assembler_invocation_t *inv)
