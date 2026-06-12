@@ -90,5 +90,10 @@ assembler_job_t *job_alloc(assembler_job_t *prev,
 
     job->next = NULL;
 
+    if(prev != NULL)
+    {
+        prev->next = job;
+    }
+
     return job;
 }
