@@ -29,11 +29,11 @@
 
 #include <emex64lib/vm/device/base.h>
 
-#define EMEX64_MC_SIZE        0x10
+#define EMEX64_MC_SIZE              0x18
 
 #define EMEX64_MC_REG_SIZE          0x00
 #define EMEX64_MC_REG_KTRR_SIZE     0x08
-#define EMEX64_MC_REG_KTRR_LOCKED   0x0F
+#define EMEX64_MC_REG_KTRR_LOCKED   0x10
 
 typedef struct emex64_core emex64_core_t;
 

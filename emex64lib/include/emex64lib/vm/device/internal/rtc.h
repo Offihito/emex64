@@ -29,15 +29,15 @@
 
 #include <emex64lib/vm/device/base.h>
 
-#define EMEX64_RTC_SIZE       0x20
+#define EMEX64_RTC_SIZE 0x38
 
-#define RTC_REG_SECONDS     0x00
-#define RTC_REG_MINUTES     0x04
-#define RTC_REG_HOURS       0x08
-#define RTC_REG_DAY         0x0C
-#define RTC_REG_MONTH       0x10
-#define RTC_REG_YEAR        0x14
-#define RTC_REG_WEEKDAY     0x18
+#define RTC_REG_SECONDS 0x00
+#define RTC_REG_MINUTES 0x08
+#define RTC_REG_HOURS   0x10
+#define RTC_REG_DAY     0x18
+#define RTC_REG_MONTH   0x20
+#define RTC_REG_YEAR    0x28
+#define RTC_REG_WEEKDAY 0x30
 
 typedef struct emex64_core emex64_core_t;
 

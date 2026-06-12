@@ -32,13 +32,13 @@
 
 #include <emex64lib/vm/device/base.h>
 
-#define EMEX64_UART_SIZE      0x10
-
 #define UART_BUF_SIZE          64
 
-#define UART_REG_DATA          0x00
-#define UART_REG_STATUS        0x04
-#define UART_REG_CONTROL       0x08
+#define EMEX64_UART_SIZE    0x18
+
+#define UART_REG_DATA       0x00
+#define UART_REG_STATUS     0x08
+#define UART_REG_CONTROL    0x10
 
 #define UART_STATUS_RX_READY   (1 << 0)
 #define UART_STATUS_TX_EMPTY   (1 << 1)

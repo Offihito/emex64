@@ -41,18 +41,18 @@ _print_time:
 .loop:
     ldd r0, r1
     blw _rtc_2putbase, r0
-    add r1, 4
+    add r1, 8
     cmp r1, RTC_YEAR
     bgt .loop_2_entry
     blw _putc, '.'
     b .loop
 .loop_2_entry:
-    sub r1, 16
+    sub r1, 32
     blw _putc, ' '
 .loop_2:
     ldd r0, r1
     blw _rtc_2putbase, r0
-    sub r1, 4
+    sub r1, 8
     cmp r1, RTC_SECONDS
     blt .end
     blw _putc, ':'

@@ -29,9 +29,9 @@
 
 #include <emex64lib/vm/device/base.h>
 
-#define EMEX64_PLATFORM_SIZE  0x01
+#define EMEX64_PLATFORM_SIZE    0x08
 
-#define PLATFORM_REG_PWR    0x00
+#define PLATFORM_REG_PWR        0x00
 
 typedef struct emex64_core emex64_core_t;
 
