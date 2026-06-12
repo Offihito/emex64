@@ -359,8 +359,23 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
 {
     for(int i = 0; i < driver->input_path_count; i++)
     {
-        const char *meowv[1] = { "emex64asm" };
-        driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeDriver, "emex64asm", meowv, 1);
+        int argc = 0;
+        char **argv = calloc(1024, sizeof(char*));
+        if(argv == NULL)
+        {
+            return false;
+        }
+
+        argv[argc++] = strdup("emex64asm");
+        argv[argc++] = strdup(driver->input_path[i]);
+
+        driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeDriver, "emex64asm", (const char**)argv, argc);
+
+        for(int j = 0; j < argc; j++)
+        {
+            free(argv[j]);
+        }
+        free(argv);
     }
 
     const char *meowv[1] = { "emex64ld" };
@@ -409,9 +424,9 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
             {
                 fprintf(stderr, ", ");
             }
-            fprintf(stderr, "%s ", driver->input_path[i]);
+            fprintf(stderr, "%s", driver->input_path[i]);
         }
-        fprintf(stderr, "}\n");
+        fprintf(stderr, " }\n");
 
         fprintf(stderr, "inc_dirs[%zu]: { ", driver->inc_dir_cnt);
         for(size_t i = 0; i < driver->inc_dir_cnt; i++)
@@ -420,9 +435,9 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
             {
                 fprintf(stderr, ", ");
             }
-            fprintf(stderr, "%s ", driver->inc_dirs[i]);
+            fprintf(stderr, "%s", driver->inc_dirs[i]);
         }
-        fprintf(stderr, "}\n");
+        fprintf(stderr, " }\n");
 
         fprintf(stderr, "macro[%llu]: { ", driver->macro_cnt);
         for(uint64_t i = 0; i < driver->macro_cnt; i++)
@@ -431,9 +446,9 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
             {
                 fprintf(stderr, ", ");
             }
-            fprintf(stderr, "(match='%s' | replacement='%s') ", driver->macro[i].match, driver->macro[i].value);
+            fprintf(stderr, "(match='%s' | replacement='%s')", driver->macro[i].match, driver->macro[i].value);
         }
-        fprintf(stderr, "}\n");
+        fprintf(stderr, " }\n");
 
         fprintf(stderr, "linker_flags[%d]: { ", driver->linker_flags_cnt);
         for(int i = 0; i < driver->linker_flags_cnt; i++)
@@ -442,9 +457,9 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
             {
                 fprintf(stderr, ", ");
             }
-            fprintf(stderr, "%s ", driver->linker_flags[i]);
+            fprintf(stderr, "%s", driver->linker_flags[i]);
         }
-        fprintf(stderr, "}\n");
+        fprintf(stderr, " }\n");
 
         fprintf(stderr, "jobs: {");
         assembler_job_t *job = driver->job;
@@ -464,9 +479,9 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
                 {
                     fprintf(stderr, ", ");
                 }
-                fprintf(stderr, "%s ", job->argv[i]);
+                fprintf(stderr, "%s", job->argv[i]);
             }
-            fprintf(stderr, "}\n");
+            fprintf(stderr, " }\n");
             fprintf(stderr, "\t\tprev: %p\n ", (void*)job->prev);
             fprintf(stderr, "\t\tnext: %p\n ", (void*)job->next);
             fprintf(stderr, "\t}");
