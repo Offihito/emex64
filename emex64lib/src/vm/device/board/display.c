@@ -524,12 +524,6 @@ uint64_t emex64_fb_read(emex64_core_t *core,
             EMEX64_MEMORY_READ_HELPER(display->fb, offset - EMEX64_FB_FRAMEBUFFER, size, outvalue);
             return outvalue;
         }
-        else if(offset >= EMEX64_FB_PALLETE)
-        {
-            uint64_t outvalue;
-            EMEX64_MEMORY_READ_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, outvalue);
-            return outvalue;
-        }
         else if(offset == EMEX64_FB_REG_HEIGHT)
         {
             return display->height;
@@ -566,11 +560,6 @@ void emex64_fb_write(emex64_core_t *core,
         if(offset >= EMEX64_FB_FRAMEBUFFER)
         {
             EMEX64_MEMORY_WRITE_HELPER(display->fb, offset - EMEX64_FB_FRAMEBUFFER, size, value);
-            return;
-        }
-        else if(offset >= EMEX64_FB_PALLETE)
-        {
-            EMEX64_MEMORY_WRITE_HELPER(display->palette, offset - EMEX64_FB_PALLETE, size, value);
             return;
         }
     }

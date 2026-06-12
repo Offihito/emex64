@@ -39,8 +39,7 @@
 #define EMEX64_FB_REG_ENABLED 0x00    /* readonly: from now on only serving the purpose to know if screens are available */
 #define EMEX64_FB_REG_HEIGHT  0x01    /* readonly word: telling screen height */
 #define EMEX64_FB_REG_WIDTH   0x03    /* readonly word: telling screen width */
-#define EMEX64_FB_PALLETE     0x05
-#define EMEX64_FB_FRAMEBUFFER 0x305
+#define EMEX64_FB_FRAMEBUFFER 0x05
 
 typedef struct emex64_core emex64_core_t;
 typedef struct emex64_machine emex64_machine_t;
