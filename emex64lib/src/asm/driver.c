@@ -357,6 +357,17 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
 
 bool assembler_driver_jobgen(assembler_driver_t *driver)
 {
+    if(driver->emit_object && driver->input_path_count > 1)
+    {
+        diag_error(NULL, "multiple input files were passed in object emit mode\n");
+        return false;
+    }
+    else if(driver->input_path_count <= 0)
+    {
+        diag_error(NULL, "no input files were passed\n");
+        return false;
+    }
+
     for(int i = 0; i < driver->input_path_count; i++)
     {
         int argc = 0;
@@ -373,7 +384,7 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
         argv[argc++] = driver->warning_error ? strdup("-Werror") : strdup("-Wno_error");
         argv[argc++] = driver->warning_deprecated ? strdup("-Wdeprecated") : strdup("-Wno_deprecated");
 
-        driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeDriver, "emex64asm", (const char**)argv, argc);
+        driver->job = assembler_job_alloc(driver->job, (driver->emit_object) ? kAssemblerJobTypeAssembler : kAssemblerJobTypeDriver, "emex64asm", (const char**)argv, argc);
 
         for(int j = 0; j < argc; j++)
         {
@@ -382,8 +393,11 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
         free(argv);
     }
 
-    const char *meowv[1] = { "emex64ld" };
-    driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeDriver, "emex64ld", meowv, 1);
+    if(!driver->emit_object)
+    {
+        const char *meowv[1] = { "emex64ld" };
+        driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeLinker, "emex64ld", meowv, 1);
+    }
 
     assembler_job_t *job = driver->job;
     while(job != NULL)
