@@ -26,10 +26,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <spawn.h>
 
 #include <emex64lib/asm/driver.h>
+#include <emex64lib/asm/invocation.h>
 
 #include <emex64lib/support/diag.h>
+
+extern char **environ;
 
 assembler_job_t *assembler_job_alloc(assembler_job_t *prev,
                                      kAssemblerJobType type,
@@ -68,7 +72,7 @@ assembler_job_t *assembler_job_alloc(assembler_job_t *prev,
 
     /* copy arguments */
     job->argc = argc;
-    job->argv = calloc(argc, sizeof(char*));
+    job->argv = calloc(argc + 1, sizeof(char*));
     if(job->argv == NULL)
     {
         free(job->command);
@@ -92,6 +96,8 @@ assembler_job_t *assembler_job_alloc(assembler_job_t *prev,
             return NULL;
         }
     }
+
+    job->argv[argc + 1] = NULL;
 
     job->next = NULL;
 
@@ -416,12 +422,28 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
         }
 
         argv[argc++] = strdup("emex64asm");
+        argv[argc++] = strdup("-o");
+        argv[argc++] = strdup(assembler_driver_tmppath(driver, driver->input_path[i]));
         argv[argc++] = strdup(driver->input_path[i]);
         argv[argc++] = strdup("-c");
+        if(driver->verbose)
+        {
+            argv[argc++] = strdup("-v");
+        }
         argv[argc++] = driver->page_align ? strdup("-fpage_align") : strdup("-fno_page_align");
         argv[argc++] = driver->warning_error ? strdup("-Werror") : strdup("-Wno_error");
         argv[argc++] = driver->warning_deprecated ? strdup("-Wdeprecated") : strdup("-Wno_deprecated");
-        argv[argc++] = strdup(assembler_driver_tmppath(driver, driver->input_path[i]));
+        for(size_t j = 0; j < driver->inc_dir_cnt; j++)
+        {
+            size_t ilen = strlen(driver->inc_dirs[j]);
+            size_t blen = ilen + 3;
+            char *new_buf = malloc(blen);
+            memcpy(new_buf + 2, driver->inc_dirs[j], ilen);
+            new_buf[0] = '-';
+            new_buf[1] = 'I';
+            new_buf[blen] = '\0';
+            argv[argc++] = new_buf;
+        }
 
         driver->job = assembler_job_alloc(driver->job, (driver->emit_object) ? kAssemblerJobTypeAssembler : kAssemblerJobTypeDriver, "emex64asm", (const char**)argv, argc);
 
@@ -573,11 +595,98 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
         fprintf(stderr, "}\n");
     }
 
-    driver->job = NULL;
     return driver;
 }
 
 void assembler_driver_dealloc(assembler_driver_t *driver)
 {
     free(driver);
+}
+
+bool assembler_driver_drive_the_fucking_car(assembler_driver_t *driver)
+{
+    if(driver->emit_object)
+    {
+        assembler_options_t *options = assembler_options_alloc();
+        if(options == NULL)
+        {
+            return false;
+        }
+
+        options->page_align = driver->page_align;
+        options->warning_error = driver->warning_error;
+        options->warning_deprecated = driver->warning_deprecated;
+        options->output_path = strdup(driver->output_path);
+
+        assembler_invocation_t *inv = assembler_invocation_alloc(options);
+        if(inv == NULL)
+        {
+            return false;
+        }
+
+        inv->definition_cnt = driver->macro_cnt;
+        inv->definition = driver->macro;
+        inv->include_dir_cnt = driver->inc_dir_cnt;
+        inv->include_dirs = driver->inc_dirs;
+
+        if(!assembler_invocation_emit(inv, driver->input_path_count, driver->input_path))
+        {
+            return false;
+        }
+
+        /* TODO: implement inv deallocation */
+        //assembler_invocation_dealloc(inv);
+        assembler_options_dealloc(options);
+
+        return true;
+    }
+    else
+    {
+        assembler_job_t *job = driver->job;
+        while(job != NULL)
+        {
+            pid_t pid = 0;
+            posix_spawnp(&pid, job->command, NULL, NULL, job->argv, environ);
+
+            if(pid < 0)
+            {
+                diag_error(NULL, "failed to spawn it!\n");
+                return false;
+            }
+            else if(driver->verbose)
+            {
+                printf("spawned job: %d\n", pid);
+            }
+
+            int rstatus = 0;
+            if(waitpid(pid, &rstatus, 0) != pid)
+            {
+                return false;
+            }
+
+            if(WIFEXITED(rstatus))
+            {
+                if(WEXITSTATUS(rstatus) != 0)
+                {
+                    return false;
+                }
+            }
+            else if(WIFSIGNALED(rstatus))
+            {
+                diag_error(NULL, "job '%s' terminated by signal %d\n", job->command, WTERMSIG(rstatus));
+                return false;
+            }
+
+            job = job->next;
+        }
+
+        for(uint64_t i = 0; i < driver->tmp_path_cnt; i++)
+        {
+            unlink(driver->tmp_paths[i]);
+        }
+
+        return true;
+    }
+
+    return false;
 }
