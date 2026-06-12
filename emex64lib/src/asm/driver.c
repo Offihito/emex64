@@ -448,6 +448,10 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
         {
             argv[argc++] = strdup(driver->tmp_paths[i]);
         }
+        for(int i = 0; i < driver->linker_flags_cnt; i++)
+        {
+            argv[argc++] = strdup(driver->linker_flags[i]);
+        }
 
         driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeLinker, "emex64ld", (const char**)argv, argc);
 
