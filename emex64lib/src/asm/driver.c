@@ -93,7 +93,29 @@ assembler_job_t *job_alloc(assembler_job_t *prev,
     if(prev != NULL)
     {
         prev->next = job;
+        job->prev = prev;
     }
 
     return job;
+}
+
+void job_dealloc(assembler_job_t *job)
+{
+    for(int i = 0; i < job->argc; i++)
+    {
+        free(job->argv[i]);
+    }
+
+    if(job->prev != NULL)
+    {
+        job->prev->next = job->next;
+    }
+
+    if(job->next != NULL)
+    {
+        job->next->prev = job->prev;
+    }
+
+    free(job->command);
+    free(job);
 }

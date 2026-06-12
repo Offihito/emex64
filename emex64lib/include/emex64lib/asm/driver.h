@@ -38,6 +38,7 @@ typedef struct assembler_job {
     char *command;
     char **argv;
     int argc;
+    struct assembler_job *prev;
     struct assembler_job *next;
 } assembler_job_t;
 
@@ -46,5 +47,6 @@ typedef struct {
 } assembler_driver_t;
 
 assembler_job_t *job_alloc(assembler_job_t *prev, kAssemblerJobType type, const char *command, const char **argv, int argc);
+void job_dealloc(assembler_job_t *job);
 
 #endif /* EMEX64ASM_DRIVER_H */
