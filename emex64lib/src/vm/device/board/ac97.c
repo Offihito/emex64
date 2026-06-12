@@ -126,8 +126,8 @@ static void *ac97_audio_thread(void *arg)
             };
             pa_buffer_attr ba = {
                 .maxlength = (uint32_t)-1,
-                .tlength   = pa_usec_to_bytes(80000, &ss),  /* 80 ms */
-                .prebuf    = (uint32_t)-1,
+                .tlength   = pa_usec_to_bytes(40000, &ss),  /* 40 ms — tight enough to stay in sync with video */
+                .prebuf    = 0,                              /* start playback immediately, no prebuffering */
                 .minreq    = (uint32_t)-1,
                 .fragsize  = (uint32_t)-1,
             };
@@ -672,6 +672,5 @@ void emex64_ac97_tick(emex64_ac97_t *ac97, emex64_core_t *core)
             }
         }
 
-        return; /* one entry per tick */
     }
 }
