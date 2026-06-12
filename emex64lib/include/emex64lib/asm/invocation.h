@@ -46,8 +46,8 @@ typedef struct assembler_invocation {
 
     char *label_scope;                          /* current resolved label scope (the global label used for the local ones) */
     assembler_label_t *label;                   /* label array */
-
     uint64_t label_cnt;                         /* count of labels */
+    
     reloc_table_entry_t *rtbe;                  /* relocation table root entry */
     fdwalker_t *fdwalker;
 
