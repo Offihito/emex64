@@ -440,6 +440,20 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
             snprintf(new_buf, ilen + 3, "-I%s", driver->inc_dirs[j]);
             argv[argc++] = new_buf;
         }
+        for(uint64_t j = 0; j < driver->macro_cnt; j++)
+        {
+            const char *m = driver->macro[j].match;
+            const char *v = driver->macro[j].value;
+
+            size_t blen = 2 + strlen(m) + 1 + strlen(v) + 1;
+            char *buf = malloc(blen);
+            if(buf == NULL)
+            {
+                return false;
+            }
+            snprintf(buf, blen, "-D%s=%s", m, v);
+            argv[argc++] = buf;
+        }
 
         driver->job = assembler_job_alloc(driver->job, (driver->emit_object) ? kAssemblerJobTypeAssembler : kAssemblerJobTypeDriver, "emex64asm", (const char**)argv, argc);
 
