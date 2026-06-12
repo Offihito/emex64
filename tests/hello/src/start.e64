@@ -25,7 +25,7 @@
 %include% <emex64.e64inc>
 
 section .data
-    msg db "hello\r\n\0"
+    msg db "hello, world!\r\n\0"
 
 _start:
     mov r0, msg
