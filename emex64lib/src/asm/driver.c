@@ -424,11 +424,6 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
         }
         fprintf(stderr, "}\n");
 
-        /*
-    struct assembler_job *prev;
-    struct assembler_job *next;
-        */
-
         driver->job = assembler_job_alloc(NULL, kAssemblerJobTypeAssembler, "emex64asm", argv, argc);
         assembler_job_alloc(driver->job, kAssemblerJobTypeLinker, "emex64ld", argv, argc);
 
