@@ -159,11 +159,11 @@ emex64_machine_options_t emex64_machine_options_default(void)
     emex64_machine_options_t options;
     #if EMEX64VM_DEVICE_DISPLAY && (defined(__linux__) || defined(__APPLE__))
     options.display.enabled = true;
-    options.display.width = 640;
-    options.display.height = 480;
     #else
     options.display.enabled = false;
     #endif /* EMEX64VM_DEVICE_DISPLAY */
+    options.display.width = 640;
+    options.display.height = 480;
     #if EMEX64VM_DEVICE_AUDIO && (defined(__linux__) || defined(__APPLE__))
     options.audio = true;
     #else
