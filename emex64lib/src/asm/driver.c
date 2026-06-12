@@ -38,6 +38,7 @@ assembler_job_t *assembler_job_alloc(assembler_job_t *prev,
     {
         case kAssemblerJobTypeAssembler:
         case kAssemblerJobTypeLinker:
+        case kAssemblerJobTypeDriver:
             break;
         default:
             /* illegal job type */

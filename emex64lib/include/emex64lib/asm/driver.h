@@ -28,8 +28,11 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <emex64lib/asm/options.h>
+
 typedef enum: uint8_t {
     kAssemblerJobTypeAssembler,
+    kAssemblerJobTypeDriver,
     kAssemblerJobTypeLinker
 } kAssemblerJobType;
 
@@ -40,6 +43,13 @@ typedef struct assembler_job {
     int argc;
     struct assembler_job *prev;
     struct assembler_job *next;
+
+    union {
+        struct {
+            assembler_options_t options;
+            bool emit_object;
+        } assembler_job;
+    };
 } assembler_job_t;
 
 typedef struct {
