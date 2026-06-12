@@ -14,7 +14,12 @@ if(EMEX64VM_DEVICE_AUDIO)
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(PULSEAUDIO libpulse-simple libpulse)
         if(NOT PULSEAUDIO_FOUND)
-            message(WARNING "PulseAudio not found — EMEX64VM_DEVICE_AUDIO disabled")
+            message(WARNING "Missing headers for libpulse/PulseAudio — EMEX64VM_DEVICE_AUDIO disabled
+ If this is intentional, no further action is required.
+ If you intend to have audio support, please provide the headers for libpulse.
+ On most distributions, primarily ones based on Debian, this is named libpulse-dev.
+ On distributions using Pipewire, you also need to install pipewire-pulse.
+ You can check whether you have a working PulseAudio implementation with 'pactl info'.")
             set(EMEX64VM_DEVICE_AUDIO OFF CACHE BOOL "" FORCE)
         endif()
     elseif(APPLE)
