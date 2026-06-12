@@ -65,6 +65,7 @@ typedef struct {
     char **linker_flags;
 
     bool emit_object;
+    bool verbose;
 
     assembler_job_t *job;
 } assembler_driver_t;
