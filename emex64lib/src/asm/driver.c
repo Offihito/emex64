@@ -97,7 +97,7 @@ assembler_job_t *assembler_job_alloc(assembler_job_t *prev,
         }
     }
 
-    job->argv[argc + 1] = NULL;
+    job->argv[argc] = NULL;
 
     job->next = NULL;
 
@@ -436,12 +436,8 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
         for(size_t j = 0; j < driver->inc_dir_cnt; j++)
         {
             size_t ilen = strlen(driver->inc_dirs[j]);
-            size_t blen = ilen + 3;
-            char *new_buf = malloc(blen);
-            memcpy(new_buf + 2, driver->inc_dirs[j], ilen);
-            new_buf[0] = '-';
-            new_buf[1] = 'I';
-            new_buf[blen] = '\0';
+            char *new_buf = malloc(ilen + 3);
+            snprintf(new_buf, ilen + 3, "-I%s", driver->inc_dirs[j]);
             argv[argc++] = new_buf;
         }
 

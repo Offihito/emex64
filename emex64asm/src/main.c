@@ -30,6 +30,7 @@
 #include <emex64lib/support/diag.h>
 
 #include <emex64lib/asm/invocation.h>
+#include <emex64lib/asm/driver.h>
 #include <emex64lib/asm/code.h>
 #include <emex64lib/asm/label.h>
 #include <emex64lib/asm/emit.h>
@@ -37,224 +38,20 @@
 #include <emex64lib/asm/macro.h>
 #include <emex64lib/asm/elf.h>
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
-    int opt;
-    int file_count = 0;
-    char **files = calloc(argc, sizeof(char *));
-
-    /* invocation settings */
-    assembler_options_t *options = assembler_options_alloc();
-
-    /* include search paths */
-    size_t inc_dir_cnt = 0;
-    char **inc_dirs = NULL;
-
-    /* macros passed to assembler arguments */
-    uint64_t macro_cnt = 0;
-    assembler_macro_definition_t *macro = NULL;
-
-    /* parse arguments */
-    for(int i = 1; i < argc; i++)
+    assembler_driver_t *driver = assembler_driver_alloc(argv, argc);
+    if(driver == NULL)
     {
-        if(strcmp(argv[i], "-o") == 0 && i + 1 < argc)
-        {
-            options->output_path = strdup(argv[++i]);
-        }
-        else if(strncmp(argv[i], "-f", 2) == 0)
-        {
-            const char *flag;
-            if(argv[i][2] != '\0')
-            {
-                flag = argv[i] + 2;
-            }
-            else if(i + 1 < argc)
-            {
-                flag = argv[++i];
-            }
-            else
-            {
-                diag_error(NULL, "missing argument to '-f'\n");
-                goto failed;
-            }
-
-            if(strcmp(flag, "page_align") == 0)
-            {
-                options->page_align = true;
-            }
-            else if(strcmp(flag, "no_page_align") == 0)
-            {
-                options->page_align = false;
-            }
-            else
-            {
-                diag_error(NULL, "unknown feature flag '%s'\n", flag);
-                goto failed;
-            }
-        }
-        else if(strncmp(argv[i], "-W", 2) == 0)
-        {
-            const char *flag;
-            if(argv[i][2] != '\0')
-            {
-                flag = argv[i] + 2;
-            }
-            else if(i + 1 < argc)
-            {
-                flag = argv[++i];
-            }
-            else
-            {
-                diag_error(NULL, "missing argument to '-W'\n");
-                goto failed;
-            }
-
-            if(strcmp(flag, "error") == 0)
-            {
-                options->warning_error = true;
-            }
-            else if(strcmp(flag, "no_error") == 0)
-            {
-                options->warning_error = false;
-            }
-            else if(strcmp(flag, "deprecated") == 0)
-            {
-                options->warning_deprecated = true;
-            }
-            else if(strcmp(flag, "no_deprecated") == 0)
-            {
-                options->warning_deprecated = false;
-            }
-            else
-            {
-                diag_error(NULL, "unknown warning flag '%s'\n", flag);
-                goto failed;
-            }
-        }
-        else if(strncmp(argv[i], "-D", 2) == 0)
-        {
-            const char *flag;
-            if(argv[i][2] != '\0')
-            {
-                flag = argv[i] + 2;
-            }
-            else if(i + 1 < argc)
-            {
-                flag = argv[++i];
-            }
-            else
-            {
-                diag_error(NULL, "missing argument to '-D'\n");
-                goto failed;
-            }
-
-            const char *eq = strchr(flag, '=');
-            char *match = NULL;
-            char *value = NULL;
-            if(!eq)
-            {
-                match = strdup(flag);
-                size_t len = strlen(match);
-                if(len > 0 && (match[len-1] == '"' || match[len-1] == '\''))
-                {
-                    match[len-1] = '\0';
-                }
-                value = "1";
-            }
-
-            size_t name_len = eq - flag;
-            match = malloc(name_len + 1);
-            memcpy(match, flag, name_len);
-            match[name_len] = '\0';
-
-            const char *v = eq + 1;
-            char quote = 0;
-
-            if(*v == '"' || *v == '\'')
-            {
-                quote = *v;
-                v++;
-            }
-
-            const char *end = v;
-            while (*end && *end != quote && *end != '\0') end++;
-
-            size_t val_len = end - v;
-            value = malloc(val_len + 1);
-            memcpy(value, v, val_len);
-            value[val_len] = '\0';
-
-            uint64_t macro_slot = macro_cnt++;
-            if(macro == NULL)
-            {
-                macro = calloc(macro_cnt, sizeof(assembler_macro_definition_t));
-            }
-            else
-            {
-                macro = realloc(macro, macro_cnt * sizeof(assembler_macro_definition_t));
-            }
-
-            macro[macro_slot].match = match;
-            macro[macro_slot].value = value;
-        }
-        else if(strncmp(argv[i], "-I", 2) == 0)
-        {
-            const char *dir;
-            if(argv[i][2] != '\0')
-            {
-                dir = argv[i] + 2;
-            }
-            else if(i + 1 < argc)
-            {
-                dir = argv[++i];
-            }
-            else
-            {
-                diag_error(NULL, "missing argument to '-I'\n");
-                goto failed;
-            }
-            inc_dirs = realloc(inc_dirs, (inc_dir_cnt + 1) * sizeof(char*));
-            inc_dirs[inc_dir_cnt++] = strdup(dir);
-        }
-        else if(argv[i][0] != '-')
-        {
-            files[file_count++] = strdup(argv[i]);
-        }
-        else
-        {
-            diag_error(NULL, "unknown option '%s'\n", argv[i]);
-            goto failed;
-        }
+        return -1;
     }
 
-    /* allocating compiler invocation */
-    assembler_invocation_t *inv = assembler_invocation_alloc(options);
-    if(inv == NULL)
+    if(!assembler_driver_drive_the_fucking_car(driver))
     {
-        diag_error(NULL, "something went terribly wrong\n");
-        goto failed;
+        assembler_driver_dealloc(driver);
+        return 1;
     }
 
-    inv->definition = macro;
-    inv->definition_cnt = macro_cnt;
-    inv->include_dirs = inc_dirs;
-    inv->include_dir_cnt = inc_dir_cnt;
-
-    bool succeeded = assembler_invocation_emit(inv, file_count, files);
-    assembler_options_dealloc(options);
-    for(int i = 0; i < file_count; i++)
-    {
-        free(files[i]);
-    }
-    free(files);
-    if(!succeeded)
-    {
-        goto failed;
-    }
-
+    assembler_driver_dealloc(driver);
     return 0;
-
-failed:
-    unlink(assembler_options_get_output_path(options));
-    return 1;
 }
