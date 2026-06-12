@@ -52,14 +52,17 @@ typedef struct {
     bool warning_deprecated;
 
     const char *output_path;
-    int file_count;
-    char **files;
+    int input_path_count;
+    char **input_path;
 
     size_t inc_dir_cnt;
     char **inc_dirs;
 
     uint64_t macro_cnt;
     assembler_macro_definition_t *macro;
+
+    int linker_flags_cnt;
+    char **linker_flags;
 
     bool emit_object;
 
