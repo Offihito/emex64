@@ -127,9 +127,40 @@ void assembler_emit_end(assembler_invocation_t *inv)
     fdwalker_write(inv->fdwalker, kEmex64ParameterCodingEnd, 3);
 }
 
-bool assembler_emit_instruction(const opcode_entry_t *opce,
-                                assembler_line_t *al)
+bool assembler_emit_instruction(assembler_line_t *al)
 {
+    /* parameter count check */
+    if(al->token_cnt <= 0)
+    {
+        diag_error(al->token[0], "insufficient operands\n");
+        return false;
+    }
+    else if(al->token_cnt > 32)
+    {
+        diag_error(al->token[0], "holy smokes, why soo many operands, maximum is 32 operands in 64bit lightweight architecture\n");
+        return false;
+    }
+
+    /* getting opcode entry if it exists */
+    const opcode_entry_t *opce = opcode_from_string(al->token[0]->str);
+    if(opce == NULL)
+    {
+        diag_error(al->token[0], "illegal opcode \"%s\"\n", al->token[0]->str);
+        return false;
+    }
+
+    /* checking argument count */
+    if((al->token_cnt - 1) > opce->maxargs)
+    {
+        diag_error(al->token[al->token_cnt - 1], "too many operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->maxargs, al->token_cnt - 1);
+        return false;
+    }
+    else if((al->token_cnt - 1) < opce->minargs)
+    {
+        diag_error(al->token[al->token_cnt - 1], "too few operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->minargs, al->token_cnt - 1);
+        return false;
+    }
+
     /*
      * every instruction starts with a
      * opcode. so we emit one.
@@ -232,43 +263,6 @@ bool assembler_emit_instruction(const opcode_entry_t *opce,
     return true;
 }
 
-bool assembler_emit_line(assembler_line_t *al)
-{
-    /* parameter count check */
-    if(al->token_cnt <= 0)
-    {
-        diag_error(al->token[0], "insufficient operands\n");
-        return false;
-    }
-    else if(al->token_cnt > 32)
-    {
-        diag_error(al->token[0], "holy smokes, why soo many operands, maximum is 32 operands in 64bit lightweight architecture\n");
-        return false;
-    }
-
-    /* getting opcode entry if it exists */
-    const opcode_entry_t *opce = opcode_from_string(al->token[0]->str);
-    if(opce == NULL)
-    {
-        diag_error(al->token[0], "illegal opcode \"%s\"\n", al->token[0]->str);
-        return false;
-    }
-
-    /* checking argument count */
-    if((al->token_cnt - 1) > opce->maxargs)
-    {
-        diag_error(al->token[al->token_cnt - 1], "too many operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->maxargs, al->token_cnt - 1);
-        return false;
-    }
-    else if((al->token_cnt - 1) < opce->minargs)
-    {
-        diag_error(al->token[al->token_cnt - 1], "too few operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->minargs, al->token_cnt - 1);
-        return false;
-    }
-
-    return assembler_emit_instruction(opce, al);
-}
-
 bool assembler_emit(assembler_invocation_t *inv)
 {
     /* iterate through each token */
@@ -286,7 +280,7 @@ bool assembler_emit(assembler_invocation_t *inv)
         }
         else if(inv->line[i]->type == kAssemblerLineTypeAssembly)
         {
-            if(!assembler_emit_line(inv->line[i]))
+            if(!assembler_emit_instruction(inv->line[i]))
             {
                 return false;
             }
