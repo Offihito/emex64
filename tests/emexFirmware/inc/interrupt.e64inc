@@ -35,8 +35,9 @@
 
 %define% IRQ_EXCEPTION  0
 %define% IRQ_TIMER      1
-%define% IRQ_UART       2
-%define% IRQ_DISK       3
-%define% IRQ_NETWORK    4
-%define% IRQ_SOFTWARE   5
+%define% IRQ_DISK       2
+%define% IRQ_NETWORK    3
+%define% IRQ_SOFTWARE   4
+%define% IRQ_UART       5
 %define% IRQ_8042       6   ; spicy x3 silly keyboard controller
+%define% IRQ_UART       7
