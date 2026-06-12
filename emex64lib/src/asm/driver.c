@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 #include <emex64lib/asm/driver.h>
@@ -355,6 +356,43 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
     return true;
 }
 
+char *assembler_driver_tmppath(assembler_driver_t *driver,
+                               const char *input_path)
+{
+    const char *base = strrchr(input_path, '/');
+    base = base ? base + 1 : input_path;
+    const char *dot = strrchr(base, '.');
+    size_t stem_len = dot ? (size_t)(dot - base) : strlen(base);
+
+    const char *tmpdir = getenv("TMPDIR");
+    if(tmpdir == NULL || tmpdir[0] == '\0')
+    {
+        tmpdir = "/tmp";
+    }
+
+    size_t len = strlen(tmpdir) + 1 + 7 + stem_len + 1 + 6 + 2 + 1;
+    char *path = malloc(len);
+    if(path == NULL)
+    {
+        return NULL;
+    }
+
+    snprintf(path, len, "%s/emex64-%.*s-XXXXXX.o", tmpdir, (int)stem_len, base);
+
+    int fd = mkstemps(path, 2);
+    if(fd < 0)
+    {
+        free(path);
+        return NULL;
+    }
+    close(fd);
+
+    driver->tmp_paths = realloc(driver->tmp_paths, (driver->tmp_path_cnt + 1) * sizeof(char *));
+    driver->tmp_paths[driver->tmp_path_cnt++] = path;
+
+    return path;
+}
+
 bool assembler_driver_jobgen(assembler_driver_t *driver)
 {
     if(driver->emit_object && driver->input_path_count > 1)
@@ -383,6 +421,7 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
         argv[argc++] = driver->page_align ? strdup("-fpage_align") : strdup("-fno_page_align");
         argv[argc++] = driver->warning_error ? strdup("-Werror") : strdup("-Wno_error");
         argv[argc++] = driver->warning_deprecated ? strdup("-Wdeprecated") : strdup("-Wno_deprecated");
+        argv[argc++] = strdup(assembler_driver_tmppath(driver, driver->input_path[i]));
 
         driver->job = assembler_job_alloc(driver->job, (driver->emit_object) ? kAssemblerJobTypeAssembler : kAssemblerJobTypeDriver, "emex64asm", (const char**)argv, argc);
 
@@ -395,8 +434,28 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
 
     if(!driver->emit_object)
     {
-        const char *meowv[1] = { "emex64ld" };
-        driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeLinker, "emex64ld", meowv, 1);
+        int argc = 0;
+        char **argv = calloc(1024, sizeof(char*));
+        if(argv == NULL)
+        {
+            return false;
+        }
+
+        argv[argc++] = strdup("emex64ld");
+        argv[argc++] = strdup("-o");
+        argv[argc++] = strdup(driver->output_path);
+        for(size_t i = 0; i < driver->tmp_path_cnt; i++)
+        {
+            argv[argc++] = strdup(driver->tmp_paths[i]);
+        }
+
+        driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeLinker, "emex64ld", (const char**)argv, argc);
+
+        for(int j = 0; j < argc; j++)
+        {
+            free(argv[j]);
+        }
+        free(argv);
     }
 
     assembler_job_t *job = driver->job;

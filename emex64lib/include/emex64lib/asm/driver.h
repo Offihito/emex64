@@ -58,6 +58,9 @@ typedef struct {
     size_t inc_dir_cnt;
     char **inc_dirs;
 
+    size_t tmp_path_cnt;
+    char **tmp_paths;
+
     uint64_t macro_cnt;
     assembler_macro_definition_t *macro;
 
