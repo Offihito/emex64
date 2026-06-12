@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         {
         usage:
             fprintf(stderr, "%s [options]\n", argv[0]);
-            fprintf(stderr, "\t--help                                       : showing help menu\n");
+            fprintf(stderr, "\t--help                                       : shows this help menu\n");
             fprintf(stderr, "\t--firmware <image path>                      : providing firmware image\n");
             fprintf(stderr, "\t--memory:[kb|mb|gb] <memory size>            : providing memory size in megabyte\n");
             if(machine_support.display)

@@ -3,6 +3,27 @@
 ## Introduction
 emex64 is a 64bit lightweight architecture. It's a mix out of RISC and CISC it is based on no previous architecture.
 
+Outside the SoC, the emulated board additionally integrates support for UART, Audio, and (implementation pending) Graphics.
+
+## Setup and Installation
+
+Bulding the toolchain and installing it is as simple as the following:
+
+```bash
+make && make install
+```
+
+This will install emex64's toolchain and VM to `/usr/local`, and will prompt for a superuser password to do so.
+
+emex64vm will additionally require GLFW/GLEW if using the virtual display.
+
+## Using the VM
+
+The VM can be invoked to run firmware with `emex64vm --firmware <image path>`. Test programs and the current testing firmware can be found in `./tests/`.
+
+These examples will be compiled and directly run with `make`. 
+
+
 ## Instruction Set
 #### Core
 | Instruction | Opcode       | Format      |
