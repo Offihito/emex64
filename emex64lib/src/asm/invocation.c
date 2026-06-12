@@ -43,7 +43,6 @@ assembler_invocation_t *assembler_invocation_alloc(assembler_options_t *options)
     /* apply warning_error local thread variable */
     warning_error = options->warning_error;
 
-    /* open file */
     int fd = open(assembler_options_get_output_path(options), O_RDWR | O_CREAT | O_TRUNC, 0777);
     if(fd < 0)
     {
@@ -57,7 +56,6 @@ assembler_invocation_t *assembler_invocation_alloc(assembler_options_t *options)
         return NULL;
     }
 
-    /* zero out invocation */
     inv->fdwalker = malloc(sizeof(fdwalker_t));
     if(inv->fdwalker == NULL)
     {
@@ -69,13 +67,11 @@ assembler_invocation_t *assembler_invocation_alloc(assembler_options_t *options)
     fdwalker_init(inv->fdwalker, fd, BW_LITTLE_ENDIAN);
     fdwalker_seek(inv->fdwalker, 10, 0);
 
-    /* section boundaries */
     inv->data_section_start = UINT64_MAX;
     inv->data_section_end = UINT64_MAX;
     inv->bss_section_start = UINT64_MAX;
     inv->bss_section_size = 0;
 
-    /* setting options */
     inv->options = options;
 
     return inv;
@@ -97,7 +93,6 @@ bool assembler_invocation_emit(assembler_invocation_t *inv,
         return false;
     }
 
-    /* generating tokens,labels,sections out of the code */
     if(!assembler_code_preparse(inv, (const char **)filev, filec) ||
        !assembler_macro_expand(inv) ||
        !assembler_code_parse(inv) ||

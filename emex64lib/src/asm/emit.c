@@ -129,19 +129,6 @@ void assembler_emit_end(assembler_invocation_t *inv)
 
 bool assembler_emit_instruction(assembler_line_t *al)
 {
-    /* parameter count check */
-    if(al->token_cnt <= 0)
-    {
-        diag_error(al->token[0], "insufficient operands\n");
-        return false;
-    }
-    else if(al->token_cnt > 32)
-    {
-        diag_error(al->token[0], "holy smokes, why soo many operands, maximum is 32 operands in 64bit lightweight architecture\n");
-        return false;
-    }
-
-    /* getting opcode entry if it exists */
     const opcode_entry_t *opce = opcode_from_string(al->token[0]->str);
     if(opce == NULL)
     {
@@ -149,7 +136,17 @@ bool assembler_emit_instruction(assembler_line_t *al)
         return false;
     }
 
-    /* checking argument count */
+    /* sanity checking all parameter count related things */
+    if(al->token_cnt <= 0)
+    {
+        diag_error(al->token[0], "insufficient operands\n");
+        return false;
+    }
+    else if(al->token_cnt > EMEX64_MAX_ARGS)
+    {
+        diag_error(al->token[0], "holy smokes, why soo many operands, maximum is %d operands in emex64\n", EMEX64_MAX_ARGS);
+        return false;
+    }
     if((al->token_cnt - 1) > opce->maxargs)
     {
         diag_error(al->token[al->token_cnt - 1], "too many operands for opcode \"%s\", expected %d operands, but got %d operands\n", opce->name, opce->maxargs, al->token_cnt - 1);
@@ -161,10 +158,7 @@ bool assembler_emit_instruction(assembler_line_t *al)
         return false;
     }
 
-    /*
-     * every instruction starts with a
-     * opcode. so we emit one.
-     */
+    /* emitting the instruction */
     assembler_emit_opcode(al->inv, opce->opcode);
 
     for(uint64_t i = 1; i < al->token_cnt; i++)
@@ -195,7 +189,6 @@ bool assembler_emit_instruction(assembler_line_t *al)
          *       relocations work perfectly fine.
          */
         parser_return_t pr = parse_value_from_string(al->token[i]->str);
-
         if(pr.type == emexParserValueTypeString)
         {
             /* the label is either local or global */

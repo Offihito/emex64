@@ -38,29 +38,27 @@ typedef struct {
 } assembler_macro_definition_t;
 
 typedef struct assembler_invocation {
-    emex_file_t **file;                         /* code files */
-    size_t file_cnt;                            /* count of files */
-
-    assembler_line_t **line;                    /* code lines */
-    uint64_t line_cnt;                          /* count of lines */
-
-    char *label_scope;                          /* current resolved label scope (the global label used for the local ones) */
-    assembler_label_t *label;                   /* label array */
-    uint64_t label_cnt;                         /* count of labels */
-    
-    reloc_table_entry_t *rtbe;                  /* relocation table root entry */
-    fdwalker_t *fdwalker;
-
     assembler_options_t *options;
+    
+    emex_file_t **file;
+    size_t file_cnt;
+
+    assembler_line_t **line;
+    uint64_t line_cnt;
+
+    char *label_scope;
+    assembler_label_t *label;
+    uint64_t label_cnt;
 
     uint64_t definition_cnt;
-    assembler_macro_definition_t *definition;   /* array of definitions*/
+    assembler_macro_definition_t *definition;
 
-    /* include search paths (-I flags) */
     char **include_dirs;
     size_t include_dir_cnt;
 
-    /* section boundaries */
+    reloc_table_entry_t *rtbe;
+    fdwalker_t *fdwalker;
+
     uint64_t data_section_start;
     uint64_t data_section_end;
     uint64_t bss_section_start;
