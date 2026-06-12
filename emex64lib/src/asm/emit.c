@@ -280,35 +280,6 @@ bool assembler_emit(assembler_invocation_t *inv)
         }
     }
 
-    /*
-     * appending binary end label, which is a compiler
-     * constant.
-     */
-    struct stat st;
-    if(fstat(inv->fdwalker->fd, &st) == -1)
-    {
-        diag_error(NULL, "fatal error occured, pls report\n");
-        return false;
-    }
-
-    /* relocate if possible */
-    reloc_table_entry_t *rtbe = inv->rtbe;
-    while(rtbe != NULL)
-    {
-        assembler_label_t *label = assembler_label_lookup(inv, rtbe->name);
-        if(label == NULL)
-        {
-            /* object emitter will create RELA entries */
-            rtbe = rtbe->next;
-            continue;
-        }
-
-        fdwalker_seek(inv->fdwalker, rtbe->byte_pos, rtbe->bit_idx);
-        fdwalker_write(inv->fdwalker, label->addr, 64);
-
-        rtbe = rtbe->next;
-    }
-
     fsync(inv->fdwalker->fd);
 
     return true;
