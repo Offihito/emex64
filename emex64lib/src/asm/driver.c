@@ -368,6 +368,10 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
 
         argv[argc++] = strdup("emex64asm");
         argv[argc++] = strdup(driver->input_path[i]);
+        argv[argc++] = strdup("-c");
+        argv[argc++] = driver->page_align ? strdup("-fpage_align") : strdup("-fno_page_align");
+        argv[argc++] = driver->warning_error ? strdup("-Werror") : strdup("-Wno_error");
+        argv[argc++] = driver->warning_deprecated ? strdup("-Wdeprecated") : strdup("-Wno_deprecated");
 
         driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeDriver, "emex64asm", (const char**)argv, argc);
 
