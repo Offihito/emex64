@@ -119,3 +119,14 @@ void assembler_job_dealloc(assembler_job_t *job)
     free(job->command);
     free(job);
 }
+
+assembler_driver_t *assembler_driver_alloc(const char **argv,
+                                           int argc)
+{
+    return NULL;
+}
+
+void assembler_driver_dealloc(assembler_driver_t *driver)
+{
+
+}
