@@ -30,6 +30,9 @@
 
 #define EMEX64_8042_SIZE    0x10
 
+#define EMEX64_8042_DATA    0x00
+#define EMEX64_8042_STATUS  0x08
+
 typedef struct emex64_core emex64_core_t;
 typedef struct emex64_machine emex64_machine_t;
 

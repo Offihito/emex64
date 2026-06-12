@@ -281,7 +281,7 @@ uint64_t emex64_8042_read(emex64_core_t *core, void *device, uint64_t offset, in
 
     pthread_mutex_lock(&dev->lock);
 
-    if(offset == 0x00)
+    if(offset == EMEX64_8042_DATA)
     {
         if(dev->kbd_head != dev->kbd_tail)
         {
@@ -297,7 +297,7 @@ uint64_t emex64_8042_read(emex64_core_t *core, void *device, uint64_t offset, in
 
         update_8042_interrupt(dev);
     }
-    else if(offset == 0x08)
+    else if(offset == EMEX64_8042_STATUS)
     {
         val = dev->status;
     }
@@ -316,7 +316,7 @@ void emex64_8042_write(emex64_core_t *core,
 
     pthread_mutex_lock(&dev->lock);
 
-    if(offset == 0x00)
+    if(offset == EMEX64_8042_DATA)
     {
         if(dev->last_command == 0x60)
         {
@@ -324,7 +324,7 @@ void emex64_8042_write(emex64_core_t *core,
         }
         dev->last_command = 0;
     }
-    else if(offset == 0x08)
+    else if(offset == EMEX64_8042_STATUS)
     {
         dev->last_command = value;
 
