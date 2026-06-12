@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <spawn.h>
+#include <sys/wait.h>
 
 #include <emex64lib/asm/driver.h>
 #include <emex64lib/asm/invocation.h>
