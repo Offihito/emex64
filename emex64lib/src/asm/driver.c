@@ -670,7 +670,7 @@ bool assembler_driver_drive_the_fucking_car(assembler_driver_t *driver)
             }
             else if(driver->verbose)
             {
-                printf("spawned job: %d\n", pid);
+                printf("\nspawned job: %d\n", pid);
             }
 
             int rstatus = 0;
