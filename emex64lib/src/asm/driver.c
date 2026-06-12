@@ -123,10 +123,17 @@ void assembler_job_dealloc(assembler_job_t *job)
 assembler_driver_t *assembler_driver_alloc(const char **argv,
                                            int argc)
 {
-    return NULL;
+    assembler_driver_t *driver = malloc(sizeof(assembler_driver_t));
+    if(driver == NULL)
+    {
+        return NULL;
+    }
+
+    driver->job = NULL;
+    return driver;
 }
 
 void assembler_driver_dealloc(assembler_driver_t *driver)
 {
-
+    free(driver);
 }
