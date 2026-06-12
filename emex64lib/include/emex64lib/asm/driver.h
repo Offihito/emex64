@@ -26,9 +26,10 @@
 #define EMEX64ASM_DRIVER_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 
-#include <emex64lib/asm/options.h>
+#include <emex64lib/asm/invocation.h>
 
 typedef enum: uint8_t {
     kAssemblerJobTypeAssembler,
@@ -46,6 +47,22 @@ typedef struct assembler_job {
 } assembler_job_t;
 
 typedef struct {
+    bool page_align;
+    bool warning_error;
+    bool warning_deprecated;
+
+    const char *output_path;
+    int file_count;
+    char **files;
+
+    size_t inc_dir_cnt;
+    char **inc_dirs;
+
+    uint64_t macro_cnt;
+    assembler_macro_definition_t *macro;
+
+    bool emit_object;
+
     assembler_job_t *job;
 } assembler_driver_t;
 
