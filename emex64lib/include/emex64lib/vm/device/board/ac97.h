@@ -32,22 +32,22 @@
 
 #include <emex64lib/vm/device/base.h>
 
-#define EMEX64_AC97_SIZE        EMEX64_PAGE_SIZE
+#define EMEX64_AC97_SIZE            EMEX64_PAGE_SIZE
 
 #define AC97_CODEC_RESET            0x000
-#define AC97_CODEC_MASTER_VOL       0x002
-#define AC97_CODEC_HEADPHONE_VOL    0x004
+#define AC97_CODEC_MASTER_VOL       0x008
+#define AC97_CODEC_HEADPHONE_VOL    0x010
 #define AC97_CODEC_PCM_OUT_VOL      0x018
-#define AC97_CODEC_RECORD_SELECT    0x01A
-#define AC97_CODEC_RECORD_GAIN      0x01C
-#define AC97_CODEC_GENERAL_PURPOSE  0x020
-#define AC97_CODEC_POWERDOWN        0x026
-#define AC97_CODEC_EXT_AUDIO_ID     0x028
-#define AC97_CODEC_EXT_AUDIO_CTRL   0x02A
-#define AC97_CODEC_PCM_DAC_RATE     0x02C
-#define AC97_CODEC_PCM_ADC_RATE     0x032
-#define AC97_CODEC_VENDOR_ID1       0x07C
-#define AC97_CODEC_VENDOR_ID2       0x07E
+#define AC97_CODEC_RECORD_SELECT    0x020
+#define AC97_CODEC_RECORD_GAIN      0x028
+#define AC97_CODEC_GENERAL_PURPOSE  0x030
+#define AC97_CODEC_POWERDOWN        0x038
+#define AC97_CODEC_EXT_AUDIO_ID     0x040
+#define AC97_CODEC_EXT_AUDIO_CTRL   0x048
+#define AC97_CODEC_PCM_DAC_RATE     0x050
+#define AC97_CODEC_PCM_ADC_RATE     0x058
+#define AC97_CODEC_VENDOR_ID1       0x060
+#define AC97_CODEC_VENDOR_ID2       0x068
 
 #define AC97_CODEC_REG_COUNT        64
 
@@ -60,17 +60,17 @@
 
 #define AC97_EXT_VRA                (1 << 0)    /* variable rate audio */
 
-#define AC97_BM_BASE                0x080
+#define AC97_BM_BASE                0x070
 
-#define AC97_BM_PCMOUT_BDL_BASE     0x080   /* R/W  qword  guest phys addr of BDL array */
-#define AC97_BM_PCMOUT_CIV          0x088   /* RO   byte   current index value          */
-#define AC97_BM_PCMOUT_LVI          0x089   /* R/W  byte   last valid index             */
-#define AC97_BM_PCMOUT_STATUS       0x08A   /* R/W  word   channel status (W1C bits)    */
-#define AC97_BM_PCMOUT_PICB         0x08C   /* RO   word   samples left in current buf  */
-#define AC97_BM_PCMOUT_PIV          0x08E   /* RO   byte   prefetched index value       */
-#define AC97_BM_PCMOUT_CTRL         0x08F   /* R/W  byte   channel control              */
-#define AC97_BM_GLOB_CTRL           0x0B8   /* R/W  dword  global control               */
-#define AC97_BM_GLOB_STATUS         0x0BC   /* R/W  dword  global status                */
+#define AC97_BM_PCMOUT_BDL_BASE     0x070   /* R/W  qword  guest phys addr of BDL array */
+#define AC97_BM_PCMOUT_CIV          0x078   /* RO   byte   current index value          */
+#define AC97_BM_PCMOUT_LVI          0x080   /* R/W  byte   last valid index             */
+#define AC97_BM_PCMOUT_STATUS       0x088   /* R/W  word   channel status (W1C bits)    */
+#define AC97_BM_PCMOUT_PICB         0x090   /* RO   word   samples left in current buf  */
+#define AC97_BM_PCMOUT_PIV          0x098   /* RO   byte   prefetched index value       */
+#define AC97_BM_PCMOUT_CTRL         0x0A0   /* R/W  byte   channel control              */
+#define AC97_BM_GLOB_CTRL           0x0A8   /* R/W  dword  global control               */
+#define AC97_BM_GLOB_STATUS         0x0B0   /* R/W  dword  global status                */
 
 #define AC97_BM_STATUS_DCH          (1 << 0)    /* DMA halted                  */
 #define AC97_BM_STATUS_CELV         (1 << 1)    /* current index == last valid */
