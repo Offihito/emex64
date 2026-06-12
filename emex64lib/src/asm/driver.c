@@ -355,6 +355,27 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
     return true;
 }
 
+bool assembler_driver_jobgen(assembler_driver_t *driver)
+{
+    for(int i = 0; i < driver->input_path_count; i++)
+    {
+        const char *meowv[1] = { "emex64asm" };
+        driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeDriver, "emex64asm", meowv, 1);
+    }
+
+    const char *meowv[1] = { "emex64ld" };
+    driver->job = assembler_job_alloc(driver->job, kAssemblerJobTypeDriver, "emex64ld", meowv, 1);
+
+    assembler_job_t *job = driver->job;
+    while(job != NULL)
+    {
+        driver->job = job;
+        job = job->prev;
+    }
+
+    return true;
+}
+
 assembler_driver_t *assembler_driver_alloc(const char **argv,
                                            int argc)
 {
@@ -364,7 +385,8 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
         return NULL;
     }
 
-    if(!assembler_driver_predrive(driver, argv, argc))
+    if(!assembler_driver_predrive(driver, argv, argc) ||
+       !assembler_driver_jobgen(driver))
     {
         free(driver);
         return NULL;
@@ -423,9 +445,6 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
             fprintf(stderr, "%s ", driver->linker_flags[i]);
         }
         fprintf(stderr, "}\n");
-
-        driver->job = assembler_job_alloc(NULL, kAssemblerJobTypeAssembler, "emex64asm", argv, argc);
-        assembler_job_alloc(driver->job, kAssemblerJobTypeLinker, "emex64ld", argv, argc);
 
         fprintf(stderr, "jobs: {");
         assembler_job_t *job = driver->job;
