@@ -534,9 +534,13 @@ uint64_t emex64_fb_read(emex64_core_t *core,
         {
             return display->height;
         }
-        else
+        else if(offset == EMEX64_FB_REG_WIDTH)
         {
             return display->width;
+        }
+        else
+        {
+            return display->enabled;
         }
     }
     else
