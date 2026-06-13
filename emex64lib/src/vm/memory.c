@@ -261,6 +261,12 @@ void emex64_memory_action(emex64_core_t *core,
      */
     if(addr >> 53)
     {
+        /*
+         * MMIO shall never be accessed when paging is enabled or when
+         * the access is not aligned to a quad word boundary, as
+         * the decoder later in actual emex64 hardware would explode
+         * in size otherwise. MMIO busses are complex!
+         */
         if(unlikely((((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt) || (!EMEX64_IS_ALIGNED_64(addr) && addr < EMEX64_FB_BASE)))
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
