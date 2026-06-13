@@ -516,6 +516,21 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
     return true;
 }
 
+const char *assembler_job_string_for_type(kAssemblerJobType type)
+{
+    switch(type)
+    {
+        case kAssemblerJobTypeAssembler:
+            return "assembler";
+        case kAssemblerJobTypeLinker:
+            return "linker";
+        case kAssemblerJobTypeDriver:
+            return "driver";
+        default:
+            return "unknown";
+    }
+}
+
 assembler_driver_t *assembler_driver_alloc(const char **argv,
                                            int argc)
 {
@@ -596,7 +611,7 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
         while(job != NULL)
         {
             fprintf(stderr, "\t{\n");
-            fprintf(stderr, "\t\ttype: %d\n", job->type);
+            fprintf(stderr, "\t\ttype: %s\n", assembler_job_string_for_type(job->type));
             fprintf(stderr, "\t\tcommand: %s\n", job->command);
             fprintf(stderr, "\t\targv[%d]: { ", job->argc);
             for(int i = 0; i < job->argc; i++)
