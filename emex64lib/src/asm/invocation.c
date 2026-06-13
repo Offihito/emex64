@@ -66,6 +66,7 @@ assembler_invocation_t *assembler_invocation_alloc(assembler_options_t *options)
     }
 
     fdwalker_init(inv->fdwalker, fd, BW_LITTLE_ENDIAN);
+    close(fd);
     fdwalker_seek(inv->fdwalker, 10, 0);
 
     inv->data_section_start = UINT64_MAX;
@@ -116,6 +117,7 @@ void assembler_invocation_dealloc(assembler_invocation_t *inv)
         rtbe = next;
     }
 
+    close(inv->fdwalker->fd);
     free(inv->fdwalker);
     free(inv);
 }
