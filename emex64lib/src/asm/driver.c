@@ -117,6 +117,7 @@ void assembler_job_dealloc(assembler_job_t *job)
     {
         free(job->argv[i]);
     }
+    free(job->argv);
 
     if(job->prev != NULL)
     {
