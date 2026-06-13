@@ -358,7 +358,7 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
     if(driver->output_path == NULL)
     {
         diag_warn(NULL, "no output path provided, falling back to 'a.out'\n");
-        driver->output_path = "a.out";
+        driver->output_path = strdup("a.out");
     }
 
     return true;
