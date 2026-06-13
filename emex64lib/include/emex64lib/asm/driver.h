@@ -51,7 +51,7 @@ typedef struct {
     bool warning_error;
     bool warning_deprecated;
 
-    const char *output_path;
+    char *output_path;
     int input_path_count;
     char **input_path;
 

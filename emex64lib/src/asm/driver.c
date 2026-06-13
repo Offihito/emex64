@@ -155,7 +155,7 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
     {
         if(strcmp(argv[i], "-o") == 0 && i + 1 < argc)
         {
-            driver->output_path = argv[++i];
+            driver->output_path = strdup(argv[++i]);
         }
         else if(strncmp(argv[i], "-f", 2) == 0)
         {
@@ -616,6 +616,8 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
 
 void assembler_driver_dealloc(assembler_driver_t *driver)
 {
+    free(driver->output_path);
+
     for(int i = 0; i < driver->input_path_count; i++)
     {
         free(driver->input_path[i]);
