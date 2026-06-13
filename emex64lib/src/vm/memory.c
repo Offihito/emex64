@@ -378,11 +378,7 @@ bool emex64_memory_cpy(emex64_core_t *core,
                        kEmex64MemoryAction action)
 {
     /* do not allow other actions than rx */
-    if(action == kEmex64MemoryActionWrite)
-    {
-        core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
-        return false;
-    }
+    assert(action != kEmex64MemoryActionWrite);
 
     if(unlikely((core->rl[kEmex64RegisterCR2] == kEmex64ExceptionBadAccess || core->rl[kEmex64RegisterCR2] == kEmex64ExceptionKTRRViolation) && !core->in_interrupt))
     {
