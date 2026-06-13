@@ -701,14 +701,13 @@ bool assembler_driver_drive_the_fucking_car(assembler_driver_t *driver)
         while(job != NULL)
         {
             pid_t pid = 0;
-            posix_spawnp(&pid, job->command, NULL, NULL, job->argv, environ);
-
-            if(pid < 0)
+            if(posix_spawnp(&pid, job->command, NULL, NULL, job->argv, environ) != 0)
             {
                 diag_error(NULL, "failed to spawn it!\n");
                 return false;
             }
-            else if(driver->verbose)
+
+            if(driver->verbose)
             {
                 printf("\nspawned job: %d\n", pid);
             }

@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-#include <stdbool.h>
-
 #include <emex64lib/asm/driver.h>
 
 int main(int argc, const char *argv[])
