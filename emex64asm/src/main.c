@@ -46,12 +46,7 @@ int main(int argc, const char *argv[])
         return -1;
     }
 
-    if(!assembler_driver_drive_the_fucking_car(driver))
-    {
-        assembler_driver_dealloc(driver);
-        return 1;
-    }
-
+    bool success = assembler_driver_drive_the_fucking_car(driver);
     assembler_driver_dealloc(driver);
-    return 0;
+    return success ? 0 : 1;
 }

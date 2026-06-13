@@ -137,7 +137,7 @@ emex64_core_t *emex64_core_alloc()
      * otherwise the core would sit in usermode
      * at start and the firmware wouldn't be able
      * to write to control registers, ultimatively
-     * rendering the entire state useless.
+     * rendering the entire state functionless.
      */
     core->rl[kEmex64RegisterCR0] = kEmex64ElevationLevelSecureMonitor;
 
