@@ -611,10 +611,46 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
 
 void assembler_driver_dealloc(assembler_driver_t *driver)
 {
+    for(int i = 0; i < driver->input_path_count; i++)
+    {
+        free(driver->input_path[i]);
+    }
+    free(driver->input_path);
+
+    for(size_t i = 0; i < driver->inc_dir_cnt; i++)
+    {
+        free(driver->inc_dirs[i]);
+    }
+    free(driver->inc_dirs);
+
     for(uint64_t i = 0; i < driver->tmp_path_cnt; i++)
     {
         unlink(driver->tmp_paths[i]);
+        free(driver->tmp_paths[i]);
     }
+    free(driver->tmp_paths);
+
+    for(uint64_t i = 0; i < driver->macro_cnt; i++)
+    {
+        free(driver->macro[i].match);
+        free(driver->macro[i].value);
+    }
+    free(driver->macro);
+
+    for(int i = 0; i < driver->linker_flags_cnt; i++)
+    {
+        free(driver->linker_flags[i]);
+    }
+    free(driver->linker_flags);
+
+    assembler_job_t *job = driver->job;
+    while(job != NULL)
+    {
+        assembler_job_t *next = job->next;
+        assembler_job_dealloc(job);
+        job = next;
+    }
+
     free(driver);
 }
 
