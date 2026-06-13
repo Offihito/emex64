@@ -74,7 +74,6 @@ add_library(emex64 ${LIB_TYPE}
     src/vm/device/internal/controller/ic.c
     src/vm/device/internal/controller/mem.c
     src/vm/device/internal/timer.c
-    src/vm/device/internal/rtc.c
 
     src/vm/device/board/controller/power.c
     src/vm/device/board/controller/8042.c
@@ -83,6 +82,7 @@ add_library(emex64 ${LIB_TYPE}
     src/vm/device/board/display.c
     src/vm/device/board/uart.c
     src/vm/device/board/ac97.c
+    src/vm/device/board/rtc.c
 
     # Assembler
 
