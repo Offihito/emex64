@@ -22,14 +22,5 @@
 ; SOFTWARE.
 ;
 
-%include% <interrupt.e64inc>
-%include% <uart.e64inc>
-%include% <rtc.e64inc>
-%include% <mc.e64inc>
-%include% <platform.e64inc>
-%include% <display.e64inc>
-%include% <mm.e64inc>
-%include% <regs.e64inc>
-%include% <timer.e64inc>
-%include% <ac97.e64inc>
-%include% <8042.e64inc>
+%define% EMEX64_8042_DATA_REG   0x002000000000E000
+%define% EMEX64_8042_STATUS_REG 0x002000000000E008
