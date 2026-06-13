@@ -199,18 +199,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /*
-     * load boot image, maybe use a dirty private
-     * mapping and open the image it self as memory,
-     * just size it.
-     */
+    /* load firmware if applicable */
     if(firmware_image_path != NULL && !emex64_memory_load_image(machine->memory, firmware_image_path))
     {
         diag_error(NULL, "failed to load firmware image\n");
         return 1;
     }
     
-    /* executing virtual machines 1st core TODO: Implement threading */
+    /* executing virtual machines 1st core TODO: Implement multicore */
     emex64_core_execute(machine->core);
 
     /* deallocating machine */
