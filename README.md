@@ -24,7 +24,7 @@ The VM can be invoked to run firmware with `emex64vm --firmware <image path>`. T
 These examples will be compiled and directly run with `make`. 
 
 
-## Instruction Set
+## Instruction Set (Outdated)
 #### Core
 | Instruction | Opcode       | Format      |
 |-------------|--------------|-------------|
