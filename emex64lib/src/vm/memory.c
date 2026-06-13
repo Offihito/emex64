@@ -261,9 +261,7 @@ void emex64_memory_action(emex64_core_t *core,
      */
     if(addr >> 53)
     {
-        if(unlikely((((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt)/* ||
-            64bit align check kills FB for now
-           !EMEX64_IS_ALIGNED_64(addr)*/))
+        if(unlikely((((core->rl[kEmex64RegisterCR4] & EMEX64_MEMORY_MMU_MASK_FLAGS) & kEmex64MMUPTPresent) && !core->in_interrupt) || (!EMEX64_IS_ALIGNED_64(addr) && addr < EMEX64_FB_BASE)))
         {
             core->rl[kEmex64RegisterCR2] = kEmex64ExceptionBadAccess;
             return;
