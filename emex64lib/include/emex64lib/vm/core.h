@@ -384,7 +384,7 @@ typedef struct emex64_core {
          * 8 to 64 bits in width, the cpu stuffs that cache
          * on time of decoding.
          */
-        uint64_t imm[32];
+        uint64_t imm[EMEX64_MAX_ARGS];
 
         /*
          * pointer array for parameters, at emulation we
@@ -393,8 +393,8 @@ typedef struct emex64_core {
          * intermediate, etc.
          */
         uint8_t param_cnt;
-        uint64_t *param[32];
-        enum kEmex64ParameterCoding param_coding[32];
+        uint64_t *param[EMEX64_MAX_ARGS];
+        enum kEmex64ParameterCoding param_coding[EMEX64_MAX_ARGS];
     } op;
 
     /*

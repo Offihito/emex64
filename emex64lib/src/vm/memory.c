@@ -421,6 +421,20 @@ bool emex64_memory_cpy(emex64_core_t *core,
             return false;
         }
 
+        /*
+         * only a kernel level core may execute kernel space
+         * code when KTRR is locked.
+         * 
+         * fixme: causes SIGBUS
+         */
+        /*if(action == kEmex64MemoryActionExecute)
+        {
+            if(unlikely(core->rl[kEmex64RegisterCR0] >= kEmex64ElevationLevelKernel && core->machine->memory->ktrr_locked && core->machine->memory->ktrr_size < (addr + len)))
+            {
+                chunk = (size_t)(core->machine->memory->ktrr_size - addr);
+            }
+        }*/
+
         memcpy(dst, &core->machine->memory->memory[paddr], chunk);
 
         dst += chunk;
