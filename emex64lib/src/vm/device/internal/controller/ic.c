@@ -192,12 +192,7 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     core->rl[kEmex64RegisterPC] = handler_addr;
     core->op.ilen = 0;
     core->in_interrupt = true;
-
-    /* checking if core is at halt */
-    if(!core->halted)
-    {
-        core->unhalted_interrupt = true;
-    }
+    core->halted = false;
     
     return true;
 }

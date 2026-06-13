@@ -151,6 +151,11 @@ void emex64_core_dealloc(emex64_core_t *core)
 
 static inline void emex64_core_execute_instruction_at_pc(emex64_core_t *core)
 {
+    if(unlikely(core->halted))
+    {
+        return;
+    }
+
     /* TODO: KTRR check is missing */
     if(unlikely(!emex64_memory_cpy(core, core->op.inscache,  core->rl[kEmex64RegisterPC], EMEX64_MAX_ILEN, kEmex64MemoryActionExecute)))
     {
@@ -257,6 +262,7 @@ static void *emex64_core_execute_thread(void *arg)
     for(;;)
     {
         emex64_core_execute_instruction_at_pc(core);
+        emex64_serve_interrupt_if_needed(core);
 
         /*
          * currently exceptions happening in a interrupt
@@ -280,9 +286,6 @@ static void *emex64_core_execute_thread(void *arg)
                 usleep(100);
             }
         }
-
-        /* serve interrupt for the interrupt controller */
-        emex64_serve_interrupt_if_needed(core);
 
         /*
          * tick the timer always (has to always be ticked for the interrupt controller)

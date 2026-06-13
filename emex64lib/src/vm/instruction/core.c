@@ -29,14 +29,7 @@ void emex64_op_hlt(emex64_core_t *core)
 {
     emex64_instr_termcond(core->op.param_cnt != 0);
 
-    if(!core->unhalted_interrupt)
-    {
-        core->halted = true;
-    }
-    else
-    {
-        core->unhalted_interrupt = false;
-    }
+    core->halted = true;
 }
 
 void emex64_op_nop(emex64_core_t *core)
