@@ -22,21 +22,9 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <stdbool.h>
 
-#include <emex64lib/support/diag.h>
-
-#include <emex64lib/asm/invocation.h>
 #include <emex64lib/asm/driver.h>
-#include <emex64lib/asm/code.h>
-#include <emex64lib/asm/label.h>
-#include <emex64lib/asm/emit.h>
-#include <emex64lib/asm/section.h>
-#include <emex64lib/asm/macro.h>
-#include <emex64lib/asm/elf.h>
 
 int main(int argc, const char *argv[])
 {
