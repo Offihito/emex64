@@ -31,7 +31,7 @@ int main(int argc, const char *argv[])
     assembler_driver_t *driver = assembler_driver_alloc(argv, argc);
     if(driver == NULL)
     {
-        return -1;
+        return 1;
     }
 
     bool success = assembler_driver_drive_the_fucking_car(driver);
