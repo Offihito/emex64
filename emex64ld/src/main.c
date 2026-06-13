@@ -661,10 +661,12 @@ static void usage(const char *prog)
     fprintf(stderr, "  -e entry         Entry symbol (default: _start)\n");
     fprintf(stderr, "  -T script.e64ld  Linker script (or pass .e64ld files directly)\n");
     fprintf(stderr, "  .e64ld files are auto-detected by extension\n");
+    fprintf(stderr, "  -v verbose       verbose mode\n");
 }
 
 int main(int argc, char *argv[])
 {
+    bool verbose = false;
     const char *output_path = "a.out";
     const char *entry_name = "_start";
     int file_count   = 0;
@@ -698,6 +700,10 @@ int main(int argc, char *argv[])
         {
             usage(argv[0]);
             return 0;
+        }
+        else if(strcmp(argv[i], "-v") == 0)
+        {
+            verbose = true;
         }
         else if (argv[i][0] != '-')
         {
@@ -854,17 +860,20 @@ int main(int argc, char *argv[])
     fsync(fd);
     close(fd);
 
-    fprintf(stderr,
-            "emex64ld: linked %d object(s) → %s\n"
-            "  .text  %8lu bytes @ 0x%08lx\n"
-            "  .data  %8lu bytes @ 0x%08lx\n"
-            "  .bss   %8lu bytes @ 0x%08lx (virtual)\n"
-            "  entry  %s @ 0x%08lx\n",
-            file_count, output_path,
-            (unsigned long)total_text, (unsigned long)BOOT_HEADER_SIZE,
-            (unsigned long)total_data, (unsigned long)cur_text,
-            (unsigned long)(cur_bss - cur_data), (unsigned long)cur_data,
-            entry_name, (unsigned long)entry_addr);
+    if(verbose)
+    {
+        fprintf(stderr,
+                "emex64ld: linked %d object(s) → %s\n"
+                "  .text  %8lu bytes @ 0x%08lx\n"
+                "  .data  %8lu bytes @ 0x%08lx\n"
+                "  .bss   %8lu bytes @ 0x%08lx (virtual)\n"
+                "  entry  %s @ 0x%08lx\n",
+                file_count, output_path,
+                (unsigned long)total_text, (unsigned long)BOOT_HEADER_SIZE,
+                (unsigned long)total_data, (unsigned long)cur_text,
+                (unsigned long)(cur_bss - cur_data), (unsigned long)cur_data,
+                entry_name, (unsigned long)entry_addr);
+    }
 
     free(image);
     free(objs);

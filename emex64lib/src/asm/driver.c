@@ -423,14 +423,14 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
         }
 
         argv[argc++] = strdup("emex64asm");
-        argv[argc++] = strdup("-o");
-        argv[argc++] = strdup(assembler_driver_tmppath(driver, driver->input_path[i]));
-        argv[argc++] = strdup(driver->input_path[i]);
-        argv[argc++] = strdup("-c");
         if(driver->verbose)
         {
             argv[argc++] = strdup("-v");
         }
+        argv[argc++] = strdup("-c");
+        argv[argc++] = strdup("-o");
+        argv[argc++] = strdup(assembler_driver_tmppath(driver, driver->input_path[i]));
+        argv[argc++] = strdup(driver->input_path[i]);
         argv[argc++] = driver->page_align ? strdup("-fpage_align") : strdup("-fno_page_align");
         argv[argc++] = driver->warning_error ? strdup("-Werror") : strdup("-Wno_error");
         argv[argc++] = driver->warning_deprecated ? strdup("-Wdeprecated") : strdup("-Wno_deprecated");
@@ -475,6 +475,10 @@ bool assembler_driver_jobgen(assembler_driver_t *driver)
         }
 
         argv[argc++] = strdup("emex64ld");
+        if(driver->verbose)
+        {
+            argv[argc++] = strdup("-v");
+        }
         argv[argc++] = strdup("-o");
         argv[argc++] = strdup(driver->output_path);
         for(size_t i = 0; i < driver->tmp_path_cnt; i++)
