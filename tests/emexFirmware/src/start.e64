@@ -116,16 +116,22 @@ _fw_start:
 
 ; main setup routine
 _start:
-    ; setting up stack
+    ; early stack fixup
     ldq r0, MCSIZE
     sub r0, 8
     mov sp, r0
     
     bl _put_init                                    ; checks for fb
     bl _pmm_init                                    ; initilizing page allocator
+
+    ; actual stack fixup
+    blw _pmm_alloc                                  ; a bit small lmfao
+    add rr, 0x1FFE
+    mov sp, rr
+    
     bl _slab_init                                   ; initilizing slab allocator
     bl _interrupt_init                              ; initilizing interrupt controller
-    bl _fw_start                                     ; branching to main symbol
+    bl _fw_start                                    ; branching to main symbol
 .poweroff:
     stb PLATFORM_PWR, 0                             ; telling platform device to turn off
     
