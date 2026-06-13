@@ -279,7 +279,8 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
                 {
                     match[len-1] = '\0';
                 }
-                value = "1";
+                value = strdup("1");
+                goto early_macro_append;
             }
 
             size_t name_len = eq - flag;
@@ -304,6 +305,7 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
             memcpy(value, v, val_len);
             value[val_len] = '\0';
 
+        early_macro_append:
             uint64_t macro_slot = driver->macro_cnt++;
             if(driver->macro == NULL)
             {
@@ -522,7 +524,7 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
     if(!assembler_driver_predrive(driver, argv, argc) ||
        !assembler_driver_jobgen(driver))
     {
-        free(driver);
+        assembler_driver_dealloc(driver);
         return NULL;
     }
 
