@@ -47,7 +47,6 @@ int main(int argc, char *argv[])
     {
         if(strcmp(argv[i], "--help") == 0)
         {
-        usage:
             fprintf(stderr, "%s [options]\n", argv[0]);
             fprintf(stderr, "\t--help                                       : shows this help menu\n");
             fprintf(stderr, "\t--firmware <image path>                      : providing firmware image\n");
