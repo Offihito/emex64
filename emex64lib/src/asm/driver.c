@@ -346,6 +346,10 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
         {
             driver->verbose = true;
         }
+        else if(strncmp(argv[i], "--in-process", 12) == 0)
+        {
+            driver->in_process = true;
+        }
         else if(argv[i][0] != '-')
         {
             driver->input_path[driver->input_path_count++] = strdup(argv[i]);
@@ -536,6 +540,7 @@ assembler_driver_t *assembler_driver_alloc(const char **argv,
         fprintf(stderr, "warning_deprecated: %d\n", driver->warning_deprecated);
         fprintf(stderr, "emit_object: %d\n", driver->emit_object);
         fprintf(stderr, "verbose: %d\n", driver->verbose);
+        fprintf(stderr, "in_process: %d\n", driver->in_process || driver->emit_object);
         fprintf(stderr, "output_path: %s\n", driver->output_path);
 
         fprintf(stderr, "input_path[%d]: { ", driver->input_path_count);
@@ -702,35 +707,58 @@ bool assembler_driver_drive_the_fucking_car(assembler_driver_t *driver)
         assembler_job_t *job = driver->job;
         while(job != NULL)
         {
-            pid_t pid = 0;
-            if(posix_spawnp(&pid, job->command, NULL, NULL, job->argv, environ) != 0)
+            if(job->type == kAssemblerJobTypeDriver && driver->in_process)
             {
-                diag_error(NULL, "failed to spawn it!\n");
-                return false;
-            }
+                if(driver->verbose)
+                {
+                    printf("\n");
+                }
 
-            if(driver->verbose)
-            {
-                printf("\nspawned job: %d\n", pid);
-            }
+                assembler_driver_t *subdriver = assembler_driver_alloc((const char**)job->argv, job->argc);
+                if(subdriver == NULL)
+                {
+                    return false;
+                }
 
-            int rstatus = 0;
-            if(waitpid(pid, &rstatus, 0) != pid)
-            {
-                return false;
-            }
-
-            if(WIFEXITED(rstatus))
-            {
-                if(WEXITSTATUS(rstatus) != 0)
+                bool success = assembler_driver_drive_the_fucking_car(subdriver);
+                assembler_driver_dealloc(subdriver);
+                if(!success)
                 {
                     return false;
                 }
             }
-            else if(WIFSIGNALED(rstatus))
+            else
             {
-                diag_error(NULL, "job '%s' terminated by signal %d\n", job->command, WTERMSIG(rstatus));
-                return false;
+                pid_t pid = 0;
+                if(posix_spawnp(&pid, job->command, NULL, NULL, job->argv, environ) != 0)
+                {
+                    diag_error(NULL, "failed to spawn it!\n");
+                    return false;
+                }
+
+                if(driver->verbose)
+                {
+                    printf("\nspawned job: %d\n", pid);
+                }
+
+                int rstatus = 0;
+                if(waitpid(pid, &rstatus, 0) != pid)
+                {
+                    return false;
+                }
+
+                if(WIFEXITED(rstatus))
+                {
+                    if(WEXITSTATUS(rstatus) != 0)
+                    {
+                        return false;
+                    }
+                }
+                else if(WIFSIGNALED(rstatus))
+                {
+                    diag_error(NULL, "job '%s' terminated by signal %d\n", job->command, WTERMSIG(rstatus));
+                    return false;
+                }
             }
 
             job = job->next;

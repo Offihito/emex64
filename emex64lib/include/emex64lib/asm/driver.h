@@ -69,6 +69,7 @@ typedef struct {
 
     bool emit_object;
     bool verbose;
+    bool in_process;
 
     assembler_job_t *job;
 } assembler_driver_t;
