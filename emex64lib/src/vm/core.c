@@ -33,7 +33,7 @@
 #include <emex64lib/vm/memory.h>
 #include <emex64lib/vm/machine.h>
 
-#include <emex64lib/vm/device/internal/controller/interrupt.h>
+#include <emex64lib/vm/device/internal/controller/ic.h>
 #include <emex64lib/vm/device/internal/timer.h>
 #include <emex64lib/vm/device/board/ac97.h>
 

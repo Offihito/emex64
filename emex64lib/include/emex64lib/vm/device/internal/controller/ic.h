@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef EMEX64VM_DEVICE_INTERRUPT_H
-#define EMEX64VM_DEVICE_INTERRUPT_H
+#ifndef EMEX64VM_DEVICE_IC_H
+#define EMEX64VM_DEVICE_IC_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -78,4 +78,4 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core);
 uint64_t emex64_intc_read(emex64_core_t *core, void *device, uint64_t offset, int size);
 void emex64_intc_write(emex64_core_t *core, void *device, uint64_t offset, uint64_t value, int size);
 
-#endif /* EMEX64VM_DEVICE_INTERRUPT_H */
+#endif /* EMEX64VM_DEVICE_IC_H */

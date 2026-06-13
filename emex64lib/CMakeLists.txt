@@ -71,7 +71,7 @@ add_library(emex64 ${LIB_TYPE}
 
     # Virtual Machine Devices
 
-    src/vm/device/internal/controller/interrupt.c
+    src/vm/device/internal/controller/ic.c
     src/vm/device/internal/controller/mem.c
     src/vm/device/internal/timer.c
     src/vm/device/internal/rtc.c

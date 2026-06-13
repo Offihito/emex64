@@ -30,7 +30,7 @@
 #include <emex64lib/vm/machine.h>
 
 #include <emex64lib/vm/device/internal/timer.h>
-#include <emex64lib/vm/device/internal/controller/interrupt.h>
+#include <emex64lib/vm/device/internal/controller/ic.h>
 
 uint64_t emex64_get_host_cycles(void)
 {

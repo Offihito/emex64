@@ -31,7 +31,7 @@
 #include <emex64lib/vm/mmio.h>
 
 #include <emex64lib/vm/device/internal/timer.h>
-#include <emex64lib/vm/device/internal/controller/interrupt.h>
+#include <emex64lib/vm/device/internal/controller/ic.h>
 #include <emex64lib/vm/device/board/uart.h>
 #include <emex64lib/vm/device/board/controller/8042.h>
 #include <emex64lib/vm/device/board/display.h>

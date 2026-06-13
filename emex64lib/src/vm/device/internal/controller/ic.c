@@ -33,7 +33,7 @@
 #include <emex64lib/vm/memory.h>
 #include <emex64lib/vm/instruction/ctrl.h>
 
-#include <emex64lib/vm/device/internal/controller/interrupt.h>
+#include <emex64lib/vm/device/internal/controller/ic.h>
 
 emex64_intc_t *emex64_intc_alloc(emex64_machine_t *machine)
 {

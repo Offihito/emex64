@@ -22,15 +22,16 @@
  * SOFTWARE.
  */
 
-#include <emex64lib/vm/machine.h>
-#include <emex64lib/vm/device/board/uart.h>
-#include <emex64lib/vm/device/internal/controller/interrupt.h>
 #include <sys/select.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <termios.h>
 #include <pthread.h>
 #include <unistd.h>
+
+#include <emex64lib/vm/machine.h>
+#include <emex64lib/vm/device/board/uart.h>
+#include <emex64lib/vm/device/internal/controller/ic.h>
 
 static struct termios uart_orig_termios;
 

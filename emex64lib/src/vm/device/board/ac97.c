@@ -40,7 +40,7 @@
 #include <emex64lib/vm/machine.h>
 #include <emex64lib/vm/memory.h>
 #include <emex64lib/vm/device/board/ac97.h>
-#include <emex64lib/vm/device/internal/controller/interrupt.h>
+#include <emex64lib/vm/device/internal/controller/ic.h>
 
 static void ac97_codec_reset(emex64_ac97_t *ac97)
 {
