@@ -55,7 +55,6 @@
 
 /* control register bits */
 #define EMEX64_INTC_CTRL_ENABLE   (1 << 0)
-#define EMEX64_INTC_CTRL_NESTING  (1 << 1)
 
 typedef struct emex64_core emex64_core_t;
 typedef struct emex64_machine emex64_machine_t;

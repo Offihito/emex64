@@ -63,10 +63,9 @@ void emex64_intc_dealloc(emex64_intc_t *intc)
 }
 
 void emex64_raise_interrupt(emex64_machine_t *machine,
-                          int irq_line)
+                            int irq_line)
 {
-    if(irq_line < 0 ||
-       irq_line > EMEX64_IRQ_MAX)
+    if(irq_line < 0 || irq_line > EMEX64_IRQ_MAX)
     {
         return;
     }
@@ -75,10 +74,9 @@ void emex64_raise_interrupt(emex64_machine_t *machine,
 }
 
 void emex64_clear_interrupt(emex64_machine_t *machine,
-                          int irq_line)
+                            int irq_line)
 {
-    if(irq_line < 0 ||
-       irq_line > EMEX64_IRQ_MAX)
+    if(irq_line < 0 || irq_line > EMEX64_IRQ_MAX)
     {
         return;
     }
@@ -114,7 +112,7 @@ bool emex64_serve_interrupt_if_needed(emex64_core_t *core)
     }
     
     /* check if were already servicing an interrupt (unless nesting allowed) */
-    if((core->machine->intc->current_irq >= 0 && !(core->machine->intc->ctrl & EMEX64_INTC_CTRL_NESTING)) || core->op.opcode == kEmex64OpcodeIRET)
+    if(core->in_interrupt || core->op.opcode == kEmex64OpcodeIRET)
     {
         return false;
     }
