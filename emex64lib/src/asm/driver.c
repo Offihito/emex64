@@ -687,16 +687,13 @@ bool assembler_driver_drive_the_fucking_car(assembler_driver_t *driver)
         inv->include_dir_cnt = driver->inc_dir_cnt;
         inv->include_dirs = driver->inc_dirs;
 
-        if(!assembler_invocation_emit(inv, driver->input_path_count, driver->input_path))
-        {
-            return false;
-        }
+        bool success = assembler_invocation_emit(inv, driver->input_path_count, driver->input_path);
 
         /* TODO: implement inv deallocation */
         //assembler_invocation_dealloc(inv);
         assembler_options_dealloc(options);
 
-        return true;
+        return success;
     }
     else
     {
