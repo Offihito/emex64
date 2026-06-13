@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
             if(machine_support.display)
             {
                 fprintf(stderr, "\t--display [on|off|required]                  : enables or disables display\n");
-                fprintf(stderr, "\t--display:resolution [on|off|required]       : enables or disables display\n");
+                fprintf(stderr, "\t--display:resolution <height> <width>        : sets the resolution of the display\n");
             }
             if(machine_support.audio)
             {
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
             {
                 if(!machine_support.display)
                 {
-                    diag_warn(NULL, "display support is not available in this distribution of the emex64 toolchain\n");
+                    diag_warn(NULL, "--display flag is not supported in this distribution of the emex64 toolchain\n");
                 }
                 machine_options.display.enabled = true;
             }
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
             {
                 if(!machine_support.display)
                 {
-                    diag_error(NULL, "display support is not available in this distribution of the emex64 toolchain\n");
+                    diag_error(NULL, "-display flag is not supported in this distribution of the emex64 toolchain\n");
                     return 1;
                 }
                 machine_options.display.enabled = true;
@@ -140,6 +140,12 @@ int main(int argc, char *argv[])
         {
             parser_return_t pr_width = parse_value_from_string(argv[++i]);
             parser_return_t pr_height = parse_value_from_string(argv[++i]);
+
+            if(!machine_support.display)
+            {
+                diag_warn(NULL, "-display:resolution flag is not supported in this distribution of the emex64 toolchain\n");
+                continue;
+            }
 
             if(pr_width.type == emexParserValueTypeNumber && 
                pr_height.type == emexParserValueTypeNumber)
