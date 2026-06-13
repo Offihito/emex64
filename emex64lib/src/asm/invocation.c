@@ -29,6 +29,7 @@
 #include <stdint.h>
 
 #include <emex64lib/support/diag.h>
+#include <emex64lib/support/file.h>
 
 #include <emex64lib/asm/invocation.h>
 #include <emex64lib/asm/code.h>
@@ -79,8 +80,44 @@ assembler_invocation_t *assembler_invocation_alloc(assembler_options_t *options)
 
 void assembler_invocation_dealloc(assembler_invocation_t *inv)
 {
-    /* todo: this must be redone from scratch */
-    diag_warn(NULL, "deallocation of assembler invocation is not implemented in this version of emex64lib\n");
+    /* options have to be freed by who allocated them */
+
+    for(size_t i = 0; i < inv->file_cnt; i++)
+    {
+        emex_file_dealloc(inv->file[i]);
+    }
+    free(inv->file);
+
+    for(uint64_t i = 0; i < inv->line_cnt; i++)
+    {
+        free(inv->line[i]->str);
+        for(uint64_t j = 0; j < inv->line[i]->token_cnt; j++)
+        {
+            free(inv->line[i]->token[j]->str);
+        }
+        free(inv->line[i]->token);
+    }
+    free(inv->line);
+
+    for(uint64_t i = 0; i < inv->label_cnt; i++)
+    {
+        free(inv->label[i].name);
+    }
+    free(inv->label);
+
+    /* definitions and include directories have to be released by who allocated them */
+
+    reloc_table_entry_t *rtbe = inv->rtbe;
+    while(rtbe != NULL)
+    {
+        free(rtbe->name);
+        reloc_table_entry_t *next = rtbe->next;
+        free(rtbe);
+        rtbe = next;
+    }
+
+    free(inv->fdwalker);
+    free(inv);
 }
 
 bool assembler_invocation_emit(assembler_invocation_t *inv,

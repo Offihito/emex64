@@ -679,6 +679,7 @@ bool assembler_driver_drive_the_fucking_car(assembler_driver_t *driver)
         assembler_invocation_t *inv = assembler_invocation_alloc(options);
         if(inv == NULL)
         {
+            assembler_options_dealloc(options);
             return false;
         }
 
@@ -690,7 +691,7 @@ bool assembler_driver_drive_the_fucking_car(assembler_driver_t *driver)
         bool success = assembler_invocation_emit(inv, driver->input_path_count, driver->input_path);
 
         /* TODO: implement inv deallocation */
-        //assembler_invocation_dealloc(inv);
+        assembler_invocation_dealloc(inv);
         assembler_options_dealloc(options);
 
         return success;
