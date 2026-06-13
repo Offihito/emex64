@@ -31,9 +31,11 @@ typedef struct emex_file {
     char *path;
     char *code;
     size_t len;
+    bool is_unsaved;
 } emex_file_t;
 
 emex_file_t *emex_file_alloc(const char *path);
+emex_file_t *emex_file_alloc_unsaved(const char *path, const char *content, size_t len);
 void emex_file_dealloc(emex_file_t *f);
 
 bool emex_file_open(emex_file_t *f);

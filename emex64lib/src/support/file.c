@@ -53,8 +53,28 @@ emex_file_t *emex_file_alloc(const char *path)
     }
 
     /* setting standard values */
+    f->is_unsaved = false;
     f->len = 0;
     f->code = MAP_FAILED;
+
+    return f;
+}
+
+emex_file_t *emex_file_alloc_unsaved(const char *path,
+                                     const char *content,
+                                     size_t len)
+{
+    emex_file_t *f = emex_file_alloc(path);
+    if(f == NULL)
+    {
+        return NULL;
+    }
+
+    /* setting unsaved values */
+    f->is_unsaved = true;
+    f->code = malloc(len + 1);
+    f->len = len;
+    f->code[f->len] = '\0';
 
     return f;
 }
@@ -68,6 +88,11 @@ void emex_file_dealloc(emex_file_t *f)
 
 bool emex_file_open(emex_file_t *f)
 {
+    if(f->is_unsaved)
+    {
+        return true;
+    }
+
     if(f->code != MAP_FAILED)
     {
         emex_file_close(f);
@@ -103,7 +128,7 @@ bool emex_file_open(emex_file_t *f)
 
 void emex_file_close(emex_file_t *f)
 {
-    if(f->code != MAP_FAILED)
+    if(f->is_unsaved && f->code != MAP_FAILED)
     {
         munmap(f->code, f->len);
         f->code = MAP_FAILED;
