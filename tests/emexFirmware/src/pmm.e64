@@ -26,7 +26,6 @@
 %include% <emex64.e64inc>
 
 section .bss
-    pmm_init_once db 1                              ; once initilizer boolean
     pmm_master_ptr dq 1                             ; address that points at the main page
     pmm_max_pages dq 1                              ; count of pages
 
@@ -113,10 +112,6 @@ _pmm_alloc_zero:
     wret
 
 _pmm_init:
-    ; sanity checks to make sure page memory manager is only initilized once in kernel lifetime
-    ldb r0, pmm_init_once
-    bnz r0, .return                                 ; early return to end
-
     ; getting memory size
     blw _mc_get_mem_size                             ; asking memory controller nicely to say how large it is
     mov r0, rr                                      ; moving result to safe location
@@ -143,7 +138,5 @@ _pmm_init:
     dec r3
     blw _pmm_page_set, r3, 0x1                       ; mark page as used
     bnz r3, .loop
-.end:
-    stb pmm_init_once, 1                            ; mark as initilized
 .return:
     ret
