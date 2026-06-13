@@ -32,12 +32,34 @@ option(EMEX64VM_DEVICE_DISPLAY "Enable display device support" ON)
 if(EMEX64VM_DEVICE_DISPLAY)
     find_package(OpenGL REQUIRED)
 
-    if(UNIX AND NOT APPLE)
-        find_package(glfw3 REQUIRED)
-        find_package(GLEW REQUIRED)
+    if(NOT OPENGL_FOUND)
+        message(WARNING "Missing OpenGL — EMEX64VM_DEVICE_DISPLAY disabled
+ If this is intentional, no further action is required.
+ If you intend to have display support, please provide an OpenGL implementation.
+ On most distributions, primarily ones based on Debian, this is named libgl1-mesa-dev.")
+        set(EMEX64VM_DEVICE_DISPLAY OFF CACHE BOOL "" FORCE)
+    elseif(UNIX AND NOT APPLE)
+        find_package(glfw3)
+        find_package(GLEW)
+
+        if(NOT glfw3_FOUND OR NOT GLEW_FOUND)
+            message(WARNING "Missing GLFW and/or GLEW — EMEX64VM_DEVICE_DISPLAY disabled
+ If this is intentional, no further action is required.
+ If you intend to have display support, please provide the headers for GLFW and GLEW.
+ On most distributions, primarily ones based on Debian, these are named libglfw3-dev and libglew-dev.")
+            set(EMEX64VM_DEVICE_DISPLAY OFF CACHE BOOL "" FORCE)
+        endif()
     elseif(APPLE)
-        find_library(COCOA_FRAMEWORK Cocoa REQUIRED)
-        find_library(OPENGL_FRAMEWORK OpenGL REQUIRED)
+        find_library(COCOA_FRAMEWORK Cocoa)
+        find_library(OPENGL_FRAMEWORK OpenGL)
+
+        if(NOT COCOA_FRAMEWORK OR NOT OPENGL_FRAMEWORK)
+            message(WARNING "Missing Cocoa and/or OpenGL frameworks — EMEX64VM_DEVICE_DISPLAY disabled
+ If this is intentional, no further action is required.
+ This usually means the Xcode Command Line Tools are not installed.
+ You can install them with 'xcode-select --install'.")
+            set(EMEX64VM_DEVICE_DISPLAY OFF CACHE BOOL "" FORCE)
+        endif()
     endif()
 endif()
 
