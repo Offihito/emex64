@@ -152,7 +152,6 @@ int main(int argc, char *argv[])
                 diag_error(NULL, "illegal arguments supplied to '--display:resolution': '%s' and '%s'\n", argv[i - 1], argv[i - 2]);
                 return 1;
             }
-            i++;
         }
         else if(strcmp(argv[i], "--audio") == 0 && i + 1 < argc)
         {
