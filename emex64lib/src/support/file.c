@@ -57,7 +57,7 @@ emex_file_t *emex_file_alloc(const char *path)
     f->is_unsaved = false;
     f->len = 0;
     f->code = MAP_FAILED;
-    f->type = emex_file_type_for_path(path);
+    f->type = emex_file_type_for_path(path, true);
 
     return f;
 }
@@ -71,7 +71,7 @@ emex_file_t *emex_file_alloc_unsaved(const char *path,
         return NULL;
     }
 
-    f->type = emex_file_type_for_path(path);
+    f->type = emex_file_type_for_path(path, false);
     if(f->type == kEmexFileTypeDirectory || f->type == kEmexFileTypeUnknown)
     {
         free(f);
@@ -169,11 +169,16 @@ static inline const char *get_extension(const char *path)
     return dot + 1;
 }
 
-kEmexFileType emex_file_type_for_path(const char *path)
+kEmexFileType emex_file_type_for_path(const char *path, bool must_exist)
 {
     struct stat st;
     if(stat(path, &st) != 0)
     {
+        if(!must_exist)
+        {
+            goto extension_validation;
+        }
+
         perror("stat");
         return kEmexFileTypeUnknown;
     }
@@ -183,6 +188,7 @@ kEmexFileType emex_file_type_for_path(const char *path)
         return kEmexFileTypeDirectory;
     }
     else if(S_ISREG(st.st_mode))
+extension_validation:
     {
         const char *extension = get_extension(path);
         if(strcmp("e64", extension) == 0)
