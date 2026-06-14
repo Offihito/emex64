@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -56,13 +57,13 @@ emex_file_t *emex_file_alloc(const char *path)
     f->is_unsaved = false;
     f->len = 0;
     f->code = MAP_FAILED;
+    f->type = emex_file_type_for_path(path);
 
     return f;
 }
 
 emex_file_t *emex_file_alloc_unsaved(const char *path,
-                                     const char *content,
-                                     size_t len)
+                                     const char *content)
 {
     emex_file_t *f = emex_file_alloc(path);
     if(f == NULL)
@@ -70,11 +71,23 @@ emex_file_t *emex_file_alloc_unsaved(const char *path,
         return NULL;
     }
 
+    f->type = emex_file_type_for_path(path);
+    if(f->type == kEmexFileTypeDirectory || f->type == kEmexFileTypeUnknown)
+    {
+        free(f);
+        return NULL;
+    }
+
+    f->len = strlen(content);
+    f->code = strdup(content);
+    if(f->code == NULL)
+    {
+        free(f);
+        return NULL;
+    }
+
     /* setting unsaved values */
     f->is_unsaved = true;
-    f->code = malloc(len + 1);
-    f->len = len;
-    f->code[f->len] = '\0';
 
     return f;
 }
@@ -88,6 +101,12 @@ void emex_file_dealloc(emex_file_t *f)
 
 bool emex_file_open(emex_file_t *f)
 {
+    if(f->type == kEmexFileTypeUnknown ||
+       f->type == kEmexFileTypeDirectory)
+    {
+        return false;
+    }
+
     if(f->is_unsaved)
     {
         return true;
@@ -114,6 +133,7 @@ bool emex_file_open(emex_file_t *f)
     }
 
     f->len = fdstat.st_size;
+    /* TODO: check if UTF8 encoded or force UTF8 encoding */
     f->code = mmap(NULL, f->len, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
     if(f->code == MAP_FAILED)
     {
@@ -134,4 +154,77 @@ void emex_file_close(emex_file_t *f)
         f->code = MAP_FAILED;
         f->len = 0;
     }
+}
+
+static inline const char *get_extension(const char *path)
+{
+    const char *base = strrchr(path, '/');
+    base = base ? base + 1 : path;
+
+    const char *dot = strrchr(base, '.');
+    if(!dot || dot == base)
+    {
+        return "";
+    }
+    return dot + 1;
+}
+
+kEmexFileType emex_file_type_for_path(const char *path)
+{
+    struct stat st;
+    if(stat(path, &st) != 0)
+    {
+        perror("stat");
+        return kEmexFileTypeUnknown;
+    }
+
+    if(S_ISDIR(st.st_mode))
+    {
+        return kEmexFileTypeDirectory;
+    }
+    else if(S_ISREG(st.st_mode))
+    {
+        const char *extension = get_extension(path);
+        if(strcmp("e64", extension) == 0)
+        {
+            return kEmexFileTypeAssembly;
+        }
+        else if(strcmp("e64inc", extension) == 0)
+        {
+            return kEmexFileTypeAssemblyIncludation;
+        }
+        else if(strcmp("c", extension) == 0)
+        {
+            return kEmexFileTypeC;
+        }
+        else if(strcmp("h", extension) == 0)
+        {
+            return kEmexFileTypeCHeader;
+        }
+        else if(strcmp("cpp", extension) == 0 ||
+                strcmp("cxx", extension) == 0 ||
+                strcmp("cc", extension) == 0)
+        {
+            return kEmexFileTypeCXX;
+        }
+        else if(strcmp("hpp", extension) == 0)
+        {
+            return kEmexFileTypeCXXHeader;
+        }
+        else if(strcmp("m", extension) == 0)
+        {
+            return kEmexFileTypeObjC;
+        }
+        else if(strcmp("mm", extension) == 0)
+        {
+            return kEmexFileTypeObjCXX;
+        }
+        else if(strcmp("o", extension) == 0)
+        {
+            return kEmexFileTypeObject;
+        }
+    }
+
+    /* couldn't resolve file type lol */
+    return kEmexFileTypeUnknown;
 }

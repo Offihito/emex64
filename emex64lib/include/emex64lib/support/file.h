@@ -25,20 +25,38 @@
 #ifndef EMEX64_FILE_H
 #define EMEX64_FILE_H
 
+#include <stdint.h>
 #include <stdbool.h>
+
+typedef enum: uint8_t {
+    kEmexFileTypeUnknown,
+    kEmexFileTypeDirectory,
+    kEmexFileTypeAssembly,
+    kEmexFileTypeAssemblyIncludation,
+    kEmexFileTypeC,
+    kEmexFileTypeCHeader,
+    kEmexFileTypeCXX,
+    kEmexFileTypeCXXHeader,
+    kEmexFileTypeObjC,
+    kEmexFileTypeObjCXX,
+    kEmexFileTypeObject
+} kEmexFileType;
 
 typedef struct emex_file {
     char *path;
     char *code;
     size_t len;
     bool is_unsaved;
+    kEmexFileType type;
 } emex_file_t;
 
 emex_file_t *emex_file_alloc(const char *path);
-emex_file_t *emex_file_alloc_unsaved(const char *path, const char *content, size_t len);
+emex_file_t *emex_file_alloc_unsaved(const char *path, const char *content);
 void emex_file_dealloc(emex_file_t *f);
 
 bool emex_file_open(emex_file_t *f);
 void emex_file_close(emex_file_t *f);
+
+kEmexFileType emex_file_type_for_path(const char *path);
 
 #endif /* EMEX64_FILE_H */

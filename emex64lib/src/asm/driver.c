@@ -306,18 +306,20 @@ bool assembler_driver_predrive(assembler_driver_t *driver,
             value[val_len] = '\0';
 
         early_macro_append:
-            uint64_t macro_slot = driver->macro_cnt++;
-            if(driver->macro == NULL)
             {
-                driver->macro = calloc(driver->macro_cnt, sizeof(assembler_macro_definition_t));
-            }
-            else
-            {
-                driver->macro = realloc(driver->macro, driver->macro_cnt * sizeof(assembler_macro_definition_t));
-            }
+                uint64_t macro_slot = driver->macro_cnt++;
+                if(driver->macro == NULL)
+                {
+                    driver->macro = calloc(driver->macro_cnt, sizeof(assembler_macro_definition_t));
+                }
+                else
+                {
+                    driver->macro = realloc(driver->macro, driver->macro_cnt * sizeof(assembler_macro_definition_t));
+                }
 
-            driver->macro[macro_slot].match = match;
-            driver->macro[macro_slot].value = value;
+                driver->macro[macro_slot].match = match;
+                driver->macro[macro_slot].value = value;
+            }
         }
         else if(strncmp(argv[i], "-I", 2) == 0)
         {
